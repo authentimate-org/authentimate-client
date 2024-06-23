@@ -1,8 +1,7 @@
+// In canvasFunctions.ts
 import { fabric } from 'fabric';
 
-export let canvas: fabric.Canvas;
-
-export const setupCanvas = (canvasElement: HTMLCanvasElement) => {
-    canvas = new fabric.Canvas(canvasElement);
-    canvas.setBackgroundColor('white', canvas.renderAll.bind(canvas));
+export const setupCanvas = (canvas: fabric.Canvas) => {
+  // Any initial setup for your canvas
+  canvas.setBackgroundColor('#f0f0f0', canvas.renderAll.bind(canvas));
 };

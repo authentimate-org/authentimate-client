@@ -1,20 +1,25 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { v4 as uuidv4 } from 'uuid';
 
-export interface TextItem {
-  id: string|null;
+interface TextItem {
+  id: string;
   content: string;
   color: string;
-  fontStyle: '' | 'normal' | 'italic' | 'oblique';
+  fontStyle: "normal" | "italic";
+  fontWeight: "normal" | "bold";
+  underline: boolean;
   size: number;
+  left: number;
+  top: number;
 }
 
 interface CanvasState {
   texts: TextItem[];
+  selectedTextId: string | null;
 }
 
 const initialState: CanvasState = {
   texts: [],
+  selectedTextId: null,
 };
 
 const canvasSlice = createSlice({
@@ -22,16 +27,45 @@ const canvasSlice = createSlice({
   initialState,
   reducers: {
     addText: (state, action: PayloadAction<Omit<TextItem, 'id'>>) => {
-      state.texts.push({ id: uuidv4(), ...action.payload });
+      state.texts.push({ ...action.payload, id: Date.now().toString() });
     },
-    updateText: (state, action: PayloadAction<TextItem>) => {
-      const index = state.texts.findIndex(text => text.id === action.payload.id);
-      if (index !== -1) {
-        state.texts[index] = action.payload;
+    setSelectedText: (state, action: PayloadAction<string>) => {
+      state.selectedTextId = action.payload;
+    },
+    updateText: (state, action: PayloadAction<{ id: string, updates: Partial<TextItem> }>) => {
+      const text = state.texts.find(t => t.id === action.payload.id);
+      if (text) {
+        Object.assign(text, action.payload.updates);
+      }
+    },
+    toggleBold: (state) => {
+      const text = state.texts.find(t => t.id === state.selectedTextId);
+      if (text) {
+        text.fontWeight = text.fontWeight === 'bold' ? 'normal' : 'bold';
+      }
+    },
+    toggleItalic: (state) => {
+      const text = state.texts.find(t => t.id === state.selectedTextId);
+      if (text) {
+        text.fontStyle = text.fontStyle === 'italic' ? 'normal' : 'italic';
+      }
+    },
+    toggleUnderline: (state) => {
+      const text = state.texts.find(t => t.id === state.selectedTextId);
+      if (text) {
+        text.underline = !text.underline;
       }
     },
   },
 });
 
-export const { addText, updateText } = canvasSlice.actions;
+export const { 
+  addText, 
+  setSelectedText, 
+  updateText, 
+  toggleBold, 
+  toggleItalic, 
+  toggleUnderline 
+} = canvasSlice.actions;
+
 export default canvasSlice.reducer;

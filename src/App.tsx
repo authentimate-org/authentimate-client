@@ -8,15 +8,17 @@ import Login from "./components/auth/login";
 import Main from "./components/layout/Main";
 import Dashboard from "./components/dashboard/Dashboard";
 import CreateProject from "./components/createProject/CreateProject";
+import CanvasMain from "./components/canvas/CanvasMain";  // Import CanvasMain
 
 function App() {
-  const { initializeAuthListener, isAuthenticated ,isInitializing} = useAuth();
+  const { initializeAuthListener, isAuthenticated, isInitializing } = useAuth();
+
   useEffect(() => {
     initializeAuthListener();
   }, [initializeAuthListener]);
 
-  if(isInitializing){
-    return(<div>Loading</div>)
+  if (isInitializing) {
+    return (<div>Loading</div>);
   }
 
   return (
@@ -29,8 +31,9 @@ function App() {
           path="/"
           element={isAuthenticated ? <Main /> : <Navigate to="/login" />}
         >
-          <Route path="/dashboard" element={<Dashboard/>}/>
-          <Route path="/create-project" element={<CreateProject/>}/>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/create-project" element={<CreateProject />} />
+          <Route path="/canvas" element={<CanvasMain />} />  {/* Add this line */}
         </Route>
       </Routes>
     </>
