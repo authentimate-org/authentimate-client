@@ -1,44 +1,73 @@
-// import React, { useState } from 'react';
+import React, { useContext } from "react";
+import { CanvasContext } from "./CanvasContainer";
 
-import React from 'react';
-import { useDispatch } from "react-redux";
-import { Button } from "../ui/button";
-import { addText } from "@/services/canvas/canvasSlice";
+export const sizeList = [
+  "8px",
+  "9px",
+  "10px",
+  "11px",
+  "12px",
+  "14px",
+  "16px",
+  "18px",
+  "20px",
+  "72px"
+];
 
-const Toolbar = () => {
-  const dispatch = useDispatch();
-  // const [showTextOptions, setShowTextOptions] = useState(false);
-  let textCount = 0;
+export const fontList = [
+  "Arial",
+  "Arial Black",
+  "Arial Unicode MS",
+  "Calibri",
+  "Cambria",
+  "Cambria Math",
+  "Candara",
+  `Segoe UI, wf_segoe-ui_normal, helvetica, arial, sans-serif`,
+  "Comic Sans MS",
+  "Consolas",
+  "Constantia",
+  "Corbel",
+  "Courier New",
+  "Georgia",
+  "Lucida Sans Unicode",
+  "Tahoma",
+  "Times New Roman",
+  "Trebuchet MS",
+  "Verdana"
+];
 
-  const handleAddText = () => {
-    textCount++;
-    const newText = {
-      id: Date.now().toString(), // Add this line to generate a unique id
-      content: `Text ${textCount}`,
-      color: "#000000",
-      fontStyle: "normal" as "normal" | "italic",
-      fontWeight: "normal" as "normal" | "bold",
-      underline: false,
-      size: 20,
-      left: 50 + (textCount * 10),
-      top: 50 + (textCount * 10),
-    };
-    dispatch(addText(newText));
-    // setShowTextOptions(true);
+interface IToolbarProps {
+  isEditEnable: boolean;
+}
+
+export default function Toolbar({ isEditEnable }: IToolbarProps) {
+  const { actions } = useContext(CanvasContext);
+  
+  const addElement = (type: string) => {
+    actions?.addElement(type);
   };
 
+  const handleBackgroundColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    actions?.setBackgroundColor(e.target.value);
+  
+}
   return (
-    <div className="h-auto bg-slate-200 w-64">
-      <Button onClick={handleAddText}>Add Text</Button>
-      {/* {showTextOptions && (
-        <div>
-          <Button onClick={() => dispatch({ type: 'TOGGLE_BOLD' })}>B</Button>
-          <Button onClick={() => dispatch({ type: 'TOGGLE_ITALIC' })}>I</Button>
-          <Button onClick={() => dispatch({ type: 'TOGGLE_UNDERLINE' })}>U</Button>
-        </div>
-      )} */}
+    <div className="vertical-toolbar">
+      <div className="toolbar-item" onClick={() => addElement("TEXT")}>
+        T
+      </div>
+      <div className="toolbar-item" onClick={() => addElement("IMAGE")}>
+        I
+      </div>
+      <div className="toolbar-item">
+        <input
+          type="color"
+        //   value={state?.backgroundColor}
+          onChange={handleBackgroundColorChange}
+          title="Change background color"
+        />
+      </div>
     </div>
   );
-};
 
-export default Toolbar;
+}
