@@ -1,4 +1,4 @@
-// services/projectApi.ts
+// src/services/projectApi.ts
 import { api } from '../api';
 
 export interface CreateProjectRequest {
@@ -7,7 +7,19 @@ export interface CreateProjectRequest {
 }
 
 export interface CreateProjectResponse {
+  createdProject: any;
+  stage: string;
+  _id: string; 
+  projectName: string;
+  category: string;
   message: string;
+}
+
+export interface Template {
+  _id: string;
+  name: string;
+  description: string;
+  svg: string;
 }
 
 const projectApi = api.injectEndpoints({
@@ -19,9 +31,12 @@ const projectApi = api.injectEndpoints({
         body: project,
       }),
     }),
+    fetchTemplates: builder.query<Template[], void>({
+      query: () => '/project/templates',
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useCreateProjectMutation } = projectApi;
+export const { useCreateProjectMutation, useFetchTemplatesQuery } = projectApi;
 export default projectApi;

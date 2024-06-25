@@ -4,7 +4,6 @@ import SecondStep from "./SecondStep";
 import ThirdStep from "./ThirdStep";
 import LastStep from "./LastStep";
 import MultiStepProgressBar from "./MultiStepProgressBar";
-import CanvasMain from "../canvas/CanvasMain";
 
 interface UserInput {
   projectName: string;
@@ -16,7 +15,8 @@ interface UserInput {
 
 const CreateProject: React.FC = () => {
   const [page, setPage] = useState<number>(0);
-
+  const [projectId, setProjectId] = useState<string>("");
+  const [template, setTemplate] = useState<string>("");
   const [userInput, setUserInput] = useState<UserInput>({
     projectName: "",
     TitleName: "",
@@ -24,9 +24,15 @@ const CreateProject: React.FC = () => {
     workspaceUrl: "",
     checkboxValue: "",
   });
+  const [templateSelected, setTemplateSelected] = useState<boolean>(false);
 
-  // Proceed to next step
-  const nextStep = () => {
+  const nextStep = (idOrTemplate?: string) => {
+    if (page === 0 && idOrTemplate) {
+      setProjectId(idOrTemplate);
+    } else if (page === 1 && idOrTemplate) {
+      setTemplate(idOrTemplate);
+      setTemplateSelected(true);
+    }
     setPage((currPage) => currPage + 1);
   };
 
@@ -42,7 +48,6 @@ const CreateProject: React.FC = () => {
     "We'll streamline your setup experience accordingly.",
   ];
 
-  // Handle field changes
   const handleChange =
     (input: keyof UserInput) => (e: ChangeEvent<HTMLInputElement>) => {
       setUserInput({ ...userInput, [input]: e.target.value });
@@ -55,7 +60,18 @@ const CreateProject: React.FC = () => {
       case 1:
         return <SecondStep nextStep={nextStep} handleChange={handleChange} />;
       case 2:
-        return <ThirdStep nextStep={nextStep} handleChange={handleChange} />;
+        if (!templateSelected) {
+          setPage(1);
+          return null;
+        }
+        return (
+          <ThirdStep
+            projectId={projectId}
+            template={template}
+            nextStep={nextStep}
+            handleChange={handleChange}
+          />
+        );
       case 3:
         return <LastStep nextStep={nextStep} handleChange={handleChange} />;
       default:
@@ -65,8 +81,7 @@ const CreateProject: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center App mt-16">
-      <CanvasMain/>
-      {/* <div className="w-3/4 md:w-1/2 lg:w-1/3">
+      <div className="w-3/4 md:w-1/2 lg:w-1/3">
         <MultiStepProgressBar step={page} />
       </div>
       <div className="w-full p-8 space-y-8 bg-white rounded-lg shadow-md">
@@ -81,7 +96,7 @@ const CreateProject: React.FC = () => {
           </p>
         </div>
         <div>{PageDisplay()}</div>
-      </div> */}
+      </div>
     </div>
   );
 };

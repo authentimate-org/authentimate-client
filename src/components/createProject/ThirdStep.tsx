@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+// src/components/ThirdStep.tsx
+import React from "react";
+import CanvasMain from "../canvas/CanvasMain";
+import { useDispatch } from "react-redux";
+import { setStage, ProjectStage } from "../../services/project/projectSlice";
 
 interface ThirdStepProps {
-  handleChange: (input: keyof UserInput) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  projectId: string;
+  template: string;
   nextStep: () => void;
+  handleChange: (input: keyof UserInput) => (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
-
 interface UserInput {
   projectName: string;
   TitleName: string;
@@ -13,63 +18,26 @@ interface UserInput {
   checkboxValue: string;
 }
 
-const ThirdStep: React.FC<ThirdStepProps> = (props) => {
-  const [selectedOption, setSelectedOption] = useState<string>("");
+const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, template, nextStep }) => {
+  const dispatch = useDispatch();
 
-  const handleOptionChange = (value: string) => {
-    setSelectedOption(value);
-    props.handleChange("checkboxValue")(value as any); // TypeScript workaround for type assertion
+  const handleNextStep = () => {
+    dispatch(setStage(ProjectStage.TEMPLATE_FINALISED));
+    nextStep();
   };
 
   return (
-    <>
-      <div className="card-container max-w-md mx-auto ">
-        <label
-          className={`card-input cursor-pointer ${
-            selectedOption === "Individual" ? "bg-green-100" : "bg-white"
-          }`}
-        >
-          <input
-            type="radio"
-            className="card-input-element hidden"
-            onChange={() => handleOptionChange("Individual")}
-            checked={selectedOption === "Individual"}
-          />
-          <div className="card-body p-4 border rounded-lg shadow-md hover:shadow-lg">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">For myself</h3>
-            <p className="text-gray-600">
-              Write better things more clearly. Stay organized.
-            </p>
-          </div>
-        </label>
-
-        <label
-          className={`card-input cursor-pointer ${
-            selectedOption === "Company" ? "bg-blue-300" : "bg-white"
-          }`}
-        >
-          <input
-            type="radio"
-            className="card-input-element hidden"
-            onChange={() => handleOptionChange("Company")}
-            checked={selectedOption === "Company"}
-          />
-          <div className="card-body p-4 border rounded-lg shadow-md hover:shadow-lg">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">With my team</h3>
-            <p className="text-gray-600">
-              Wikis, docs, tasks, and projects, all in one place.
-            </p>
-          </div>
-        </label>
-      </div>
-
+    <div className="max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Project ID: {projectId}</h2>
+      <h3 className="text-xl mb-4">Selected Template: {template}</h3>
+      <CanvasMain projectId={projectId} template={template} />
       <button
-        onClick={props.nextStep}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 block mx-auto"
+        onClick={handleNextStep}
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
       >
         Next
       </button>
-    </>
+    </div>
   );
 };
 

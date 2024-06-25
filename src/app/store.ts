@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { api } from '../api/api';
 import authReducer from '../services/auth/authSlice';
 import canvasReducer from '../services/canvas/canvasSlice';
-// import { createSerializableStateInvariantMiddleware } from '@reduxjs/toolkit';
+import projectReducer from '../services/project/projectSlice';
 
 
 const store = configureStore({
@@ -11,6 +11,7 @@ const store = configureStore({
     // user: authReducer,
     auth: authReducer,
     canvas:canvasReducer,
+    project: projectReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware),

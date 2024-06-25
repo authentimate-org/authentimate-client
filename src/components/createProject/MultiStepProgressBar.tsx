@@ -1,7 +1,7 @@
 import React from "react";
 import "react-step-progress-bar/styles.css";
 import { ProgressBar, Step } from "react-step-progress-bar";
-import "./MultiStepProgressBar.css"; // Ensure this file contains only necessary CSS for react-step-progress-bar if needed
+import "./MultiStepProgressBar.css"; 
 
 interface MultiStepProgressBarProps {
   step: number;

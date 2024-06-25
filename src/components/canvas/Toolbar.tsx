@@ -14,7 +14,7 @@ const Toolbar = () => {
     dispatch(addText(newText));
   };
   return (
-    <div className="h-auto bg-slate-200 w-64">
+    <div className="h-auto bg-slate-200 w-20">
       <Button onClick={handleAddText}>Add Text</Button>
     </div>
   );
