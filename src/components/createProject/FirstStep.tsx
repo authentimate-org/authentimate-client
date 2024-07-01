@@ -1,13 +1,10 @@
-// src/components/FirstStep.tsx
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useCreateProjectMutation } from '@/api/project/projectApi';
 import { setProjectId, setStage, ProjectStage } from '../../services/project/projectSlice';
 
 interface FirstStepProps {
-  handleChange: (
-    input: keyof UserInput
-  ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (input: keyof UserInput) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   nextStep: (projectId: string, stage: string) => void;
 }
 
@@ -19,7 +16,7 @@ interface UserInput {
   checkboxValue: string;
 }
 
-const FirstStep: React.FC<FirstStepProps> = (props) => {
+const FirstStep: React.FC<FirstStepProps> = ({ handleChange, nextStep }) => {
   const [projectName, setProjectName] = useState('');
   const [category, setCategory] = useState('');
   const [createProject, { isLoading, isSuccess, isError, data }] = useCreateProjectMutation();
@@ -31,9 +28,9 @@ const FirstStep: React.FC<FirstStepProps> = (props) => {
       const stage = String(data.createdProject.stage);
       dispatch(setProjectId(projectId));
       dispatch(setStage(ProjectStage.PROJECT_CREATED));
-      props.nextStep(projectId, stage);
+      nextStep(projectId, stage);
     }
-  }, [isSuccess, data, props, dispatch]);
+  }, [isSuccess, data, nextStep, dispatch]);
 
   const handleCreateProject = async () => {
     if (projectName && category) {

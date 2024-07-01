@@ -1,4 +1,3 @@
-// src/components/SecondStep.tsx
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setTemplate, setStage, ProjectStage } from "../../services/project/projectSlice";
@@ -24,10 +23,10 @@ const SecondStep: React.FC<SecondStepProps> = (props) => {
   const dispatch = useDispatch();
   const { data: templates, isLoading, isError } = useFetchTemplatesQuery();
 
-  const handleTemplateSelect = (template: string) => {
-    setSelectedTemplate(template);
+  const handleTemplateSelect = (templateId: string) => {
+    setSelectedTemplate(templateId);
     const event = {
-      target: { value: template },
+      target: { value: templateId },
     } as React.ChangeEvent<HTMLInputElement>;
 
     props.handleChange("checkboxValue")(event);
@@ -69,12 +68,16 @@ const SecondStep: React.FC<SecondStepProps> = (props) => {
             checked={selectedTemplate === template._id}
           />
           <div className="flex items-center">
-            <div dangerouslySetInnerHTML={{ __html: template.svg }} className="h-12 w-12 text-gray-800" />
+            <img
+              src={template.templateImageURL}
+              alt={`Template ${template._id}`}
+              className="h-12 w-12 text-gray-800"
+            />
             <div className="ml-4">
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                {template.name}
+                Template {template._id}
               </h3>
-              <p className="text-gray-600">{template.description}</p>
+              <p className="text-gray-600">{template.bgColor}</p>
             </div>
           </div>
         </label>
