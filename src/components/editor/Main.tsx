@@ -1,3 +1,4 @@
+// src/components/editor/Main.tsx
 import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import { useParams } from "react-router-dom";
@@ -7,44 +8,50 @@ import { IoDuplicateOutline } from "react-icons/io5";
 import { TfiText } from "react-icons/tfi";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { RxTransparencyGrid } from "react-icons/rx";
-import TemplateDesign from "./main/TemplateDesign";
-import MyImages from "./Myimages";
-import Projects from "./Projects";
-import CreateComponente from "./CreateComponent";
-import api from "../utils/api";
-import InitialImage from "./InitialImage";
-import BackgroundImages from "./BackgroundImages";
+// import TemplateDesign from "./main/TemplateDesign";
+import CreateComponent from "./CreateComponent";
+import { useFetchTemplateByIdQuery } from "@/api/project/projectApi";
+import { stringify } from "querystring";
 
 interface Component {
+  rotateElement(id: string, info: Component): void;
+  resizeElement(elementId: string, info: Component): void;
+  id: string;
   name: string;
-  type: string;
-  id: number;
-  height?: number;
+  type?: string;
   width?: number;
-  z_index?: number;
+  height?: number;
   color?: string;
+  z_index?: number;
   image?: string;
   left?: number;
   top?: number;
-  opacity?: number;
   rotate?: number;
+  opacity?: number;
   padding?: number;
   font?: number;
   weight?: number;
   title?: string;
   radius?: number;
-  setCurrentComponent: (a: any) => void;
-  moveElement?: (id: number, currentInfo: any) => void;
-  resizeElement?: (id: number, currentInfo: any) => void;
-  rotateElement?: (id: number, currentInfo: any) => void;
-  remove_background?: () => void;
+  setCurrentComponent: (info: Component) => void;
+  moveElement: (id: string, info: Component) => void;
+  fontFamily?: string;
 }
 
-const Main: React.FC = () => {
-  const [selectItem, setSelectItem] = useState<string | number>("");
+interface MainProps {
+  projectId: string;
+  template: string;
+}
+
+type Template = Component[];
+
+const Main: React.FC<MainProps> = ({ projectId, template }) => {
+  const [selectItem, setSelectItem] = useState<string>("");
   const { design_id } = useParams<{ design_id: string }>();
   const [state, setState] = useState<string>("");
-  const [current_component, setCurrentComponent] = useState<Component | null>(null);
+  const [current_component, setCurrentComponent] = useState<Component | null>(
+    null
+  );
   const [color, setColor] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [rotate, setRotate] = useState<number>(0);
@@ -54,7 +61,13 @@ const Main: React.FC = () => {
   const [height, setHeight] = useState<number | string>("");
   const [opacity, setOpacity] = useState<number | string>("");
   const [zIndex, setzIndex] = useState<number | string>("");
-  const fontFamilies = ["Arial", "Verdana", "Times New Roman", "Courier New", "Georgia"];
+  const fontFamilies = [
+    "Arial",
+    "Verdana",
+    "Times New Roman",
+    "Courier New",
+    "Georgia",
+  ];
 
   const [padding, setPadding] = useState<number | string>("");
   const [font, setFont] = useState<number | string>("");
@@ -66,18 +79,26 @@ const Main: React.FC = () => {
     status: true,
     name: "",
   });
-
   const [components, setComponents] = useState<Component[]>([
     {
       name: "main_frame",
       type: "rect",
-      id: Math.floor(Math.random() * 100 + 1),
+      id: String(Math.floor(Math.random() * 100 + 1)),
       height: 450,
       width: 650,
       z_index: 1,
       color: "#fff",
       image: "",
       setCurrentComponent: (a) => setCurrentComponent(a),
+      rotateElement: function (id: string, info: Component): void {
+        throw new Error("Function not implemented.");
+      },
+      resizeElement: function (elementId: string, info: Component): void {
+        throw new Error("Function not implemented.");
+      },
+      moveElement: function (id: string, info: Component): void {
+        throw new Error("Function not implemented.");
+      },
     },
   ]);
 
@@ -89,11 +110,11 @@ const Main: React.FC = () => {
     });
   };
 
-  const moveElement = (id: number, currentInfo: Component) => {
+  const moveElement = (id: string, currentInfo: Component) => {
     setCurrentComponent(currentInfo);
     let isMoving = true;
 
-    const currentDiv = document.getElementById(id.toString());
+    const currentDiv = document.getElementById(id);
 
     const mouseMove = ({ movementX, movementY }: MouseEvent) => {
       setSelectItem("");
@@ -122,12 +143,12 @@ const Main: React.FC = () => {
     };
   };
 
-  const resizeElement = (id: number, currentInfo: Component) => {
+  const resizeElement = (id: string, currentInfo: Component) => {
     setCurrentComponent(currentInfo);
 
     let isMoving = true;
 
-    const currentDiv = document.getElementById(id.toString());
+    const currentDiv = document.getElementById(id);
 
     const mouseMove = ({ movementX, movementY }: MouseEvent) => {
       const getStyle = window.getComputedStyle(currentDiv!);
@@ -154,10 +175,10 @@ const Main: React.FC = () => {
     };
   };
 
-  const rotateElement = (id: number, currentInfo: Component) => {
+  const rotateElement = (id: string, currentInfo: Component) => {
     setCurrentComponent(currentInfo);
 
-    const target = document.getElementById(id.toString());
+    const target = document.getElementById(id);
 
     const mouseMove = ({ movementX, movementY }: MouseEvent) => {
       const getStyle = window.getComputedStyle(target!);
@@ -166,7 +187,10 @@ const Main: React.FC = () => {
 
       const values = trans.split("(")[1].split(")")[0].split(",");
 
-      const angle = Math.round(Math.atan2(parseFloat(values[1]), parseFloat(values[0])) * (180 / Math.PI));
+      const angle = Math.round(
+        Math.atan2(parseFloat(values[1]), parseFloat(values[0])) *
+          (180 / Math.PI)
+      );
 
       let deg = angle < 0 ? angle + 360 : angle;
 
@@ -182,7 +206,10 @@ const Main: React.FC = () => {
       const getStyle = window.getComputedStyle(target!);
       const trans = getStyle.transform;
       const values = trans.split("(")[1].split(")")[0].split(",");
-      const angle = Math.round(Math.atan2(parseFloat(values[1]), parseFloat(values[0])) * (180 / Math.PI));
+      const angle = Math.round(
+        Math.atan2(parseFloat(values[1]), parseFloat(values[0])) *
+          (180 / Math.PI)
+      );
       let deg = angle < 0 ? angle + 360 : angle;
       setRotate(deg);
     };
@@ -195,14 +222,15 @@ const Main: React.FC = () => {
     };
   };
 
-  const removeComponent = (id: number) => {
+  const removeComponent = (id: string) => {
     const temp = components.filter((c) => c.id !== id);
     setCurrentComponent(null);
     setComponents(temp);
   };
+
   const duplicate = (current: Component) => {
     if (current) {
-      setComponents([...components, { ...current, id: Date.now() }]);
+      setComponents([...components, { ...current, id: Date.now().toString() }]);
     }
   };
 
@@ -222,7 +250,7 @@ const Main: React.FC = () => {
 
   const createShape = (name: string, type: string) => {
     setCurrentComponent(null);
-    const id = Date.now();
+    const id = Date.now().toString();
     const style: Component = {
       id: id,
       name: name,
@@ -240,14 +268,14 @@ const Main: React.FC = () => {
       resizeElement,
       rotateElement,
     };
-    setSelectItem(id);
+    setSelectItem(id); // Ensure selectItem is a string
     setCurrentComponent(style);
     setComponents([...components, style]);
   };
 
   const add_text = (name: string, type: string) => {
     setCurrentComponent(null);
-    const id = Date.now();
+    const id = Date.now().toString();
     const style: Component = {
       id: id,
       name: name,
@@ -267,17 +295,17 @@ const Main: React.FC = () => {
       resizeElement,
       rotateElement,
     };
-
+    console.log(style);
     setWeight("");
     setFont("");
-    setSelectItem(id);
+    setSelectItem(id); // Ensure selectItem is a string
     setCurrentComponent(style);
     setComponents([...components, style]);
   };
 
   const add_image = (img: string) => {
     setCurrentComponent(null);
-    const id = Date.now();
+    const id = Date.now().toString();
     const style: Component = {
       id: id,
       name: "image",
@@ -308,14 +336,29 @@ const Main: React.FC = () => {
       const temp = components.filter((c) => c.id !== current_component.id);
 
       if (current_component.name !== "text") {
-        components[index].width = width || current_component.width;
-        components[index].height = height || current_component.height;
+        components[index].width =
+          typeof width === "string"
+            ? parseInt(width)
+            : width || current_component.width;
+        components[index].height =
+          typeof height === "string"
+            ? parseInt(height)
+            : height || current_component.height;
         components[index].rotate = rotate || current_component.rotate;
       }
       if (current_component.name === "text") {
-        components[index].font = font || current_component.font;
-        components[index].padding = padding || current_component.padding;
-        components[index].weight = weight || current_component.weight;
+        components[index].font =
+          typeof font === "string"
+            ? parseInt(font)
+            : font || current_component.font;
+        components[index].padding =
+          typeof padding === "string"
+            ? parseInt(padding)
+            : padding || current_component.padding;
+        components[index].weight =
+          typeof weight === "string"
+            ? parseInt(weight)
+            : weight || current_component.weight;
         components[index].title = text || current_component.title;
       }
       if (current_component.name === "image") {
@@ -328,10 +371,22 @@ const Main: React.FC = () => {
       components[index].color = color || current_component.color;
 
       if (current_component.name !== "main_frame") {
-        components[index].left = left || current_component.left;
-        components[index].top = top || current_component.top;
-        components[index].opacity = opacity || current_component.opacity;
-        components[index].z_index = zIndex || current_component.z_index;
+        components[index].left =
+          typeof left === "string"
+            ? parseInt(left)
+            : left || current_component.left;
+        components[index].top =
+          typeof top === "string"
+            ? parseInt(top)
+            : top || current_component.top;
+        components[index].opacity =
+          typeof opacity === "string"
+            ? parseFloat(opacity)
+            : opacity || current_component.opacity;
+        components[index].z_index =
+          typeof zIndex === "string"
+            ? parseInt(zIndex)
+            : zIndex || current_component.z_index;
       }
       setComponents([...components]);
 
@@ -362,31 +417,40 @@ const Main: React.FC = () => {
     rotate,
   ]);
 
-  useEffect(() => {
-    const get_design = async () => {
-      try {
-        const { data } = await api.get(`/api/user-design/${design_id}`);
-        console.log(data);
-        const { design } = data;
+  const {
+    data: templateData,
+    isLoading,
+    isError,
+  } = useFetchTemplateByIdQuery(template);
 
-        for (let i = 0; i < design.length; i++) {
-          design[i].setCurrentComponent = (a) => setCurrentComponent(a);
-          design[i].moveElement = moveElement;
-          design[i].resizeElement = resizeElement;
-          design[i].rotateElement = rotateElement;
-          design[i].remove_background = remove_background;
-        }
-        setComponents(design);
-      } catch (error) {
-        console.log(error);
+  useEffect(() => {
+    if (templateData && Array.isArray(templateData)) {
+      const design: Template = templateData as Template;
+      for (let i = 0; i < design.length; i++) {
+        design[i].setCurrentComponent = setCurrentComponent;
+        design[i].moveElement = moveElement;
+        design[i].resizeElement = resizeElement;
+        design[i].rotateElement = rotateElement;
+        // design[i].remove_background = remove_background;
       }
-    };
-    get_design();
-  }, [design_id]);
+      setComponents(design);
+    } else {
+      console.error("Template data is undefined or not an array");
+    }
+  }, [templateData]);
+
+  if (isLoading) {
+    return <div>Loading template...</div>;
+  }
+
+  if (isError || !templateData) {
+    return <div>Error loading template</div>;
+  }
 
   return (
     <div className="min-w-screen h-screen bg-black">
-      <Header components={components} design_id={design_id} />
+      <Header components={components} design_id={design_id || ""} />
+      {/* Provide a default value */}
       <div className="flex h-[calc(100%-60px)] w-screen">
         <div className="w-[80px] bg-[#18191B] z-50 h-full text-gray-400 overflow-y-auto">
           <div
@@ -476,8 +540,8 @@ const Main: React.FC = () => {
         <div className="h-full w-[calc(100%-75px)]">
           <div
             className={`${
-              show.status ? "p-0 -left-[350px]" : "px-8 left-[75px] py-5"
-            } bg-[#252627] h-full fixed transition-all w-[350px] z-30 duration-700`}
+              show.status ? "p-0 -left-[350px]" : "px-8 left-[100px] py-5"
+            } bg-[#252627] h-[90%] absolute transition-all w-[350px] z-30 duration-700`}
           >
             <div
               onClick={() => setShow({ name: "", status: true })}
@@ -485,11 +549,11 @@ const Main: React.FC = () => {
             >
               <MdKeyboardArrowLeft />
             </div>
-            {state === "design" && (
+            {/* {state === "design" && (
               <div>
                 <TemplateDesign type="main" />
               </div>
-            )}
+            )} */}
             {state === "shape" && (
               <div className="grid grid-cols-3 gap-2">
                 <div
@@ -501,14 +565,13 @@ const Main: React.FC = () => {
                   className="h-[90px] bg-[#3c3c3d] cursor-pointer rounded-full"
                 ></div>
                 <div
-                  onClick={() => createShape("shape", "trangle")}
+                  onClick={() => createShape("shape", "triangle")}
                   style={{ clipPath: "polygon(50% 0,100% 100%,0 100%)" }}
                   className="h-[90px] bg-[#3c3c3d] cursor-pointer"
                 ></div>
               </div>
             )}
-            {state === "image" && <MyImages add_image={add_image} />}
-            {{state === "text" && (
+            {state === "text" && (
               <div>
                 <div className="grid grid-cols-1 gap-2">
                   <div
@@ -518,20 +581,6 @@ const Main: React.FC = () => {
                     <h2>Add a Text</h2>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {state === "project" && (
-              <Projects type="main" design_id={design_id} />
-            )}
-            {state === "initImage" && (
-              <div className="h-[88vh] overflow-x-auto flex justify-start items-start scrollbar-hide">
-                <InitialImage add_image={add_image} />
-              </div>
-            )}
-            {state === "background" && (
-              <div className="h-[88vh] overflow-x-auto flex justify-start items-start scrollbar-hide">
-                <BackgroundImages type="background" setImage={setImage} />
               </div>
             )}
           </div>
@@ -550,7 +599,7 @@ const Main: React.FC = () => {
                   className="w-auto relative h-auto overflow-hidden select-none"
                 >
                   {components.map((c, i) => (
-                    <CreateComponente
+                    <CreateComponent
                       selectItem={selectItem}
                       setSelectItem={setSelectItem}
                       key={i}
@@ -563,7 +612,7 @@ const Main: React.FC = () => {
               </div>
             </div>
             {current_component && (
-              <div className="h-full w-[250px] text-gray-300 bg-[#252627] px-3 py-2">
+              <div className="h-full w-[250px] text-gray-300 bg-[#252627] px-3 py-2 relative left-[-79px]">
                 <div className="flex gap-6 flex-col items-start h-full px-3 justify-start pt-4">
                   {current_component.name !== "main_frame" && (
                     <div className="flex justify-start items-center gap-5">
@@ -726,7 +775,9 @@ const Main: React.FC = () => {
                               value={current_component.title}
                             />
                             <button
-                              onClick={() => setText(current_component.title)}
+                              onClick={() =>
+                                setText(current_component.title || "")
+                              }
                               className="px-4 py-2 bg-purple-500 text-xs text-white rounded-sm"
                             >
                               Add

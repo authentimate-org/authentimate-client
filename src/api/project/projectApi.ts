@@ -14,6 +14,7 @@ export interface CreateProjectResponse {
 }
 
 export interface Template {
+  length: number;
   _id: string;
   texts: any[];
   recipientName: any;

@@ -4,28 +4,26 @@ import WorkSpace from "./WorkSpace";
 
 interface CanvasMainProps {
   projectId: string;
-  template: any;
+  template: any; 
 }
 
 const CanvasMain: React.FC<CanvasMainProps> = ({ projectId, template }) => {
-  // Render the template content
+
   function renderTemplate(): React.ReactNode {
-    // Check if the template has elements to render
-    if (template && template.elements && template.elements.length > 0) {
-      return (
+    // Implement the rendering logic for the template here
+    return (
+      <div>
+        {/* Example rendering logic */}
+        <h3>{template.name}</h3>
         <div>
-          {/* Example rendering logic for template elements */}
-          {template.elements.map((element: any) => (
-            <div key={element.id} className="template-element">
+          {template.elements && template.elements.map((element: any) => (
+            <div key={element.id}>
               <p>{element.content}</p>
-              {/* Add more rendering logic based on your element structure */}
             </div>
           ))}
         </div>
-      );
-    } else {
-      return <p>No elements to display in this template.</p>;
-    }
+      </div>
+    );
   }
 
   return (
