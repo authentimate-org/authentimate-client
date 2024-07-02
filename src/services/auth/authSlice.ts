@@ -36,22 +36,24 @@ export const registerUser = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const token = await userCredential.user.getIdToken();
-      const user = userCredential.user as FirebaseUser;
-      await axios.post(import.meta.env.VITE_BACKEND_API_BASE_URL_DEV+"/issuer/create",{
-        email:user.email,
-        uid:user.uid
+      // const userCredential = await createUserWithEmailAndPassword(
+      //   auth,
+      //   email,
+      //   password
+      // );
+      // const token = await userCredential.user.getIdToken();
+      // const user = userCredential.user as FirebaseUser;
+      const response = await axios.post(import.meta.env.VITE_BACKEND_API_BASE_URL_DEV+"/issuer/create",{
+        email: email,
+        password: password
       });
+
       const userData = {
-        uid: user.uid,
-        email: user.email,
-        emailVerified:user.emailVerified
+        uid: response.data.user.uid,
+        email: response.data.user.email,
+        emailVerified: response.data.user.emailVerified
       };
+      const token = response.data.user.token;
       return { user: userData, token };
       
     } catch (error: any) {
