@@ -10,6 +10,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import CreateProject from "./components/createProject/CreateProject";
 // import CanvasMain from "./components/canvas/CanvasMain";  // Import CanvasMain
 import "./components/canvas/styles.css"
+import { Recipients } from "./components/Recipients/recipients";
 
 function App() {
   const { initializeAuthListener, isAuthenticated, isInitializing } = useAuth();
@@ -24,6 +25,7 @@ function App() {
 
   return (
     <>
+    <Recipients/>
       <Routes>
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
