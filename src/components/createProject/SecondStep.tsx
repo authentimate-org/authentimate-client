@@ -52,6 +52,7 @@ const SecondStep: React.FC<SecondStepProps> = (props) => {
 
   return (
     <div className="space-y-4 max-w-sm mx-auto">
+    
       {templates.map((template) => (
         <label
           key={template._id}

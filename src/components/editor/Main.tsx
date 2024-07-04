@@ -2,17 +2,17 @@
 import React, { useEffect, useState } from "react";
 import Header from "./Header";
 import { useParams } from "react-router-dom";
-import { BsGrid1X2, BsFillImageFill, BsFolder } from "react-icons/bs";
+// import { BsGrid1X2, BsFillImageFill, BsFolder } from "react-icons/bs";
 import { FaShapes, FaCloudUploadAlt, FaTrash } from "react-icons/fa";
 import { IoDuplicateOutline } from "react-icons/io5";
 import { TfiText } from "react-icons/tfi";
 import { MdKeyboardArrowLeft } from "react-icons/md";
-import { RxTransparencyGrid } from "react-icons/rx";
-// import TemplateDesign from "./main/TemplateDesign";
+// import { RxTransparencyGrid } from "react-icons/rx";
+import TemplateDesign from "./main/TemplateDesign";
 import CreateComponent from "./CreateComponent";
 import { useFetchTemplateByIdQuery } from "@/api/project/projectApi";
-import { stringify } from "querystring";
-
+// import { stringify } from "querystring";
+import MyImages from "./Myimages";
 interface Component {
   rotateElement(id: string, info: Component): void;
   resizeElement(elementId: string, info: Component): void;
@@ -74,7 +74,11 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   const [weight, setWeight] = useState<number | string>("");
   const [text, setText] = useState<string>("");
   const [radius, setRadius] = useState<number>(0);
-
+  const handleClick = () => {
+     setElements("text", "text")
+     setShow({ name: "", status: true })
+    add_text("text", "title");
+  };
   const [show, setShow] = useState<{ status: boolean; name: string }>({
     status: true,
     name: "",
@@ -424,26 +428,31 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   } = useFetchTemplateByIdQuery(template);
 
   useEffect(() => {
-    if (templateData && Array.isArray(templateData)) {
-      const design: Template = templateData as Template;
-      for (let i = 0; i < design.length; i++) {
-        design[i].setCurrentComponent = setCurrentComponent;
-        design[i].moveElement = moveElement;
-        design[i].resizeElement = resizeElement;
-        design[i].rotateElement = rotateElement;
-        // design[i].remove_background = remove_background;
-      }
+  
+    if (templateData && templateData.graphicElements) {
+      const design = templateData.graphicElements.flatMap((array) => 
+        array.map((element: any) => ({
+          ...element,
+          setCurrentComponent: (a:any) => setCurrentComponent(a),
+          moveElement: moveElement,
+          resizeElement: resizeElement,
+          rotateElement: rotateElement,
+        }))
+      );
+  
+      console.log(design);
       setComponents(design);
     } else {
-      console.error("Template data is undefined or not an array");
+      console.error("Template data is undefined or does not contain graphicElements");
     }
   }, [templateData]);
-
+  
+  
   if (isLoading) {
     return <div>Loading template...</div>;
   }
 
-  if (isError || !templateData) {
+  if (isError || !templateData?.graphicElements) {
     return <div>Error loading template</div>;
   }
 
@@ -452,8 +461,8 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       <Header components={components} design_id={design_id || ""} />
       {/* Provide a default value */}
       <div className="flex h-[calc(100%-60px)] w-screen">
-        <div className="w-[80px] bg-[#18191B] z-50 h-full text-gray-400 overflow-y-auto">
-          <div
+        <div className="w-[80px] bg-[#252627] z-50 h-full text-gray-400 overflow-y-auto">
+          {/* <div
             onClick={() => setElements("design", "design")}
             className={` ${
               show.name === "design" ? "bg-[#252627]" : ""
@@ -463,9 +472,9 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
               <BsGrid1X2 />
             </span>
             <span className="text-xs font-medium">Design</span>
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             onClick={() => setElements("shape", "shape")}
             className={`${
               show.name === "shape" ? "bg-[#252627]" : ""
@@ -475,7 +484,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
               <FaShapes />
             </span>
             <span className="text-xs font-medium">Shapes</span>
-          </div>
+          </div> */}
 
           <div
             onClick={() => setElements("image", "uploadImage")}
@@ -490,7 +499,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
           </div>
 
           <div
-            onClick={() => setElements("text", "text")}
+            onClick={handleClick}
             className={`${
               show.name === "text" ? "bg-[#252627]" : ""
             } w-full h-[80px] cursor-pointer flex justify-center flex-col items-center gap-1 hover:text-gray-100`}
@@ -501,7 +510,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
             <span className="text-xs font-medium">Text</span>
           </div>
 
-          <div
+          {/* <div
             onClick={() => setElements("project", "projects")}
             className={`${
               show.name === "projects" ? "bg-[#252627]" : ""
@@ -511,9 +520,9 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
               <BsFolder />
             </span>
             <span className="text-xs font-medium">Project</span>
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             onClick={() => setElements("initImage", "images")}
             className={`${
               show.name === "images" ? "bg-[#252627]" : ""
@@ -523,9 +532,9 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
               <BsFillImageFill />
             </span>
             <span className="text-xs font-medium">Images</span>
-          </div>
+          </div> */}
 
-          <div
+          {/* <div
             onClick={() => setElements("background", "background")}
             className={`${
               show.name === "background" ? "bg-[#252627]" : ""
@@ -535,13 +544,13 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
               <RxTransparencyGrid />
             </span>
             <span className="text-xs font-medium">Background</span>
-          </div>
+          </div> */}
         </div>
         <div className="h-full w-[calc(100%-75px)]">
           <div
             className={`${
               show.status ? "p-0 -left-[350px]" : "px-8 left-[100px] py-5"
-            } bg-[#252627] h-[90%] absolute transition-all w-[350px] z-30 duration-700`}
+            } bg-[#6e7484] h-[92%] absolute transition-all w-[350px] z-30 duration-700`}
           >
             <div
               onClick={() => setShow({ name: "", status: true })}
@@ -549,11 +558,11 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
             >
               <MdKeyboardArrowLeft />
             </div>
-            {/* {state === "design" && (
+            {state === "design" && (
               <div>
                 <TemplateDesign type="main" />
               </div>
-            )} */}
+            )}
             {state === "shape" && (
               <div className="grid grid-cols-3 gap-2">
                 <div
@@ -571,7 +580,8 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                 ></div>
               </div>
             )}
-            {state === "text" && (
+            {state === "image" && <MyImages add_image={add_image} />}
+            {/* {state === "text" && (
               <div>
                 <div className="grid grid-cols-1 gap-2">
                   <div
@@ -582,7 +592,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
           </div>
 
           <div className="w-full flex h-full">
@@ -774,14 +784,22 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                               type="text"
                               value={current_component.title}
                             />
-                            <button
-                              onClick={() =>
-                                setText(current_component.title || "")
-                              }
-                              className="px-4 py-2 bg-purple-500 text-xs text-white rounded-sm"
-                            >
-                              Add
-                            </button>
+                            <div className="flex pl-5">
+                              <button
+                                onClick={() => add_text("text", "title")}
+                                className="px-4 py-2 bg-purple-500 text-xs text-white rounded-sm  mr-4"
+                              >
+                                Add
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setText(current_component.title || "")
+                                }
+                                className="px-4 py-2 bg-purple-500 text-xs text-white rounded-sm"
+                              >
+                                Update
+                              </button>
+                            </div>
                           </div>
                         </>
                       )}

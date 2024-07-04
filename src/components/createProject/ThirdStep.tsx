@@ -1,5 +1,5 @@
 // src/components/ThirdStep.tsx
-import React, { useEffect } from 'react';
+import React from 'react';
 // import CanvasMain from '../canvas/CanvasMain';
 import { useDispatch } from 'react-redux';
 import { setStage, ProjectStage } from '../../services/project/projectSlice';
@@ -23,9 +23,6 @@ interface UserInput {
 const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, template, nextStep }) => {
   const dispatch = useDispatch();
   const { data: templateData, isLoading, isError } = useFetchTemplateByIdQuery(template);
-  useEffect(()=>{
-      console.log(templateData);
-  })
   const handleNextStep = () => {
     dispatch(setStage(ProjectStage.TEMPLATE_FINALISED));
     nextStep();

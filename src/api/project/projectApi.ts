@@ -29,12 +29,18 @@ export interface BackgroundImage {
 export interface IntialImage {
   image_url: string;
 }
+
+export interface UserImage {
+  _id: string;
+  image_url: string;
+}
+export interface AddUserImageResponse {
+  userImage: UserImage;
+  data:UserImage;
+}
 const projectApi = api.injectEndpoints({
   endpoints: (builder) => ({
-    createProject: builder.mutation<
-      CreateProjectResponse,
-      CreateProjectRequest
-    >({
+    createProject: builder.mutation<CreateProjectResponse, CreateProjectRequest>({
       query: (project) => ({
         url: "/project/create",
         method: "POST",
@@ -53,14 +59,24 @@ const projectApi = api.injectEndpoints({
     fetchIntialImages: builder.query<IntialImage[], void>({
       query: () => ({ url: "/intial-images", method: "GET" }),
     }),
-    updateUserDesign: builder.mutation<
-      any,
-      { design_id: string; formData: FormData }
-    >({
+    updateUserDesign: builder.mutation<any, { design_id: string; formData: FormData }>({
       query: ({ design_id, formData }) => ({
         url: `/api/update-user-design/${design_id}`,
         method: "PUT",
         body: formData,
+      }),
+    }),
+    fetchAddUserImage: builder.mutation<AddUserImageResponse, FormData>({
+      query: (formData) => ({
+        url: "/project/image",
+        method: "POST",
+        body: formData,
+      }),
+    }),
+    fetchGetUserImage: builder.query<UserImage[], void>({
+      query: () => ({
+        url: "/project/image",
+        method: "GET",
       }),
     }),
   }),
@@ -74,5 +90,7 @@ export const {
   useFetchBackgroundImagesQuery,
   useFetchIntialImagesQuery,
   useUpdateUserDesignMutation,
+  useFetchAddUserImageMutation,
+  useFetchGetUserImageQuery,
 } = projectApi;
 export default projectApi;

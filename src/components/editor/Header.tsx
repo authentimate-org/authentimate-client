@@ -61,15 +61,15 @@ const Header: React.FC<HeaderProps> = ({ components, design_id }) => {
   };
 
   return (
-    <div className="h-[60px] bg-gradient-to-r from-[#212122] via-[#27282b] to-[#2a2b2c] w-full">
+    <div className="h-[60px] bg-gradient-to-r from-[#9494a1] via-[#7a8091] to-[#606a74] w-full">
       <div className="flex justify-between px-10 items-center text-gray-300 h-full">
-        <Link to="/">
+        {/* <Link to="/">
           <img
             src="https://static.canva.com/web/images/12487a1e0770d29351bd4ce4f87ec8fe.svg"
-            alt="Images"
+            alt="AutiMate"
           />
-        </Link>
-        <span className="text-xl">AuthentiMate</span>
+        </Link> */}
+        <span className="text-xl" style={{color:"white"}}>AuthentiMate</span>
         <div className="flex justify-center items-center gap-2 text-gray-300">
           <button
             disabled={loader}
