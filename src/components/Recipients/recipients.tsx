@@ -1,12 +1,10 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import * as XLSX from 'xlsx';
 
 export function Recipients() {
-  const [manualRecipients, setManualRecipients] = useState<{ name: string; email: string }[]>([]);
-  const [uploadedRecipients, setUploadedRecipients] = useState<{ name: string; email: string }[]>([]);
+  const [recipients, setRecipients] = useState<{ name: string; email: string }[]>([]);
   const [showAddRecipientForm, setShowAddRecipientForm] = useState(false);
   const [newRecipientName, setNewRecipientName] = useState("");
   const [newRecipientEmail, setNewRecipientEmail] = useState("");
@@ -21,7 +19,7 @@ export function Recipients() {
   };
 
   const isEmailDuplicate = (email: string) => {
-    return manualRecipients.some(r => r.email === email) || uploadedRecipients.some(r => r.email === email);
+    return recipients.some(r => r.email === email);
   };
 
   const handleSubmitRecipient = () => {
@@ -29,7 +27,7 @@ export function Recipients() {
       if (isEmailDuplicate(newRecipientEmail)) {
         setErrorMessage("Error: This email already exists in the recipients list.");
       } else {
-        setManualRecipients([...manualRecipients, { name: newRecipientName, email: newRecipientEmail }]);
+        setRecipients([...recipients, { name: newRecipientName, email: newRecipientEmail }]);
         setNewRecipientName("");
         setNewRecipientEmail("");
         setShowAddRecipientForm(false);
@@ -46,8 +44,22 @@ export function Recipients() {
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: ['name', 'email'] });
-        resolve(jsonData as { name: string; email: string }[]);
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as string[][];
+
+        // Check if the first row contains headers
+        const hasHeaders = jsonData[0].some(cell => 
+          typeof cell === 'string' && ['name', 'email'].includes(cell.toLowerCase())
+        );
+
+        // Start from the second row if headers are present
+        const startRow = hasHeaders ? 1 : 0;
+
+        const parsedData = jsonData.slice(startRow).map(row => ({
+          name: row[0] || '',
+          email: row[1] || ''
+        }));
+
+        resolve(parsedData);
       };
       reader.onerror = (error) => reject(error);
       reader.readAsArrayBuffer(file);
@@ -65,15 +77,14 @@ export function Recipients() {
       try {
         const parsedData = await parseSpreadsheet(file);
         const uniqueData = parsedData.reduce((acc, current) => {
-          const x = acc.find(item => item.email === current.email);
-          if (!x && !isEmailDuplicate(current.email)) {
+          if (current.email && !isEmailDuplicate(current.email)) {
             return acc.concat([current]);
           } else {
             return acc;
           }
         }, [] as { name: string; email: string }[]);
 
-        setUploadedRecipients([...uploadedRecipients, ...uniqueData]);
+        setRecipients([...recipients, ...uniqueData]);
         setUploadStats({
           total: parsedData.length,
           unique: uniqueData.length
@@ -88,27 +99,29 @@ export function Recipients() {
   };
 
   const handleSubmit = () => {
-    window.location.href = "/next-step";
+    // Save the recipients data to localStorage
+    localStorage.setItem('recipients', JSON.stringify(recipients));
+    // Navigate to the next page
+    window.location.href = '/next-page'; // Replace with your actual next page URL
   };
 
-  const RecipientList = ({ recipients }: { recipients: { name: string; email: string }[] }) => (
-    <div className="space-y-2">
-      {recipients.map((recipient, index) => (
-        <div key={index} className="flex items-center gap-2">
-          <Avatar>
-            <AvatarImage src="/placeholder-user.jpg" />
-            <AvatarFallback>
-              {recipient.name.charAt(0)}
-              {recipient.name.charAt(1)}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-medium">{recipient.name}</p>
-            <p className="text-sm text-muted-foreground">{recipient.email}</p>
-          </div>
-        </div>
-      ))}
-    </div>
+  const RecipientTable = () => (
+    <table className="w-full mt-4 border-collapse">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="border p-2 text-left">Recipient Name</th>
+          <th className="border p-2 text-left">Recipient Email</th>
+        </tr>
+      </thead>
+      <tbody>
+        {recipients.map((recipient, index) => (
+          <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+            <td className="border p-2">{recipient.name}</td>
+            <td className="border p-2">{recipient.email}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   );
 
   return (
@@ -150,7 +163,6 @@ export function Recipients() {
                 {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
               </div>
             )}
-            <RecipientList recipients={manualRecipients} />
           </div>
 
           {/* Right side - Via Spreadsheet Upload */}
@@ -179,7 +191,6 @@ export function Recipients() {
               />
             </div>
             <p className="text-sm text-muted-foreground">Accepted file types: .csv, .xlsx, .xls</p>
-            <RecipientList recipients={uploadedRecipients} />
             {uploadStats && (
               <p className="text-sm text-muted-foreground">
                 Uploaded {uploadStats.unique} unique entries out of {uploadStats.total} total entries.
@@ -187,9 +198,23 @@ export function Recipients() {
             )}
           </div>
         </div>
-        <div className="flex justify-end">
-          <Button onClick={handleSubmit}>Submit</Button>
-        </div>
+        
+        {/* Combined Recipients Table */}
+        {recipients.length > 0 && (
+          <div>
+            <h3 className="text-xl font-semibold mb-2">Recipients List</h3>
+            <RecipientTable />
+          </div>
+        )}
+
+        {/* Submit Button */}
+        {recipients.length > 0 && (
+          <div className="flex justify-end">
+            <Button onClick={handleSubmit}>
+              Submit and Continue
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );
