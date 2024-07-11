@@ -30,7 +30,8 @@ function App() {
           element={isAuthenticated ? <Main /> : <Navigate to="/login" />}
         >
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/create-project" element={<CreateProject />} />
+          <Route path="/create-project/:page/:projectId?/:templateId?" element={<CreateProject />} />
+        <Route path="*" element={<Navigate to="/create-project/0" />} />
         </Route>
       </Routes>
     </>

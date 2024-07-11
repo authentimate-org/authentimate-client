@@ -1,4 +1,5 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import FirstStep from "./FirstStep";
 import SecondStep from "./SecondStep";
 import ThirdStep from "./ThirdStep";
@@ -14,9 +15,11 @@ interface UserInput {
 }
 
 const CreateProject: React.FC = () => {
-  const [page, setPage] = useState<number>(0);
-  const [projectId, setProjectId] = useState<string>("");
-  const [template, setTemplate] = useState<string>("");
+  const { page, projectId, templateId } = useParams<{ page: string, projectId?: string, templateId?: string }>();
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState<number>(parseInt(page || "0", 10));
+  const [currentProjectId, setCurrentProjectId] = useState<string>(projectId || "");
+  const [currentTemplateId, setCurrentTemplateId] = useState<string>(templateId || "");
   const [userInput, setUserInput] = useState<UserInput>({
     projectName: "",
     TitleName: "",
@@ -26,14 +29,21 @@ const CreateProject: React.FC = () => {
   });
   const [templateSelected, setTemplateSelected] = useState<boolean>(false);
 
+  useEffect(() => {
+    setCurrentPage(parseInt(page || "0", 10));
+  }, [page]);
+
   const nextStep = (idOrTemplate?: string) => {
-    if (page === 0 && idOrTemplate) {
-      setProjectId(idOrTemplate);
-    } else if (page === 1 && idOrTemplate) {
-      setTemplate(idOrTemplate);
+    if (currentPage === 0 && idOrTemplate) {
+      setCurrentProjectId(idOrTemplate);
+      navigate(`/create-project/1/${idOrTemplate}`);
+    } else if (currentPage === 1 && idOrTemplate) {
+      setCurrentTemplateId(idOrTemplate);
       setTemplateSelected(true);
+      navigate(`/create-project/2/${currentProjectId}/${idOrTemplate}`);
+    } else {
+      navigate(`/create-project/${currentPage + 1}/${currentProjectId}/${currentTemplateId}`);
     }
-    setPage((currPage) => currPage + 1);
   };
 
   const pageTitles = [
@@ -54,20 +64,20 @@ const CreateProject: React.FC = () => {
     };
 
   const PageDisplay = () => {
-    switch (page) {
+    switch (currentPage) {
       case 0:
         return <FirstStep nextStep={nextStep} handleChange={handleChange} />;
       case 1:
-        return <SecondStep nextStep={nextStep} handleChange={handleChange} />;
+        return <SecondStep nextStep={nextStep} handleChange={handleChange}  />;
       case 2:
-        if (!templateSelected) {
-          setPage(1);
+        if (!currentTemplateId) {
+          navigate(`/create-project/1/${currentProjectId}`);
           return null;
         }
         return (
           <ThirdStep
-            projectId={projectId}
-            template={template}
+            projectId={currentProjectId}
+            template={currentTemplateId}
             nextStep={nextStep}
             handleChange={handleChange}
           />
@@ -82,17 +92,17 @@ const CreateProject: React.FC = () => {
   return (
     <div className="flex flex-col items-center App mt-16">
       <div className="w-3/4 md:w-1/2 lg:w-1/3">
-        <MultiStepProgressBar step={page} />
+        <MultiStepProgressBar step={currentPage} />
       </div>
       <div className="w-full p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h1 className="text-2xl font-semibold">
-            {page === pageTitles.length - 1
+            {currentPage === pageTitles.length - 1
               ? `Congratulations, ${userInput.TitleName}`
-              : pageTitles[page]}
+              : pageTitles[currentPage]}
           </h1>
           <p className="text-gray-600">
-            {page < pageSubTitles.length ? pageSubTitles[page] : ""}
+            {currentPage < pageSubTitles.length ? pageSubTitles[currentPage] : ""}
           </p>
         </div>
         <div>{PageDisplay()}</div>

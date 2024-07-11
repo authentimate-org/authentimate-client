@@ -24,6 +24,7 @@ const FirstStep: React.FC<FirstStepProps> = ({ handleChange, nextStep }) => {
 
   useEffect(() => {
     if (isSuccess && data) {
+      // console.log(data);
       const projectId = String(data.createdProject._id);
       const stage = String(data.createdProject.stage);
       dispatch(setProjectId(projectId));

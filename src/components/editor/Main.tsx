@@ -61,22 +61,36 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   const [height, setHeight] = useState<number | string>("");
   const [opacity, setOpacity] = useState<number | string>("");
   const [zIndex, setzIndex] = useState<number | string>("");
-  const fontFamilies = [
+  const [fontFamily, setFontFamily] = useState<string>("");
+
+  const fonteFamilies = [
     "Arial",
     "Verdana",
     "Times New Roman",
     "Courier New",
     "Georgia",
+    "fantasy",
+    "Brush Script MT",
+    "Lucida Console",
+    "Papyrus",
   ];
-
+  // const setFontFamily = (fontFamily: any) => {
+  //   if (current_component) {
+  //     setCurrentComponent({
+  //       ...current_component,
+  //       fontFamily: fontFamily,
+  //     });
+  //   }
+  //   console.log(current_component)
+  // };
   const [padding, setPadding] = useState<number | string>("");
   const [font, setFont] = useState<number | string>("");
   const [weight, setWeight] = useState<number | string>("");
   const [text, setText] = useState<string>("");
   const [radius, setRadius] = useState<number>(0);
   const handleClick = () => {
-     setElements("text", "text")
-     setShow({ name: "", status: true })
+    setElements("text", "text");
+    setShow({ name: "", status: true });
     add_text("text", "title");
   };
   const [show, setShow] = useState<{ status: boolean; name: string }>({
@@ -294,6 +308,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       title: "Add text",
       weight: 400,
       color: "#3c3c3d",
+      fontFamily: "Arial",
       setCurrentComponent: (a) => setCurrentComponent(a),
       moveElement,
       resizeElement,
@@ -363,6 +378,10 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
           typeof weight === "string"
             ? parseInt(weight)
             : weight || current_component.weight;
+        components[index].fontFamily =
+          typeof fontFamily === "string"
+            ? fontFamily
+            : fontFamily || current_component.fontFamily;
         components[index].title = text || current_component.title;
       }
       if (current_component.name === "image") {
@@ -391,6 +410,10 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
           typeof zIndex === "string"
             ? parseInt(zIndex)
             : zIndex || current_component.z_index;
+        components[index].fontFamily =
+          typeof fontFamily === "string"
+            ? fontFamily
+            : fontFamily || current_component.fontFamily;
       }
       setComponents([...components]);
 
@@ -401,6 +424,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       setLeft("");
       setRotate(0);
       setOpacity("");
+      setPadding(0);
       setzIndex("");
       setText("");
     }
@@ -414,6 +438,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     opacity,
     zIndex,
     padding,
+    fontFamily,
     font,
     weight,
     text,
@@ -428,26 +453,26 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   } = useFetchTemplateByIdQuery(template);
 
   useEffect(() => {
-  
     if (templateData && templateData.graphicElements) {
-      const design = templateData.graphicElements.flatMap((array) => 
+      const design = templateData.graphicElements.flatMap((array) =>
         array.map((element: any) => ({
           ...element,
-          setCurrentComponent: (a:any) => setCurrentComponent(a),
+          setCurrentComponent: (a: any) => setCurrentComponent(a),
           moveElement: moveElement,
           resizeElement: resizeElement,
           rotateElement: rotateElement,
         }))
       );
-  
+
       console.log(design);
       setComponents(design);
     } else {
-      console.error("Template data is undefined or does not contain graphicElements");
+      console.error(
+        "Template data is undefined or does not contain graphicElements"
+      );
     }
   }, [templateData]);
-  
-  
+
   if (isLoading) {
     return <div>Loading template...</div>;
   }
@@ -474,7 +499,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
             <span className="text-xs font-medium">Design</span>
           </div> */}
 
-          {/* <div
+          <div
             onClick={() => setElements("shape", "shape")}
             className={`${
               show.name === "shape" ? "bg-[#252627]" : ""
@@ -484,7 +509,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
               <FaShapes />
             </span>
             <span className="text-xs font-medium">Shapes</span>
-          </div> */}
+          </div>
 
           <div
             onClick={() => setElements("image", "uploadImage")}
@@ -558,16 +583,20 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
             >
               <MdKeyboardArrowLeft />
             </div>
-            {state === "design" && (
+            {/* {state === "design" && (
               <div>
                 <TemplateDesign type="main" />
               </div>
-            )}
+            )} */}
             {state === "shape" && (
               <div className="grid grid-cols-3 gap-2">
                 <div
                   onClick={() => createShape("shape", "rect")}
                   className="h-[90px] bg-[#3c3c3d] cursor-pointer"
+                ></div>
+                <div
+                  onClick={() => createShape("shape", "line")}
+                  className="h-[10px] w-full bg-[#3c3c3d] cursor-pointer"
                 ></div>
                 <div
                   onClick={() => createShape("shape", "circle")}
@@ -756,22 +785,18 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[70px]">Font: </span>
                             <select
-                              onChange={(e) =>
-                                setCurrentComponent({
-                                  ...current_component,
-                                  fontFamily: e.target.value,
-                                })
-                              }
+                              onChange={(e) => setFontFamily(e.target.value)}
                               className="border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               value={current_component.fontFamily}
                             >
-                              {fontFamilies.map((font) => (
+                              {fonteFamilies.map((font) => (
                                 <option key={font} value={font}>
                                   {font}
                                 </option>
                               ))}
                             </select>
                           </div>
+
                           <div className="flex gap-2 flex-col justify-start items-start">
                             <input
                               onChange={(e) =>
