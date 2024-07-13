@@ -2,10 +2,14 @@ import React, { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { auth } from "@/config/firebase";
 import { Navigate, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/store";
+import { setUser } from "@/services/auth/issuerSlice";
 
 const VerifyEmail: React.FC = () => {
-  const { verifyMail, handleLogout } = useAuth();
+  const {handleLogout } = useAuth();
   const navigate = useNavigate();
+  const dispatch=useDispatch<AppDispatch>()
 
   useEffect(() => {
     const intervalId = setInterval(async () => {
@@ -13,13 +17,15 @@ const VerifyEmail: React.FC = () => {
       if (currentUser) {
         await currentUser.reload();
         if (currentUser.emailVerified) {
-          navigate("/dashboard");
+          navigate("/onboarding");
+          dispatch(setUser({isEmailVerified:true}))
         }
       }
     }, 5000);
     return () => clearInterval(intervalId);
-  }, [verifyMail, navigate]);
-
+  }, [, navigate]);
+  
+  
   if (!auth.currentUser) {
     return <Navigate to={"/login"}/>;
   }

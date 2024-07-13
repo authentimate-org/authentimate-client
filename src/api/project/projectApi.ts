@@ -48,7 +48,7 @@ const projectApi = api.injectEndpoints({
       }),
     }),
     fetchTemplates: builder.query<Template[], void>({
-      query: () => ({ url: "/project/premadeTemplate", method: "GET" }),
+      query: () => ({ url: "/premadeTemplate/all", method: "GET" }),
     }),
     fetchTemplateById: builder.query<Template, string>({
       query: (id) => ({ url: `/project/premadeTemplate/${id}`, method: "GET" }),

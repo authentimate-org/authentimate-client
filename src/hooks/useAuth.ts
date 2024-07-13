@@ -1,78 +1,86 @@
 import { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { auth } from "../config/firebase";
-import {
-  setUser,
-  logoutUser,
-  registerUser,
-  loginUser,
-  verifyEmail,
-} from "../services/auth/authSlice";
+import { setAuth, logoutUser } from "../services/auth/authSlice";
 import { useNavigate, useLocation } from "react-router-dom";
 import { RootState, AppDispatch } from "../app/store";
-import { User, onAuthStateChanged, signOut } from "firebase/auth";
+import {
+  User,
+  onAuthStateChanged,
+  signInWithCustomToken,
+  signOut,
+} from "firebase/auth";
+import axios from "axios";
+import { setUser } from "@/services/auth/issuerSlice";
+import { useFetchIssuerQuery } from "@/api/issuer/issuerApi";
+
+interface RegisterResponse {
+  token?: string;
+  error?: string;
+}
 
 interface AuthReturnType {
   handleRegister: (email: string, password: string) => Promise<void>;
-  handleLogin: (email: string, password: string) => Promise<void>;
-  verifyMail: () => Promise<void>;
+  handleLogout: () => Promise<void>;
   initializeAuthListener: () => void;
   isLoading: boolean;
+  isEmailVerified: boolean | undefined;
+  isOnboarded: boolean | undefined;
   authError: any | undefined;
   isAuthenticated: boolean;
   isInitializing: boolean;
-  handleLogout: () => Promise<void>;
 }
 
 export const useAuth = (): AuthReturnType => {
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL_DEV;
+
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const location = useLocation();
-  const user = useSelector((state: RootState) => state.auth.user);
-  const token = useSelector((state: RootState) => state.auth.token);
-  const isLoading = useSelector((state: RootState) => state.auth.loading);
-  const authError = useSelector((state: RootState) => state.auth.error);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string>("");
+  const { isEmailVerified, isOnboarded } = useSelector((state: RootState) => state.issuer);
+  const { user, token } = useSelector((state: RootState) => state.auth);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
+  const [fetchIssuer, setFetchIssuer] = useState<boolean>(false);
 
-  const handleRegister = async (
-    email: string,
-    password: string
-  ): Promise<void> => {
-    const result = await dispatch(registerUser({ email, password }));
-    if (registerUser.fulfilled.match(result)) {
-      navigate("/verify-email");
-      verifyMail();
-    } else {
-      console.error("Error registering user:", result.payload);
-    }
-  };
+  const { data: fetchedIssuer } = useFetchIssuerQuery(undefined, {
+    skip: !fetchIssuer,
+  });
 
-  const handleLogin = async (
-    email: string,
-    password: string
-  ): Promise<void> => {
-    const result = await dispatch(loginUser({ email, password }));
-    if (loginUser.fulfilled.match(result)) {
-      if (result.payload.user.emailVerified) {
-        navigate("/dashboard");
+  const handleRegister = async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      const endpoint = "/issuer/signup";
+      const url = `${API_BASE_URL}${endpoint}`;
+
+      const response = await axios.post<RegisterResponse>(url, { email, password });
+
+      if (response.data.token) {
+        await signInWithCustomToken(auth, response.data.token);
+        if (auth.currentUser) {
+          dispatch(
+            setAuth({
+              uid: auth.currentUser.uid,
+              email: email,
+              token: response.data.token,
+            })
+          );
+          setFetchIssuer(true); // Trigger fetching issuer data
+          navigate("/verify-email");
+        }
+      } else if (response.data.error) {
+        setAuthError(response.data.error);
+      }
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        setAuthError(err.response.data.error);
       } else {
-        verifyMail();
-        navigate("/verify-email");
+        console.error("Failed to sign up:", err);
+        setAuthError("An unexpected error occurred. Please try again.");
       }
-    } else {
-      console.error("Error logging in:", result.payload);
-    }
-  };
-
-  const verifyMail = async (): Promise<void> => {
-    const result = await dispatch(verifyEmail());
-    if (verifyEmail.fulfilled.match(result)) {
-      const currentUser = auth.currentUser;
-      if (currentUser && currentUser.emailVerified) {
-        navigate("/dashboard");
-      }
-    } else {
-      console.error("Error verifying email:", result.payload);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,12 +90,12 @@ export const useAuth = (): AuthReturnType => {
       if (user) {
         const token = await user.getIdToken();
         if (user.emailVerified) {
-          dispatch(setUser({ uid: user.uid, email: user.email, token }));
-          if (
-            path === "/login" ||
-            path === "/sign-up" ||
-            path === "/verify-email"
-          ) {
+          dispatch(setAuth({ uid: user.uid, email: user.email, token }));
+          if (auth.currentUser) {
+            setFetchIssuer(true); 
+            dispatch(setUser({ isEmailVerified: true, isOnboarded: fetchedIssuer?.onboarding }));
+          }
+          if (path === "/login" || path === "/sign-up" || path === "/verify-email") {
             navigate("/dashboard");
           }
         } else {
@@ -103,9 +111,11 @@ export const useAuth = (): AuthReturnType => {
           navigate("/login");
         }
       }
-      setIsInitializing(false);
+      if(fetchedIssuer){
+        setIsInitializing(false); 
+      }
     },
-    [dispatch, navigate, location.pathname]
+    [dispatch, navigate, location.pathname, fetchedIssuer]
   );
 
   const initializeAuthListener = useCallback(() => {
@@ -128,11 +138,11 @@ export const useAuth = (): AuthReturnType => {
 
   return {
     handleRegister,
-    handleLogin,
-    verifyMail,
     handleLogout,
     initializeAuthListener,
     isLoading,
+    isEmailVerified,
+    isOnboarded,
     authError,
     isAuthenticated,
     isInitializing,

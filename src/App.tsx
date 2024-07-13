@@ -8,9 +8,10 @@ import Login from "./components/auth/login";
 import Main from "./components/layout/Main";
 import Dashboard from "./components/dashboard/Dashboard";
 import CreateProject from "./components/createProject/CreateProject";
+import { Onboard } from "./components/auth/Onboard";
 
 function App() {
-  const { initializeAuthListener, isAuthenticated, isInitializing } = useAuth();
+  const { initializeAuthListener, isAuthenticated, isInitializing,isOnboarded } = useAuth();
   useEffect(() => {
     initializeAuthListener();
   }, [initializeAuthListener]);
@@ -21,18 +22,29 @@ function App() {
 
   return (
     <>
-      <Routes>
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/verify-email" element={<VerifyMail />} />
-        <Route
-          path="/"
-          element={isAuthenticated ? <Main /> : <Navigate to="/login" />}
-        >
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/create-project" element={<CreateProject />} />
-        </Route>
-      </Routes>
+       <Routes>
+      <Route path="/sign-up" element={<SignUp />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/verify-email" element={<VerifyMail />} />
+      <Route path="/onboarding" element={isOnboarded ? <Navigate to="/dashboard" /> : <Onboard />} />
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? (
+            isOnboarded?
+            <Main />
+            :
+            <Navigate to="/onboarding"/>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/create-project" element={<CreateProject />} />
+        <Route index element={<Navigate to="/dashboard" />} />
+      </Route>
+    </Routes>
     </>
   );
 }
