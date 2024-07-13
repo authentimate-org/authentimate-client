@@ -27,8 +27,9 @@ const MyImages: React.FC<MyImagesProps> = ({ add_image }) => {
 
       try {
         setLoader(true);
-        const { data } = await fetchAddUserImage(formData).unwrap();
-        setImages([...images, data]);
+        const response = await fetchAddUserImage(formData).unwrap();
+        console.log("Uploaded Image Data:", response); // Debug: Log the uploaded image data
+        setImages((prevImages) => [...prevImages, response.data]);
         setLoader(false);
       } catch (error: any) {
         setLoader(false);
@@ -38,21 +39,14 @@ const MyImages: React.FC<MyImagesProps> = ({ add_image }) => {
   };
 
   useEffect(() => {
-  
-    if (data ) {
-      // Check if fetchedImages is an array and has data
-      // const formattedImages: UserImage[] = fetchedImages.map((image: any) => ({
-      //   _id: image._id,
-      //   image_url: image.image_url
-      // }));
-      // console.log("Formatted Images:", formattedImages);
-  
-      setImages(data.images)
+    if (data) {
+      console.log("Fetched Data:", data);
+      setImages(data.images);
     } else if (fetchError) {
       console.error(fetchError);
-      // Handle error state if needed
     }
   }, [data, fetchError]);
+
   return (
     <div>
       <div className="w-full h-[40px] flex justify-center items-center bg-purple-500 rounded-sm text-white mb-3">

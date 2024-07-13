@@ -42,6 +42,8 @@ function App() {
       >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/create-project" element={<CreateProject />} />
+        <Route path="/create-project/:page/:projectId?/:templateId?" element={<CreateProject />} />
+        <Route path="*" element={<Navigate to="/create-project/0" />} />
         <Route index element={<Navigate to="/dashboard" />} />
       </Route>
     </Routes>

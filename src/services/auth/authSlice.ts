@@ -43,7 +43,7 @@ export const registerUser = createAsyncThunk(
       );
       const token = await userCredential.user.getIdToken();
       const user = userCredential.user as FirebaseUser;
-      await axios.post(import.meta.env.VITE_BACKEND_API_BASE_URL_DEV+"/issuer/create",{
+      await axios.post(import.meta.env.VITE_BACKEND_API_BASE_URL_DEV+"/issuer/signUp",{
         email:user.email,
         uid:user.uid
       });

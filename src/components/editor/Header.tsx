@@ -31,6 +31,7 @@ const Header: React.FC<HeaderProps> = ({ components, design_id }) => {
 
         try {
           setLoader(true);
+          console.log(design_id,formData)
           const { data } = await updateUserDesign({ design_id, formData });
           toast.success(data.message);
           setLoader(false);

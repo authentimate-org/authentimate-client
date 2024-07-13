@@ -1,5 +1,5 @@
-import React from 'react';
-import Element from './Element';
+import React from "react";
+import Element from "./Element";
 export interface Info {
   rotateElement(id: string, info: Info): void;
   resizeElement(elementId: string, info: Info): void;
@@ -22,6 +22,7 @@ export interface Info {
   radius?: number;
   setCurrentComponent: (info: Info) => void;
   moveElement: (id: string, info: Info) => void;
+  fontFamily?: string;
 }
 
 interface CreateComponentProps {
@@ -32,50 +33,92 @@ interface CreateComponentProps {
   setSelectItem: (id: string) => void;
 }
 
-const CreateComponent: React.FC<CreateComponentProps> = ({ info, selectItem, setSelectItem }) => {
-  let html: React.ReactNode = '';
+const CreateComponent: React.FC<CreateComponentProps> = ({
+  current_component,
+  info,
+  selectItem,
+  setSelectItem,
+}) => {
+  let html: React.ReactNode = "";
 
-  if (info.name === 'main_frame') {
+  if (info.name === "main_frame") {
     html = (
       <div
         onClick={() => {
           info.setCurrentComponent(info);
-          setSelectItem('');
+          setSelectItem("");
         }}
         className="hover:border-[2px] hover:border-indigo-500 shadow-md"
         style={{
-          width: info.width + 'px',
-          height: info.height + 'px',
+          width: info.width + "px",
+          height: info.height + "px",
           background: info.color,
           zIndex: info.z_index,
         }}
       >
-        {info.image && <img className="w-full h-full" src={info.image} alt="image" />}
+        {info.image && (
+          <img className="w-full h-full" src={info.image} alt="image" />
+        )}
       </div>
     );
   }
 
-  if (info.name === 'shape' && info.type === 'rect') {
+  if (info.name === "shape" && info.type === "rect") {
     html = (
       <div
         id={info.id}
         onClick={() => info.setCurrentComponent(info)}
         style={{
           opacity: info.opacity,
-          left: info.left + 'px',
-          top: info.top + 'px',
+          left: info.left + "px",
+          top: info.top + "px",
           zIndex: info.z_index,
-          transform: info.rotate ? `rotate(${info.rotate}deg)` : 'rotate(0deg)',
+          transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        className={`absolute group hover:border-[2px] ${info.id === selectItem ? 'border-[2px]' : ''} border-indigo-500`}
+        className={`absolute group hover:border-[2px] ${
+          info.id === selectItem ? "border-[2px]" : ""
+        } border-indigo-500`}
       >
-        {selectItem === info.id && <Element id={info.id} info={info} exId={`${info.id}r`} />}
+        {selectItem === info.id && (
+          <Element id={info.id} info={info} exId={`${info.id}r`} />
+        )}
         <div
           onMouseDown={() => info.moveElement(info.id, info)}
           id={`${info.id}r`}
           style={{
-            width: info.width + 'px',
-            height: info.height + 'px',
+            width: info.width + "px",
+            height: info.height + "px",
+            background: info.color,
+          }}
+        ></div>
+      </div>
+    );
+  }
+  if (info.name === "shape" && info.type === "line") {
+    html = (
+      <div
+        id={info.id}
+        onClick={() => info.setCurrentComponent(info)}
+        style={{
+          opacity: info.opacity,
+          left: info.left + "px",
+          top: info.top + "px",
+          zIndex: info.z_index,
+          transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
+        }}
+        className={`absolute group hover:border-[2px] ${
+          info.id === selectItem ? "border-[2px]" : ""
+        } border-indigo-500`}
+      >
+        {selectItem === info.id && (
+          <Element id={info.id} info={info} exId={`${info.id}r`} />
+        )}
+        <div
+          onMouseDown={() => info.moveElement(info.id, info)}
+          id={`${info.id}r`}
+          style={{
+            width: info.width + "px",
+            height: "1px",
             background: info.color,
           }}
         ></div>
@@ -83,27 +126,31 @@ const CreateComponent: React.FC<CreateComponentProps> = ({ info, selectItem, set
     );
   }
 
-  if (info.name === 'shape' && info.type === 'circle') {
+  if (info.name === "shape" && info.type === "circle") {
     html = (
       <div
         id={info.id}
         onClick={() => info.setCurrentComponent(info)}
         style={{
-          left: info.left + 'px',
-          top: info.top + 'px',
+          left: info.left + "px",
+          top: info.top + "px",
           zIndex: info.z_index,
-          transform: info.rotate ? `rotate(${info.rotate}deg)` : 'rotate(0deg)',
+          transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        className={`absolute group hover:border-[2px] ${info.id === selectItem ? 'border-[2px]' : ''} border-indigo-500`}
+        className={`absolute group hover:border-[2px] ${
+          info.id === selectItem ? "border-[2px]" : ""
+        } border-indigo-500`}
       >
-        {selectItem === info.id && <Element id={info.id} info={info} exId={`${info.id}c`} />}
+        {selectItem === info.id && (
+          <Element id={info.id} info={info} exId={`${info.id}c`} />
+        )}
         <div
           onMouseDown={() => info.moveElement(info.id, info)}
           id={`${info.id}c`}
           className="rounded-full"
           style={{
-            width: info.width + 'px',
-            height: info.width + 'px',
+            width: info.width + "px",
+            height: info.width + "px",
             background: info.color,
             opacity: info.opacity,
           }}
@@ -112,54 +159,73 @@ const CreateComponent: React.FC<CreateComponentProps> = ({ info, selectItem, set
     );
   }
 
-  if (info.name === 'shape' && info.type === 'trangle') {
+  if (info.name === "shape" && info.type === "trangle") {
     html = (
       <div
         id={info.id}
         onClick={() => info.setCurrentComponent(info)}
         style={{
-          left: info.left + 'px',
-          top: info.top + 'px',
+          left: info.left + "px",
+          top: info.top + "px",
           zIndex: info.z_index,
-          transform: info.rotate ? `rotate(${info.rotate}deg)` : 'rotate(0deg)',
+          transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        className={`absolute group hover:border-[2px] ${info.id === selectItem ? 'border-[2px]' : ''} border-indigo-500`}
+        className={`absolute group hover:border-[2px] ${
+          info.id === selectItem ? "border-[2px]" : ""
+        } border-indigo-500`}
       >
-        {selectItem === info.id && <Element id={info.id} info={info} exId={`${info.id}t`} />}
+        {selectItem === info.id && (
+          <Element id={info.id} info={info} exId={`${info.id}t`} />
+        )}
         <div
           onMouseDown={() => info.moveElement(info.id, info)}
           id={`${info.id}t`}
           style={{
-            width: info.width + 'px',
-            height: info.height + 'px',
+            width: info.width + "px",
+            height: info.height + "px",
             background: info.color,
             opacity: info.opacity,
-            clipPath: 'polygon(50% 0,100% 100%,0 100%)',
+            clipPath: "polygon(50% 0,100% 100%,0 100%)",
           }}
         ></div>
       </div>
     );
   }
 
-  if (info.name === 'text') {
+  if (info.name === "text") {
+    // info.fontFamily=current_component?.fontFamily;
     html = (
       <div onClick={() => info.setCurrentComponent(info)}>
         <div
           id={info.id}
           style={{
-            left: info.left + 'px',
-            top: info.top + 'px',
+            left: info.left + "px",
+            top: info.top + "px",
             zIndex: info.z_index,
-            transform: info.rotate ? `rotate(${info.rotate}deg)` : 'rotate(0deg)',
-            padding: info.padding + 'px',
+            transform: info.rotate
+              ? `rotate(${info.rotate}deg)`
+              : "rotate(0deg)",
+            padding: info.padding + "px",
             color: info.color,
             opacity: info.opacity,
+            fontFamily: info.fontFamily,
           }}
-          className={`absolute group hover:border-[2px] ${info.id === selectItem ? 'border-[2px]' : ''} border-indigo-500`}
+          className={`absolute group hover:border-[2px] ${
+            info.id === selectItem ? "border-[2px]" : ""
+          } border-indigo-500`}
         >
-          {selectItem === info.id && <Element id={info.id} info={info} exId="" />}
+          {selectItem === info.id && (
+            <Element id={info.id} info={info} exId="" />
+          )}
           <div onMouseDown={() => info.moveElement(info.id, info)}>
-            <h2 style={{ fontSize: info.font + 'px', fontWeight: info.weight }} className="w-full h-full">
+            <h2
+              style={{
+                fontSize: info.font + "px",
+                fontWeight: info.weight,
+                fontFamily: info.fontFamily,
+              }}
+              className="w-full h-full"
+            >
               {info.title}
             </h2>
           </div>
@@ -168,28 +234,32 @@ const CreateComponent: React.FC<CreateComponentProps> = ({ info, selectItem, set
     );
   }
 
-  if (info.name === 'image') {
+  if (info.name === "image") {
     html = (
       <div
         id={info.id}
         onClick={() => info.setCurrentComponent(info)}
         style={{
-          left: info.left + 'px',
-          top: info.top + 'px',
+          left: info.left + "px",
+          top: info.top + "px",
           zIndex: info.z_index,
-          transform: info.rotate ? `rotate(${info.rotate}deg)` : 'rotate(0deg)',
+          transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
           opacity: info.opacity,
         }}
-        className={`absolute group hover:border-[2px] ${info.id === selectItem ? 'border-[2px]' : ''} border-indigo-500`}
+        className={`absolute group hover:border-[2px] ${
+          info.id === selectItem ? "border-[2px]" : ""
+        } border-indigo-500`}
       >
-        {selectItem === info.id && <Element id={info.id} info={info} exId={`${info.id}img`} />}
+        {selectItem === info.id && (
+          <Element id={info.id} info={info} exId={`${info.id}img`} />
+        )}
         <div
           onMouseDown={() => info.moveElement(info.id, info)}
           className="overflow-hidden"
           id={`${info.id}img`}
           style={{
-            width: info.width + 'px',
-            height: info.height + 'px',
+            width: info.width + "px",
+            height: info.height + "px",
             borderRadius: `${info.radius}%`,
           }}
         >
