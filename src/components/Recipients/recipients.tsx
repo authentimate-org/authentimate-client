@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import * as XLSX from 'xlsx';
@@ -10,7 +10,25 @@ export function Recipients() {
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadStats, setUploadStats] = useState<{ total: number; unique: number } | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<string>("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges && !isSubmitted) {
+        e.preventDefault();
+        e.returnValue = 'Changes you made may not be saved.';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges, isSubmitted]);
 
   const isEmailDuplicate = (email: string) => {
     return recipients.some(r => r.email === email);
@@ -25,6 +43,7 @@ export function Recipients() {
         setNewRecipientName("");
         setNewRecipientEmail("");
         setErrorMessage("");
+        setHasUnsavedChanges(true);
       }
     }
   };
@@ -83,6 +102,7 @@ export function Recipients() {
           total: parsedData.length,
           unique: uniqueData.length
         });
+        setHasUnsavedChanges(true);
       } catch (error) {
         console.error("Error parsing spreadsheet:", error);
         setErrorMessage("Error parsing spreadsheet. Please try again.");
@@ -94,13 +114,22 @@ export function Recipients() {
 
   const handleSubmit = () => {
     localStorage.setItem('recipients', JSON.stringify(recipients));
-    window.location.href = '/next-page'; // Replace with your actual next page URL
+    setHasUnsavedChanges(false);
+    setIsSubmitted(true);
+    setSaveStatus("Changes saved successfully!");
+    
+    // Clear the save status message after 3 seconds
+    setTimeout(() => {
+      setSaveStatus("");
+      window.location.href = '/next-page'; // Replace with your actual next page URL
+    }, 10); 
   };
 
   const handleDeleteRecipient = (index: number) => {
     const newRecipients = [...recipients];
     newRecipients.splice(index, 1);
     setRecipients(newRecipients);
+    setHasUnsavedChanges(true);
   };
 
   const downloadSampleSheet = () => {
@@ -214,6 +243,13 @@ export function Recipients() {
           <div>
             <h3 className="text-xl font-semibold mb-2">Recipients List</h3>
             <RecipientTable />
+          </div>
+        )}
+
+        {/* Save Status Message */}
+        {saveStatus && (
+          <div className="text-green-600 font-semibold mb-2">
+            {saveStatus}
           </div>
         )}
 
