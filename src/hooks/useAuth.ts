@@ -7,7 +7,9 @@ import { RootState, AppDispatch } from "../app/store";
 import {
   User,
   onAuthStateChanged,
+  sendEmailVerification,
   signInWithCustomToken,
+  signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
 import axios from "axios";
@@ -21,6 +23,7 @@ interface RegisterResponse {
 
 interface AuthReturnType {
   handleRegister: (email: string, password: string) => Promise<void>;
+  handleLogin:(email: string, password: string) => Promise<void>;
   handleLogout: () => Promise<void>;
   initializeAuthListener: () => void;
   isLoading: boolean;
@@ -66,7 +69,7 @@ export const useAuth = (): AuthReturnType => {
               token: response.data.token,
             })
           );
-          setFetchIssuer(true); // Trigger fetching issuer data
+          setFetchIssuer(true); 
           navigate("/verify-email");
         }
       } else if (response.data.error) {
@@ -84,17 +87,52 @@ export const useAuth = (): AuthReturnType => {
     }
   };
 
+
+  const handleLogin = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
+      if(!userCredential.user.emailVerified){
+        sendEmailVerification(userCredential.user)
+      }
+      dispatch(setAuth({
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        token,
+      }));
+      
+      if (auth.currentUser) {
+        setFetchIssuer(true);
+      }
+  
+      navigate("/dashboard");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response) {
+        setAuthError(error.response.data.error);
+      } else {
+        console.error("Failed to log in:", error);
+        setAuthError("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const authStateChanged = useCallback(
     async (user: User | null) => {
       const path = location.pathname;
       if (user) {
         const token = await user.getIdToken();
+        if (auth.currentUser) {
+          setFetchIssuer(true); 
+          dispatch(setUser({ isOnboarded: fetchedIssuer?.onboarding }));
+        }
+
         if (user.emailVerified) {
+
+          dispatch(setUser({ isEmailVerified:true }));
           dispatch(setAuth({ uid: user.uid, email: user.email, token }));
-          if (auth.currentUser) {
-            setFetchIssuer(true); 
-            dispatch(setUser({ isEmailVerified: true, isOnboarded: fetchedIssuer?.onboarding }));
-          }
           if (path === "/login" || path === "/sign-up" || path === "/verify-email") {
             navigate("/dashboard");
           }
@@ -139,6 +177,7 @@ export const useAuth = (): AuthReturnType => {
   return {
     handleRegister,
     handleLogout,
+    handleLogin,
     initializeAuthListener,
     isLoading,
     isEmailVerified,
