@@ -207,7 +207,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
   if (info.name === "text") {
     // info.fontFamily=current_component?.fontFamily;
     html = (
-      <div onClick={() => info.setCurrentComponent(info)}>
+      <div onClick={() => {info.setCurrentComponent(info)}}>
         <div
           id={info.id}
           style={{
@@ -217,10 +217,11 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             transform: info.rotate
               ? `rotate(${info.rotate}deg)`
               : "rotate(0deg)",
-            padding: info.padding + "px",
+            // padding: info.padding + "px",
             color: info.color,
             opacity: info.opacity,
             fontFamily: info.fontFamily,
+            fontSize:info.font
           }}
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
             info.id === selectItem ? "outline" : ""

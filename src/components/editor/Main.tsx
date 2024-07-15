@@ -8,7 +8,7 @@ import { IoDuplicateOutline } from "react-icons/io5";
 import { TfiText } from "react-icons/tfi";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 // import { RxTransparencyGrid } from "react-icons/rx";
-import TemplateDesign from "./main/TemplateDesign";
+// import TemplateDesign from "./main/TemplateDesign";
 import CreateComponent from "./CreateComponent";
 import { useFetchTemplateByIdQuery } from "@/api/project/projectApi";
 // import { stringify } from "querystring";
@@ -63,7 +63,20 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   const [zIndex, setzIndex] = useState<number | string>("");
   const [fontFamily, setFontFamily] = useState<string>("");
 
-
+  const handleResetProperties = (a:Component) => {
+    setColor(a.color??"");
+    setImage(a.image??"");
+    setRotate(a.rotate??0);
+    setLeft(a.left??"");
+    setTop(a.top??"");
+    setWidth(a.width??"");
+    setHeight(a.height??"");
+    setOpacity(a.opacity??"");
+    setzIndex(a.z_index??"");
+    setFontFamily(a.fontFamily??"");
+    setFont(a.font??12)
+    setWeight(a.weight??"")
+  };
 
   const fonteFamilies = [
     "Arial",
@@ -86,7 +99,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   //   console.log(current_component)
   // };
   const [padding, setPadding] = useState<number | string>("");
-  const [font, setFont] = useState<number | string>("");
+  const [font, setFont] = useState<number>(12);
   const [weight, setWeight] = useState<number | string>("");
   const [text, setText] = useState<string>("");
   const [radius, setRadius] = useState<number>(0);
@@ -109,7 +122,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       z_index: 1,
       color: "#fff",
       image: "",
-      setCurrentComponent: (a) => {setCurrentComponent(a);},
+      setCurrentComponent: (a) => {handleResetProperties(a);setCurrentComponent(a);},
       rotateElement: function (id: string, info: Component): void {
         throw new Error("Function not implemented.");
       },
@@ -310,15 +323,14 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       title: "Add text",
       weight: 400,
       color: "#3c3c3d",
-      fontFamily: "Arial",
-      setCurrentComponent: (a) => {setCurrentComponent(a)},
+      fontFamily: "Arial",  
+      setCurrentComponent: (a) => {console.log("mansih");handleResetProperties(a);setCurrentComponent(a)},
       moveElement,
       resizeElement,
       rotateElement,
     };
-    console.log(style);
     setWeight("");
-    setFont("");
+    setFont(16);
     setSelectItem(id); 
     setCurrentComponent(style);
     setComponents([...components, style]);
@@ -351,102 +363,124 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setComponents([...components, style]);
   };
 
-  useEffect(() => {
+
+  const handlePropertyChange=(property:string,value?:any)=>{
+
     if (current_component) {
       const index = components.findIndex((c) => c.id === current_component.id);
-      const temp = components.filter((c) => c.id !== current_component.id);
-
-      if (current_component.name !== "text") {
-        components[index].width =
-          typeof width === "string"
-            ? parseInt(width)
-            : width || current_component.width;
-        components[index].height =
-          typeof height === "string"
-            ? parseInt(height)
-            : height || current_component.height;
-        components[index].rotate = rotate || current_component.rotate;
-      }
-      if (current_component.name === "text") {
-        components[index].font =
-          typeof font === "string"
-            ? parseInt(font)
-            : font || current_component.font;
-        components[index].padding =
-          typeof padding === "string"
-            ? parseInt(padding)
-            : padding || current_component.padding;
-        components[index].weight =
-          typeof weight === "string"
-            ? parseInt(weight)
-            : weight || current_component.weight;
-        components[index].fontFamily =
-          typeof fontFamily === "string"
-            ? fontFamily
-            : fontFamily || current_component.fontFamily;
-        components[index].title = text || current_component.title;
-      }
-      if (current_component.name === "image") {
-        components[index].radius = radius || current_component.radius;
+      // const temp = components.filter((c) => c.id !== current_component.id);
+      if(property==="fontSize"){
+        setFont(value)
+        setComponents(prev => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index], 
+            font: value
+          };
+          return updatedComponents; // Return updated state
+        });
       }
 
-      if (current_component.name === "main_frame" && image) {
-        components[index].image = image || current_component.image;
-      }
-      components[index].color = color || current_component.color;
-
-      if (current_component.name !== "main_frame") {
-        components[index].left =
-          typeof left === "string"
-            ? parseInt(left)
-            : left || current_component.left;
-        components[index].top =
-          typeof top === "string"
-            ? parseInt(top)
-            : top || current_component.top;
-        components[index].opacity =
-          typeof opacity === "string"
-            ? parseFloat(opacity)
-            : opacity || current_component.opacity;
-        components[index].z_index =
-          typeof zIndex === "string"
-            ? parseInt(zIndex)
-            : zIndex || current_component.z_index;
-        components[index].fontFamily =
-          typeof fontFamily === "string"
-            ? fontFamily
-            : fontFamily || current_component.fontFamily;
-      }
-      setComponents([...components]);
-
-      setColor("");
-      setWidth("");
-      setHeight("");
-      setTop("");
-      setLeft("");
-      setRotate(0);
-      setOpacity("");
-      setPadding(0);
-      setzIndex("");
-      setText("");
     }
-  }, [
-    color,
-    image,
-    left,
-    top,
-    width,
-    height,
-    opacity,
-    zIndex,
-    padding,
-    fontFamily,
-    font,
-    weight,
-    text,
-    radius,
-    rotate,
-  ]);
+
+  }
+
+  // useEffect(() => {
+  //   if (current_component) {
+  //     const index = components.findIndex((c) => c.id === current_component.id);
+  //     const temp = components.filter((c) => c.id !== current_component.id);
+
+  //     if (current_component.name !== "text") {
+  //       components[index].width =
+  //         typeof width === "string"
+  //           ? parseInt(width)
+  //           : width || current_component.width;
+  //       components[index].height =
+  //         typeof height === "string"
+  //           ? parseInt(height)
+  //           : height || current_component.height;
+  //       components[index].rotate = rotate || current_component.rotate;
+  //     }
+  //     if (current_component.name === "text") {
+  //       components[index].font =
+  //         typeof font === "string"
+  //           ? parseInt(font)
+  //           : font || current_component.font;
+  //       components[index].padding =
+  //         typeof padding === "string"
+  //           ? parseInt(padding)
+  //           : padding || current_component.padding;
+  //       components[index].weight =
+  //         typeof weight === "string"
+  //           ? parseInt(weight)
+  //           : weight || current_component.weight;
+  //       components[index].fontFamily =
+  //         typeof fontFamily === "string"
+  //           ? fontFamily
+  //           : fontFamily || current_component.fontFamily;
+  //       components[index].title = text || current_component.title;
+  //     }
+  //     if (current_component.name === "image") {
+  //       components[index].radius = radius || current_component.radius;
+  //     }
+
+  //     if (current_component.name === "main_frame" && image) {
+  //       components[index].image = image || current_component.image;
+  //     }
+  //     components[index].color = color || current_component.color;
+
+  //     if (current_component.name !== "main_frame") {
+  //       components[index].left =
+  //         typeof left === "string"
+  //           ? parseInt(left)
+  //           : left || current_component.left;
+  //       components[index].top =
+  //         typeof top === "string"
+  //           ? parseInt(top)
+  //           : top || current_component.top;
+  //       components[index].opacity =
+  //         typeof opacity === "string"
+  //           ? parseFloat(opacity)
+  //           : opacity || current_component.opacity;
+  //       components[index].z_index =
+  //         typeof zIndex === "string"
+  //           ? parseInt(zIndex)
+  //           : zIndex || current_component.z_index;
+  //       components[index].fontFamily =
+  //         typeof fontFamily === "string"
+  //           ? fontFamily
+  //           : fontFamily || current_component.fontFamily;
+  //     }
+  //     setComponents([...components]);
+
+  //     setColor("");
+  //     setWidth("");
+  //     setHeight("");
+  //     setTop("");
+  //     setLeft("");
+  //     setRotate(0);
+  //     setOpacity("");
+  //     setPadding(0);
+  //     setzIndex("");
+  //     setText("");
+  //   }
+  // }, [
+  //   color,
+  //   image,
+  //   left,
+  //   top,
+  //   width,
+  //   height,
+  //   opacity,
+  //   zIndex,
+  //   padding,
+  //   fontFamily,
+  //   font,
+  //   weight,
+  //   text,
+  //   radius,
+  //   rotate,
+  // ]);
 
   const {
     data: templateData,
@@ -478,7 +512,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     if (templateData && templateData.components) {
       const design = templateData.components.map((element: any) => ({
         ...element,
-        setCurrentComponent: (a: any) => setCurrentComponent(a),
+        setCurrentComponent: (a: any) =>{handleResetProperties(a);setCurrentComponent(a)},
         moveElement: moveElement,
         resizeElement: resizeElement,
         rotateElement: rotateElement,
@@ -779,13 +813,15 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                               Font size :
                             </span>
                             <input
-                              onChange={(e) =>
-                                setFont(parseInt(e.target.value))
+                              onChange={(e) =>{
+                                handlePropertyChange("fontSize",e.target.value);
+                                // setFont(parseInt(e.target.value))
+                              }
                               }
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={1}
-                              value={current_component.font}
+                              value={font}
                             />
                           </div>
                           <div className="flex gap-1 justify-start items-start">
@@ -805,7 +841,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[70px]">Font: </span>
                             <select
-                              onChange={(e) => setFontFamily(e.target.value)}
+                              onChange={(e) =>{handlePropertyChange("fontFamily"); setFontFamily(e.target.value)}}
                               className="border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               value={current_component.fontFamily}
                             >

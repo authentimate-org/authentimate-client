@@ -170,7 +170,6 @@ export const useAuth = (navigate: (path: string) => void): AuthReturnType => {
       } else {
         dispatch(logoutUser());
         setIsInitializing(false);
-        navigate("/login")
       }
     },
     [dispatch, fetchUserDetails]
