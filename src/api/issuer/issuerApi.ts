@@ -15,9 +15,15 @@ export interface OnboardResponse {
   error?: string;
 }
 
-interface GetUserResponse{
+export interface GetUserResponse{
   isEmailVerified:boolean,
   onboarding:boolean
+}
+
+export interface FetchAllProjectsResponse{
+  projectId:string,
+  name: string,
+  stage: 'PROJECT_CREATED' | 'TEMPLATE_SELECTED' | 'TEMPLATE_FINALISED' | 'ISSUED'
 }
 
 const issuerApi = api.injectEndpoints({
@@ -35,9 +41,15 @@ const issuerApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    fetchAllProjects: builder.query<FetchAllProjectsResponse[], void>({
+      query: () => ({
+        url: "/project/all",
+        method: "GET",
+      }),
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useOnboardMutation, useFetchIssuerQuery } = issuerApi;
+export const { useOnboardMutation, useFetchIssuerQuery ,useFetchAllProjectsQuery} = issuerApi;
 export default issuerApi;

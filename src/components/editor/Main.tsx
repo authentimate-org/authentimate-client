@@ -63,6 +63,22 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   const [zIndex, setzIndex] = useState<number | string>("");
   const [fontFamily, setFontFamily] = useState<string>("");
 
+  const handleResetProperties = (a:Component) => {
+    setColor(a.color??"");
+    setImage(a.image??"");
+    setRotate(a.rotate??0);
+    setLeft(a.left??"");
+    setTop(a.top??"");
+    setWidth(a.width??"");
+    setHeight(a.height??"");
+    setOpacity(a.opacity??"");
+    setzIndex(a.z_index??"");
+    setFontFamily(a.fontFamily??"");
+    setFont(a.font??"")
+    setWeight(a.weight??"")
+
+  };
+
   const fonteFamilies = [
     "Arial",
     "Verdana",
@@ -107,7 +123,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       z_index: 1,
       color: "#fff",
       image: "",
-      setCurrentComponent: (a) => setCurrentComponent(a),
+      setCurrentComponent: (a) => {handleResetProperties(a);setCurrentComponent(a);},
       rotateElement: function (id: string, info: Component): void {
         throw new Error("Function not implemented.");
       },
@@ -309,7 +325,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       weight: 400,
       color: "#3c3c3d",
       fontFamily: "Arial",
-      setCurrentComponent: (a) => setCurrentComponent(a),
+      setCurrentComponent: (a) => {setCurrentComponent(a)},
       moveElement,
       resizeElement,
       rotateElement,
@@ -317,8 +333,9 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     console.log(style);
     setWeight("");
     setFont("");
-    setSelectItem(id); // Ensure selectItem is a string
+    setSelectItem(id); 
     setCurrentComponent(style);
+    handleResetProperties(style);
     setComponents([...components, style]);
   };
 

@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { FC } from "react";
 import { Button } from "../ui/button";
+import { Link } from "react-router-dom";
 
 export const Navbar: FC = () => {
     const { handleLogout } = useAuth();
@@ -13,9 +14,9 @@ export const Navbar: FC = () => {
           <span className="sr-only">Acme Inc</span>
         </a>
         <nav className="ml-auto flex items-center gap-4">
-          <a className="text-sm font-medium hover:underline underline-offset-4" href="#">
+          <Link className="text-sm font-medium hover:underline underline-offset-4" to="/dashboard">
             Dashboard
-          </a>
+          </Link>
           <a className="text-sm font-medium hover:underline underline-offset-4" href="#">
             Templates
           </a>

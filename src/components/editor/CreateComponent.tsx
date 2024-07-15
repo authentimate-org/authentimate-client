@@ -75,9 +75,12 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        className={`absolute group hover:border-[2px] ${
-          info.id === selectItem ? "border-[2px]" : ""
-        } border-indigo-500`}
+        //className={`absolute group hover:border-[2px] ${
+        //          info.id === selectItem ? "border-[2px]" : ""
+        //        } border-indigo-500`}
+        className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+          info.id === selectItem ? "outline" : ""
+        } outline-indigo-500`}
       >
         {selectItem === info.id && (
           <Element id={info.id} info={info} exId={`${info.id}r`} />
@@ -106,9 +109,12 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        className={`absolute group hover:border-[2px] ${
-          info.id === selectItem ? "border-[2px]" : ""
-        } border-indigo-500`}
+        //className={`absolute group hover:border-[2px] ${
+        //          info.id === selectItem ? "border-[2px]" : ""
+        //        } border-indigo-500`}
+        className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+          info.id === selectItem ? "outline" : ""
+        } outline-indigo-500`}
       >
         {selectItem === info.id && (
           <Element id={info.id} info={info} exId={`${info.id}r`} />
@@ -137,9 +143,12 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        className={`absolute group hover:border-[2px] ${
-          info.id === selectItem ? "border-[2px]" : ""
-        } border-indigo-500`}
+        //className={`absolute group hover:border-[2px] ${
+        //          info.id === selectItem ? "border-[2px]" : ""
+        //        } border-indigo-500`}
+        className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+          info.id === selectItem ? "outline" : ""
+        } outline-indigo-500`}
       >
         {selectItem === info.id && (
           <Element id={info.id} info={info} exId={`${info.id}c`} />
@@ -170,9 +179,12 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        className={`absolute group hover:border-[2px] ${
-          info.id === selectItem ? "border-[2px]" : ""
-        } border-indigo-500`}
+        // className={`absolute group hover:border-[2px] ${
+        //   info.id === selectItem ? "border-[2px]" : ""
+        // } border-indigo-500`}
+        className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+          info.id === selectItem ? "outline" : ""
+        } outline-indigo-500`}
       >
         {selectItem === info.id && (
           <Element id={info.id} info={info} exId={`${info.id}t`} />
@@ -205,14 +217,14 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             transform: info.rotate
               ? `rotate(${info.rotate}deg)`
               : "rotate(0deg)",
-            padding: info.padding + "px",
+            // padding: info.padding + "px",
             color: info.color,
             opacity: info.opacity,
             fontFamily: info.fontFamily,
           }}
-          className={`absolute group hover:border-[2px] ${
-            info.id === selectItem ? "border-[2px]" : ""
-          } border-indigo-500`}
+          className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+            info.id === selectItem ? "outline" : ""
+          } outline-indigo-500`}
         >
           {selectItem === info.id && (
             <Element id={info.id} info={info} exId="" />
@@ -246,9 +258,13 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
           opacity: info.opacity,
         }}
-        className={`absolute group hover:border-[2px] ${
-          info.id === selectItem ? "border-[2px]" : ""
-        } border-indigo-500`}
+        // className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+        //   info.id === selectItem ? "outline-[2px]" : ""
+        // } outline-indigo-500`}
+
+        className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+          info.id === selectItem ? "outline-2" : ""
+        }`}
       >
         {selectItem === info.id && (
           <Element id={info.id} info={info} exId={`${info.id}img`} />

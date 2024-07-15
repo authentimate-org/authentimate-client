@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, {useState } from "react";
 import { useOnboardMutation, OnboardRequest } from "../../api/issuer/issuerApi"; 
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
+
+import { useDispatch } from "react-redux";
+import { setAuth } from "@/services/auth/authSlice";
 
 export const Onboard = () => {
   const [formData, setFormData] = useState<OnboardRequest>({
@@ -20,21 +20,11 @@ export const Onboard = () => {
     address: "",
   });
   const [selectedOption, setSelectedOption] = useState<string>("company"); 
-  const {isOnboarded,isEmailVerified}=useSelector((state:RootState)=>state.issuer)
   
-  const [onboard, { isLoading, isError ,error}] = useOnboardMutation();
-  useEffect(()=>{console.log(error)},[error])
+  const [onboard, { isLoading, isError }] = useOnboardMutation();
 
-  const navigate=useNavigate()
-
-  useEffect(()=>{
-    if(isOnboarded){
-      navigate("/dashboared")
-    }
-    if(!isEmailVerified){
-      navigate("/login")
-    }
-  },[isOnboarded,isEmailVerified])
+  const dispatch=useDispatch()
+  
 
   const handleOptionChange = (value: string) => {
     setSelectedOption(value);
@@ -65,6 +55,7 @@ export const Onboard = () => {
     console.log(formData)
     try {
       await onboard(formData);
+      dispatch(setAuth({authStatus:"ONBOARDED"}))
     } catch (error) {
       console.error("Error onboarding:", error);
   

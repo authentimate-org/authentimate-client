@@ -32,7 +32,7 @@ const Element: React.FC<ElementProps> = ({ id, info, exId }) => {
 
   return (
     <>
-      {info.name !== 'text' ? (
+      {info.name !== 'text1' ? (
         exId ? renderResizeHandles(exId) : renderResizeHandles(id)
       ) : (
         ''

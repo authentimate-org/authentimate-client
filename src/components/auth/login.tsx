@@ -11,21 +11,24 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RootState } from "../../app/store";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
   const { loading } = useSelector(
     (state: RootState) => state.auth
   );
-  const { handleLogin, isLoading, authError } = useAuth();
+  const { handleLogin, isLoading, authError } = useAuth(navigate);
+
+
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!loading) {
-      handleLogin(email, password);
+      await handleLogin(email, password);
     }
   };
 

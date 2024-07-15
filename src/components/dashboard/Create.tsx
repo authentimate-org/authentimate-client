@@ -5,7 +5,6 @@ const Create: FC = () => {
   const navigate = useNavigate();
 
   const handleCreateProject = () => {
-    // console.log(" andsifhs")
     navigate("/create-project");
   };
 
