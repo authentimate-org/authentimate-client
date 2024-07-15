@@ -217,7 +217,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             transform: info.rotate
               ? `rotate(${info.rotate}deg)`
               : "rotate(0deg)",
-            // padding: info.padding + "px",
+            padding: info.padding + "px",
             color: info.color,
             opacity: info.opacity,
             fontFamily: info.fontFamily,
@@ -263,7 +263,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
         // } outline-indigo-500`}
 
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${
-          info.id === selectItem ? "outline-2" : ""
+          info.id === selectItem ? "outline" : ""
         }`}
       >
         {selectItem === info.id && (

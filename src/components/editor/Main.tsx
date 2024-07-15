@@ -63,21 +63,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   const [zIndex, setzIndex] = useState<number | string>("");
   const [fontFamily, setFontFamily] = useState<string>("");
 
-  const handleResetProperties = (a:Component) => {
-    setColor(a.color??"");
-    setImage(a.image??"");
-    setRotate(a.rotate??0);
-    setLeft(a.left??"");
-    setTop(a.top??"");
-    setWidth(a.width??"");
-    setHeight(a.height??"");
-    setOpacity(a.opacity??"");
-    setzIndex(a.z_index??"");
-    setFontFamily(a.fontFamily??"");
-    setFont(a.font??"")
-    setWeight(a.weight??"")
 
-  };
 
   const fonteFamilies = [
     "Arial",
@@ -123,7 +109,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       z_index: 1,
       color: "#fff",
       image: "",
-      setCurrentComponent: (a) => {handleResetProperties(a);setCurrentComponent(a);},
+      setCurrentComponent: (a) => {setCurrentComponent(a);},
       rotateElement: function (id: string, info: Component): void {
         throw new Error("Function not implemented.");
       },
@@ -335,7 +321,6 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setFont("");
     setSelectItem(id); 
     setCurrentComponent(style);
-    handleResetProperties(style);
     setComponents([...components, style]);
   };
 
@@ -791,7 +776,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                           </div>
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[72px]">
-                              Font size :{" "}
+                              Font size :
                             </span>
                             <input
                               onChange={(e) =>
