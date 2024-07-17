@@ -21,18 +21,17 @@ const Header: React.FC<HeaderProps> = ({ components, design_id }) => {
 
       if (image) {
         const obj = {
-          design: components,
+          design: components
         };
 
-        console.log(obj);
-        const formData = new FormData();
-        formData.append("design", JSON.stringify(obj));
-        formData.append("image", image);
-
+        // console.log(obj);
+        const design = new FormData();
+        design.append("design", JSON.stringify(obj));
+        // formData.append("image", image);
         try {
           setLoader(true);
-          console.log(design_id,formData)
-          const { data } = await updateUserDesign({ design_id, formData });
+          console.log("dessign",design_id)
+          const { data } = await updateUserDesign({ design });
           toast.success(data.message);
           setLoader(false);
         } catch (error: any) {

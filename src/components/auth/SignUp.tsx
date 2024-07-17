@@ -10,16 +10,17 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { handleRegister, isLoading, authError } = useAuth();
-  
-  const handleSignUp = (e: React.FormEvent) => {
+  const navigate=useNavigate()
+  const { handleRegister, isLoading, authError } = useAuth(navigate);
+
+  const handleSignUp = async(e: React.FormEvent) => {
     e.preventDefault();
-    handleRegister(email, password);
+    await handleRegister(email, password);
   };
 
   return (

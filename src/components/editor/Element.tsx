@@ -32,11 +32,9 @@ const Element: React.FC<ElementProps> = ({ id, info, exId }) => {
 
   return (
     <>
-      {info.name !== 'text' ? (
+      {  (
         exId ? renderResizeHandles(exId) : renderResizeHandles(id)
-      ) : (
-        ''
-      )}
+      ) }
 
       <div
         onMouseDown={() => info.rotateElement(id, info)}

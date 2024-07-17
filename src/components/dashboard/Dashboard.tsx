@@ -1,17 +1,12 @@
-
-
 import { Analytics } from "./Analytics";
 import Create from "./Create";
 
-
-
-function Dashboard()
-{
+function Dashboard() {
   return (
     <div>
       <Analytics></Analytics>
       <Create></Create>
     </div>
-  )
+  );
 }
 export default Dashboard;

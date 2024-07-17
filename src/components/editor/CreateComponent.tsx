@@ -192,8 +192,49 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
     );
   }
 
-  if (info.name === "text") {
-    // info.fontFamily=current_component?.fontFamily;
+  if (info.name === "text" && info.type === "title") {
+    html = (
+      <div onClick={() => info.setCurrentComponent(info)}>
+        <div
+          id={info.id}
+          style={{
+            left: info.left + "px",
+            top: info.top + "px",
+            zIndex: info.z_index,
+            transform: info.rotate
+              ? `rotate(${info.rotate}deg)`
+              : "rotate(0deg)",
+            padding: info.padding + "px",
+            color: info.color,
+            opacity: info.opacity,
+            fontFamily: info.fontFamily
+          }}
+          className={`absolute group hover:border-[2px] ${
+            info.id === selectItem ? "border-[2px]" : ""
+          } border-indigo-500`}
+        >
+          {selectItem === info.id && (
+            <Element id={info.id} info={info} exId="" />
+          )}
+          <div onMouseDown={() => info.moveElement(info.id, info)}>
+            <h2
+              style={{
+                fontSize: info.font + "px",
+                fontWeight: info.weight,
+                fontFamily: info.fontFamily,
+                
+              }}
+              className="w-full h-full"
+            >
+              {info.title}
+            </h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (info.name === "text" && info.type === "recepientName") {
     html = (
       <div onClick={() => info.setCurrentComponent(info)}>
         <div
@@ -209,6 +250,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             color: info.color,
             opacity: info.opacity,
             fontFamily: info.fontFamily,
+            pointerEvents: "auto", // Prevents moving out of the frame
           }}
           className={`absolute group hover:border-[2px] ${
             info.id === selectItem ? "border-[2px]" : ""
@@ -217,7 +259,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           {selectItem === info.id && (
             <Element id={info.id} info={info} exId="" />
           )}
-          <div onMouseDown={() => info.moveElement(info.id, info)}>
+          <div>
             <h2
               style={{
                 fontSize: info.font + "px",
@@ -234,7 +276,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
     );
   }
 
-  if (info.name === "image") {
+  if (info.name === "image" && info.type === "image") {
     html = (
       <div
         id={info.id}
@@ -268,7 +310,41 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
       </div>
     );
   }
-
+  
+  if (info.name === "image" && info.type === "qrcode") {
+    html = (
+      <div
+        id={info.id}
+        onClick={() => info.setCurrentComponent(info)}
+        style={{
+          left: info.left + "px",
+          top: info.top + "px",
+          zIndex: info.z_index,
+          transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
+          opacity: info.opacity,
+          pointerEvents: "none", // Prevents moving out of the frame
+        }}
+        className={`absolute group hover:border-[2px] ${
+          info.id === selectItem ? "border-[2px]" : ""
+        } border-indigo-500`}
+      >
+        {selectItem === info.id && (
+          <Element id={info.id} info={info} exId={`${info.id}img`} />
+        )}
+        <div
+          className="overflow-hidden"
+          id={`${info.id}img`}
+          style={{
+            width: info.width + "px",
+            height: info.height + "px",
+            borderRadius: `${info.radius}%`,
+          }}
+        >
+          <img className="w-full h-full" src={info.image} alt="image" />
+        </div>
+      </div>
+    );
+  }
   return <>{html}</>;
 };
 

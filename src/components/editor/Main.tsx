@@ -8,7 +8,7 @@ import { IoDuplicateOutline } from "react-icons/io5";
 import { TfiText } from "react-icons/tfi";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 // import { RxTransparencyGrid } from "react-icons/rx";
-import TemplateDesign from "./main/TemplateDesign";
+// import TemplateDesign from "./main/TemplateDesign";
 import CreateComponent from "./CreateComponent";
 import { useFetchTemplateByIdQuery } from "@/api/project/projectApi";
 // import { stringify } from "querystring";
@@ -62,6 +62,25 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   const [opacity, setOpacity] = useState<number | string>("");
   const [zIndex, setzIndex] = useState<number | string>("");
   const [fontFamily, setFontFamily] = useState<string>("");
+  const [title, settitle] = useState<string>("");
+  const [padding, setPadding] = useState<number | string>(0);
+
+  const handleResetProperties = (a: Component) => {
+    setColor(a.color ?? "");
+    setImage(a.image ?? "");
+    setRotate(a.rotate ?? 0);
+    setLeft(a.left ?? "");
+    setTop(a.top ?? "");
+    setWidth(a.width ?? "");
+    setHeight(a.height ?? "");
+    setOpacity(a.opacity ?? "");
+    setzIndex(a.z_index ?? "");
+    setFontFamily(a.fontFamily ?? "");
+    setPadding(a.padding ?? 0);
+    settitle(a.title ?? "")
+    setFont(a.font ?? 12);
+    setWeight(a.weight ?? "");
+  };
 
   const fonteFamilies = [
     "Arial",
@@ -83,8 +102,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   //   }
   //   console.log(current_component)
   // };
-  const [padding, setPadding] = useState<number | string>("");
-  const [font, setFont] = useState<number | string>("");
+  const [font, setFont] = useState<number>(12);
   const [weight, setWeight] = useState<number | string>("");
   const [text, setText] = useState<string>("");
   const [radius, setRadius] = useState<number>(0);
@@ -93,6 +111,11 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setShow({ name: "", status: true });
     add_text("text", "title");
   };
+  // const handleClicking = (e: any) => {
+  //   setText(e.target.value);
+  //   settitle(e.target.value);
+  //   handlePropertyChange("title", e.target.value);
+  // };
   const [show, setShow] = useState<{ status: boolean; name: string }>({
     status: true,
     name: "",
@@ -107,7 +130,10 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       z_index: 1,
       color: "#fff",
       image: "",
-      setCurrentComponent: (a) => setCurrentComponent(a),
+      setCurrentComponent: (a) => {
+        handleResetProperties(a);
+        setCurrentComponent(a);
+      },
       rotateElement: function (id: string, info: Component): void {
         throw new Error("Function not implemented.");
       },
@@ -242,7 +268,8 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
 
   const removeComponent = (id: string) => {
     const temp = components.filter((c) => c.id !== id);
-    setCurrentComponent(null);
+    const tempe = components.filter((c) => c.id !== id);
+    setCurrentComponent(tempe);
     setComponents(temp);
   };
 
@@ -309,15 +336,18 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       weight: 400,
       color: "#3c3c3d",
       fontFamily: "Arial",
-      setCurrentComponent: (a) => setCurrentComponent(a),
+      setCurrentComponent: (a) => {
+        handleResetProperties(a);
+        setCurrentComponent(a);
+      },
       moveElement,
       resizeElement,
       rotateElement,
     };
-    console.log(style);
     setWeight("");
-    setFont("");
-    setSelectItem(id); // Ensure selectItem is a string
+    setFont(16);
+    setPadding(0);
+    setSelectItem(id);
     setCurrentComponent(style);
     setComponents([...components, style]);
   };
@@ -349,102 +379,213 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setComponents([...components, style]);
   };
 
-  useEffect(() => {
+  const handlePropertyChange = (property: string, value?: any) => {
     if (current_component) {
       const index = components.findIndex((c) => c.id === current_component.id);
-      const temp = components.filter((c) => c.id !== current_component.id);
-
-      if (current_component.name !== "text") {
-        components[index].width =
-          typeof width === "string"
-            ? parseInt(width)
-            : width || current_component.width;
-        components[index].height =
-          typeof height === "string"
-            ? parseInt(height)
-            : height || current_component.height;
-        components[index].rotate = rotate || current_component.rotate;
+      const name = current_component.name;
+      console.log(name);
+      if (property === "colors") {
+        setColor(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            color: value,
+          };
+          return updatedComponents; // Return updated state
+        });
       }
-      if (current_component.name === "text") {
-        components[index].font =
-          typeof font === "string"
-            ? parseInt(font)
-            : font || current_component.font;
-        components[index].padding =
-          typeof padding === "string"
-            ? parseInt(padding)
-            : padding || current_component.padding;
-        components[index].weight =
-          typeof weight === "string"
-            ? parseInt(weight)
-            : weight || current_component.weight;
-        components[index].fontFamily =
-          typeof fontFamily === "string"
-            ? fontFamily
-            : fontFamily || current_component.fontFamily;
-        components[index].title = text || current_component.title;
+      if (property === "Zindex") {
+        setzIndex(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            z_index: value,
+          };
+          return updatedComponents; // Return updated state
+        });
       }
-      if (current_component.name === "image") {
-        components[index].radius = radius || current_component.radius;
+      if (property === "Opacity") {
+        setOpacity(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            opacity: value,
+          };
+          return updatedComponents; // Return updated state
+        });
       }
-
-      if (current_component.name === "main_frame" && image) {
-        components[index].image = image || current_component.image;
+      if (name === "text") {
+        if (property === "fontSize") {
+          setFont(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              font: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "fontFamily") {
+          setFontFamily(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              fontFamily: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "Paddings") {
+          setPadding(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              padding: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "weights") {
+          setWeight(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              weight: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "titles") {
+          settitle(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              title: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
       }
-      components[index].color = color || current_component.color;
-
-      if (current_component.name !== "main_frame") {
-        components[index].left =
-          typeof left === "string"
-            ? parseInt(left)
-            : left || current_component.left;
-        components[index].top =
-          typeof top === "string"
-            ? parseInt(top)
-            : top || current_component.top;
-        components[index].opacity =
-          typeof opacity === "string"
-            ? parseFloat(opacity)
-            : opacity || current_component.opacity;
-        components[index].z_index =
-          typeof zIndex === "string"
-            ? parseInt(zIndex)
-            : zIndex || current_component.z_index;
-        components[index].fontFamily =
-          typeof fontFamily === "string"
-            ? fontFamily
-            : fontFamily || current_component.fontFamily;
+      if (name === "image") {
+        if (property === "Radius") {
+          setRadius(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              radius: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
       }
-      setComponents([...components]);
-
-      setColor("");
-      setWidth("");
-      setHeight("");
-      setTop("");
-      setLeft("");
-      setRotate(0);
-      setOpacity("");
-      setPadding(0);
-      setzIndex("");
-      setText("");
     }
-  }, [
-    color,
-    image,
-    left,
-    top,
-    width,
-    height,
-    opacity,
-    zIndex,
-    padding,
-    fontFamily,
-    font,
-    weight,
-    text,
-    radius,
-    rotate,
-  ]);
+  };
+
+  // useEffect(() => {
+  //   if (current_component) {
+  //     const index = components.findIndex((c) => c.id === current_component.id);
+  //     const temp = components.filter((c) => c.id !== current_component.id);
+
+  //     if (current_component.name !== "text") {
+  //       components[index].width =
+  //         typeof width === "string"
+  //           ? parseInt(width)
+  //           : width || current_component.width;
+  //       components[index].height =
+  //         typeof height === "string"
+  //           ? parseInt(height)
+  //           : height || current_component.height;
+  //       components[index].rotate = rotate || current_component.rotate;
+  //     }
+  //     if (current_component.name === "text") {
+  //       components[index].font =
+  //         typeof font === "string"
+  //           ? parseInt(font)
+  //           : font || current_component.font;
+  //       components[index].padding =
+  //         typeof padding === "string"
+  //           ? parseInt(padding)
+  //           : padding || current_component.padding;
+  //       components[index].weight =
+  //         typeof weight === "string"
+  //           ? parseInt(weight)
+  //           : weight || current_component.weight;
+  //       components[index].fontFamily =
+  //         typeof fontFamily === "string"
+  //           ? fontFamily
+  //           : fontFamily || current_component.fontFamily;
+  //       components[index].title = text || current_component.title;
+  //     }
+  //     if (current_component.name === "image") {
+  //       components[index].radius = radius || current_component.radius;
+  //     }
+
+  //     if (current_component.name === "main_frame" && image) {
+  //       components[index].image = image || current_component.image;
+  //     }
+  //     components[index].color = color || current_component.color;
+
+  //     if (current_component.name !== "main_frame") {
+  //       components[index].left =
+  //         typeof left === "string"
+  //           ? parseInt(left)
+  //           : left || current_component.left;
+  //       components[index].top =
+  //         typeof top === "string"
+  //           ? parseInt(top)
+  //           : top || current_component.top;
+  //       components[index].opacity =
+  //         typeof opacity === "string"
+  //           ? parseFloat(opacity)
+  //           : opacity || current_component.opacity;
+  //       components[index].z_index =
+  //         typeof zIndex === "string"
+  //           ? parseInt(zIndex)
+  //           : zIndex || current_component.z_index;
+  //       components[index].fontFamily =
+  //         typeof fontFamily === "string"
+  //           ? fontFamily
+  //           : fontFamily || current_component.fontFamily;
+  //     }
+  //     setComponents([...components]);
+
+  //     setColor("");
+  //     setWidth("");
+  //     setHeight("");
+  //     setTop("");
+  //     setLeft("");
+  //     setRotate(0);
+  //     setOpacity("");
+  //     setPadding(0);
+  //     setzIndex("");
+  //     setText("");
+  //   }
+  // }, [
+  //   color,
+  //   image,
+  //   left,
+  //   top,
+  //   width,
+  //   height,
+  //   opacity,
+  //   zIndex,
+  //   padding,
+  //   fontFamily,
+  //   font,
+  //   weight,
+  //   text,
+  //   radius,
+  //   rotate,
+  // ]);
 
   const {
     data: templateData,
@@ -453,22 +594,24 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   } = useFetchTemplateByIdQuery(template);
 
   useEffect(() => {
-    if (templateData && templateData.graphicElements) {
-      const design = templateData.graphicElements.flatMap((array) =>
-        array.map((element: any) => ({
-          ...element,
-          setCurrentComponent: (a: any) => setCurrentComponent(a),
-          moveElement: moveElement,
-          resizeElement: resizeElement,
-          rotateElement: rotateElement,
-        }))
-      );
+    if (templateData) {
+      const design = templateData.map((element: any) => ({
+        ...element,
+        setCurrentComponent: (a: any) => {
+          handleResetProperties(a);
+          setCurrentComponent(a);
+        },
+        moveElement: moveElement,
+        resizeElement: resizeElement,
+        rotateElement: rotateElement,
+        removeComponent: removeComponent,
+      }));
 
       console.log(design);
       setComponents(design);
     } else {
       console.error(
-        "Template data is undefined or does not contain graphicElements"
+        "Template data is undefined or does not contain components"
       );
     }
   }, [templateData]);
@@ -477,7 +620,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     return <div>Loading template...</div>;
   }
 
-  if (isError || !templateData?.graphicElements) {
+  if (isError || !templateData) {
     return <div>Error loading template</div>;
   }
 
@@ -675,16 +818,18 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                       className="w-[30px] h-[30px] cursor-pointer rounded-sm"
                       style={{
                         background: `${
-                          current_component.color &&
-                          current_component.color !== "#fff"
-                            ? current_component.color
+                         color &&
+                        color !== "#fff"
+                            ? color
                             : "gray"
                         }`,
                       }}
                       htmlFor="color"
                     ></label>
                     <input
-                      onChange={(e) => setColor(e.target.value)}
+                      onChange={(e) =>
+                        handlePropertyChange("colors", e.target.value)
+                      }
                       type="color"
                       className="invisible"
                       id="color"
@@ -707,23 +852,27 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                       <div className="flex gap-1 justify-start items-start">
                         <span className="text-md w-[70px]">Opacity : </span>
                         <input
-                          onChange={opacityHandle}
+                          onChange={(e) =>
+                            handlePropertyChange("Opacity", e.target.value)
+                          }
                           className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                           type="number"
                           step={0.1}
                           min={0.1}
                           max={1}
-                          value={current_component.opacity}
+                          value={opacity}
                         />
                       </div>
                       <div className="flex gap-1 justify-start items-start">
                         <span className="text-md w-[70px]">Z-Index : </span>
                         <input
-                          onChange={(e) => setzIndex(parseInt(e.target.value))}
+                          onChange={(e) =>
+                            handlePropertyChange("Zindex", e.target.value)
+                          }
                           className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                           type="number"
                           step={1}
-                          value={current_component.z_index}
+                          value={zIndex}
                         />
                       </div>
                       {current_component.name === "image" && (
@@ -731,12 +880,12 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                           <span className="text-md w-[70px]">Radius : </span>
                           <input
                             onChange={(e) =>
-                              setRadius(parseInt(e.target.value))
+                              handlePropertyChange("Radius", e.target.value)
                             }
                             className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                             type="number"
                             step={1}
-                            value={current_component.radius}
+                            value={radius}
                           />
                         </div>
                       )}
@@ -746,48 +895,58 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                             <span className="text-md w-[70px]">Padding : </span>
                             <input
                               onChange={(e) =>
-                                setPadding(parseInt(e.target.value))
+                                handlePropertyChange("Paddings", e.target.value)
                               }
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={1}
-                              value={current_component.padding}
+                              value={padding}
                             />
                           </div>
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[72px]">
-                              Font size :{" "}
+                              Font size :
                             </span>
                             <input
-                              onChange={(e) =>
-                                setFont(parseInt(e.target.value))
-                              }
+                              onChange={(e) => {
+                                handlePropertyChange(
+                                  "fontSize",
+                                  e.target.value
+                                );
+                                // setFont(parseInt(e.target.value))
+                              }}
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={1}
-                              value={current_component.font}
+                              value={font}
                             />
                           </div>
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[70px]">Weight : </span>
                             <input
                               onChange={(e) =>
-                                setWeight(parseInt(e.target.value))
+                                handlePropertyChange("weights", e.target.value)
                               }
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={100}
                               min={100}
                               max={900}
-                              value={current_component.weight}
+                              value={weight}
                             />
                           </div>
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[70px]">Font: </span>
                             <select
-                              onChange={(e) => setFontFamily(e.target.value)}
+                              onChange={(e) => {
+                                handlePropertyChange(
+                                  "fontFamily",
+                                  e.target.value
+                                );
+                                // setFontFamily(e.target.value);
+                              }}
                               className="border border-gray-700 bg-transparent outline-none px-2 rounded-md"
-                              value={current_component.fontFamily}
+                              value={fontFamily}
                             >
                               {fonteFamilies.map((font) => (
                                 <option key={font} value={font}>
@@ -800,14 +959,11 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                           <div className="flex gap-2 flex-col justify-start items-start">
                             <input
                               onChange={(e) =>
-                                setCurrentComponent({
-                                  ...current_component,
-                                  title: e.target.value,
-                                })
+                                handlePropertyChange("titles", e.target.value)
                               }
                               className="border border-gray-700 bg-transparent outline-none p-2 rounded-md"
                               type="text"
-                              value={current_component.title}
+                              value={title}
                             />
                             <div className="flex pl-5">
                               <button
@@ -816,14 +972,15 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                               >
                                 Add
                               </button>
-                              <button
+                              {/* <button
                                 onClick={() =>
-                                  setText(current_component.title || "")
+                                  // settitle(current_component?.title || "")
+                                  handlePropertyChange("title",current_component.title)
                                 }
                                 className="px-4 py-2 bg-purple-500 text-xs text-white rounded-sm"
                               >
                                 Update
-                              </button>
+                              </button> */}
                             </div>
                           </div>
                         </>

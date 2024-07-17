@@ -19,6 +19,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  authStatus: "AUTHENTICATED" | "VERIFIED" | "ONBOARDED" | null
 }
 
 const initialState: AuthState = {
@@ -27,6 +28,7 @@ const initialState: AuthState = {
   loading: false,
   error: null,
   isAuthenticated: false,
+  authStatus:null
 };
 
 export const registerUser = createAsyncThunk(
@@ -43,21 +45,21 @@ export const registerUser = createAsyncThunk(
       );
       const token = await userCredential.user.getIdToken();
       const user = userCredential.user as FirebaseUser;
-      await axios.post(import.meta.env.VITE_BACKEND_API_BASE_URL_DEV+"/issuer/signUp",{
-        email:user.email,
-        uid:user.uid
-      });
+      await axios.post(
+        import.meta.env.VITE_BACKEND_API_BASE_URL_DEV + "/issuer/signUp",
+        {
+          email: user.email,
+          uid: user.uid,
+        }
+      );
       const userData = {
         uid: user.uid,
         email: user.email,
-        emailVerified:user.emailVerified
+        emailVerified: user.emailVerified,
       };
       return { user: userData, token };
-      
     } catch (error: any) {
-      return rejectWithValue(
-        error.message
-      );
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -79,13 +81,11 @@ export const loginUser = createAsyncThunk(
       const userData = {
         uid: user.uid,
         email: user.email,
-        emailVerified:user.emailVerified
+        emailVerified: user.emailVerified,
       };
       return { user: userData, token };
-    } catch (error:any) {
-      return rejectWithValue(
-        error.message
-      );
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -109,27 +109,31 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (
+    setAuth: (
       state,
       action: PayloadAction<{
-        uid: string;
-        email: string | null;
-        token: string;
+        uid?: string;
+        email?: string | null;
+        token?: string;
+        authStatus?:"AUTHENTICATED" | "VERIFIED" | "ONBOARDED" | null
       }>
     ) => {
       state.user = {
-        uid: action.payload.uid,
-        email: action.payload.email,
+        uid: action.payload.uid??state.user?.uid??"",
+        email: action.payload.email??state.user?.email??"",
       };
-      state.token = action.payload.token;
-      state.loading = false;
-      state.error = null;
+      state.token = action.payload.token??state.token;
+      state.authStatus=action.payload.authStatus??state.authStatus
+    },
+    setAuthStatus:(state,action)=>{
+      state.authStatus=action.payload
     },
     logoutUser: (state) => {
       state.user = null;
       state.token = null;
       state.loading = false;
       state.error = null;
+      state.authStatus=null
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -187,6 +191,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, logoutUser, setLoading, setError } = authSlice.actions;
+export const { setAuth, logoutUser, setLoading, setError,setAuthStatus } = authSlice.actions;
 
 export default authSlice.reducer;
