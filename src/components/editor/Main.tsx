@@ -268,8 +268,9 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
 
   const removeComponent = (id: string) => {
     const temp = components.filter((c) => c.id !== id);
-    const tempe = components.filter((c) => c.id !== id);
-    setCurrentComponent(tempe);
+    const tempe = components.filter((c) => c.name === "main_frame");
+    // console.log((temp)
+    setCurrentComponent(tempe[0]);
     setComponents(temp);
   };
 
@@ -330,7 +331,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       opacity: 1,
       rotate,
       z_index: 10,
-      padding: 6,
+      padding: 0,
       font: 22,
       title: "Add text",
       weight: 400,
@@ -609,6 +610,8 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
 
       console.log(design);
       setComponents(design);
+      const tempe = components.filter((c) => c.name === "main_frame");
+      setCurrentComponent(tempe[0]);
     } else {
       console.error(
         "Template data is undefined or does not contain components"
