@@ -28,6 +28,7 @@ interface Component {
   top?: number;
   rotate?: number;
   opacity?: number;
+  lineheight?: number;
   padding?: number;
   font?: number;
   weight?: number;
@@ -64,6 +65,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   const [fontFamily, setFontFamily] = useState<string>("");
   const [title, settitle] = useState<string>("");
   const [padding, setPadding] = useState<number | string>(0);
+  const [lineheight, setLineheight] = useState<number | string>(0);
 
   const handleResetProperties = (a: Component) => {
     setColor(a.color ?? "");
@@ -74,10 +76,11 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setWidth(a.width ?? "");
     setHeight(a.height ?? "");
     setOpacity(a.opacity ?? "");
+    setLineheight(a.lineheight ?? 1);
     setzIndex(a.z_index ?? "");
     setFontFamily(a.fontFamily ?? "");
     setPadding(a.padding ?? 0);
-    settitle(a.title ?? "")
+    settitle(a.title ?? "");
     setFont(a.font ?? 12);
     setWeight(a.weight ?? "");
   };
@@ -159,15 +162,35 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     let isMoving = true;
 
     const currentDiv = document.getElementById(id);
+    const canvas = document.getElementById("main_design"); // Assuming the canvas has an id of 'canvas'
+    const canvasRect = canvas?.getBoundingClientRect();
+
+    if (!canvasRect) {
+      console.error("Canvas element not found.");
+      return;
+    }
+
+    const canvasWidth = canvasRect.width;
+    const canvasHeight = canvasRect.height;
 
     const mouseMove = ({ movementX, movementY }: MouseEvent) => {
       setSelectItem("");
       const getStyle = window.getComputedStyle(currentDiv!);
-      const left = parseInt(getStyle.left);
-      const top = parseInt(getStyle.top);
+      let left = parseInt(getStyle.left);
+      let top = parseInt(getStyle.top);
+
       if (isMoving) {
-        currentDiv!.style.left = `${left + movementX}px`;
-        currentDiv!.style.top = `${top + movementY}px`;
+        left += movementX;
+        top += movementY;
+
+        const width = currentInfo.width ?? currentDiv!.offsetWidth;
+        const height = currentInfo.height ?? currentDiv!.offsetHeight;
+
+        left = Math.max(0, Math.min(left, canvasWidth - width));
+        top = Math.max(0, Math.min(top, canvasHeight - height));
+
+        currentDiv!.style.left = `${left}px`;
+        currentDiv!.style.top = `${top}px`;
       }
     };
 
@@ -196,11 +219,39 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
 
     const mouseMove = ({ movementX, movementY }: MouseEvent) => {
       const getStyle = window.getComputedStyle(currentDiv!);
-      const width = parseInt(getStyle.width);
-      const height = parseInt(getStyle.height);
+      let width = parseInt(getStyle.width);
+      let height = parseInt(getStyle.height);
+
       if (isMoving) {
-        currentDiv!.style.width = `${width + movementX}px`;
-        currentDiv!.style.height = `${height + movementY}px`;
+        if (currentInfo.name === "image" && currentInfo.type === "qrCode") {
+          // Maintain aspect ratio for QR code
+          const aspectRatio = width / height;
+          let newWidth = width + movementX;
+
+          if (newWidth < 60) {
+            newWidth = 60; // Ensure minimum width of 30px
+          }
+
+          const newHeight = newWidth / aspectRatio;
+
+          currentDiv!.style.width = `${newWidth}px`;
+          currentDiv!.style.height = `${newHeight}px`;
+        } 
+        else if (
+          currentInfo.name === "shape" &&
+          currentInfo.type === "line"
+        ) {
+          width += movementX;
+          width = Math.max(width, 1);
+          // height = Math.min(Math.max(height + movementY, 1), 8); 
+
+          currentDiv!.style.width = `${width}px`;
+          currentDiv!.style.height = `${height}px`;
+        } 
+        else {
+          currentDiv!.style.width = `${width + movementX}px`;
+          currentDiv!.style.height = `${height + movementY}px`;
+        }
       }
     };
 
@@ -290,9 +341,9 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setComponents([...temp, com!]);
   };
 
-  const opacityHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOpacity(parseFloat(e.target.value));
-  };
+  // const opacityHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setOpacity(parseFloat(e.target.value));
+  // };
 
   const createShape = (name: string, type: string) => {
     setCurrentComponent(null);
@@ -304,6 +355,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       left: 10,
       top: 10,
       opacity: 1,
+      lineheight: 1,
       width: 200,
       height: 150,
       rotate,
@@ -384,7 +436,6 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     if (current_component) {
       const index = components.findIndex((c) => c.id === current_component.id);
       const name = current_component.name;
-      console.log(name);
       if (property === "colors") {
         setColor(value);
         setComponents((prev) => {
@@ -393,7 +444,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
             ...updatedComponents[index],
             color: value,
           };
-          return updatedComponents; // Return updated state
+          return updatedComponents;
         });
       }
       if (property === "Zindex") {
@@ -414,6 +465,17 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
           updatedComponents[index] = {
             ...updatedComponents[index],
             opacity: value,
+          };
+          return updatedComponents; // Return updated state
+        });
+      }
+      if (property === "Lineheights") {
+        setLineheight(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            lineheight: value,
           };
           return updatedComponents; // Return updated state
         });
@@ -595,6 +657,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   } = useFetchTemplateByIdQuery(template);
 
   useEffect(() => {
+    console.log(templateData)
     if (templateData) {
       const design = templateData.map((element: any) => ({
         ...element,
@@ -608,7 +671,6 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
         removeComponent: removeComponent,
       }));
 
-      console.log(design);
       setComponents(design);
       const tempe = components.filter((c) => c.name === "main_frame");
       setCurrentComponent(tempe[0]);
@@ -821,10 +883,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                       className="w-[30px] h-[30px] cursor-pointer rounded-sm"
                       style={{
                         background: `${
-                         color &&
-                        color !== "#fff"
-                            ? color
-                            : "gray"
+                          color && color !== "#fff" ? color : "gray"
                         }`,
                       }}
                       htmlFor="color"
@@ -878,6 +937,28 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                           value={zIndex}
                         />
                       </div>
+                      {current_component.name === "shape" &&
+                        current_component.type === "line" && (
+                          <div className="flex gap-1 justify-start items-start">
+                            <span className="text-md w-[70px]">
+                              Line height:
+                            </span>
+                            <input
+                              onChange={(e) =>
+                                handlePropertyChange(
+                                  "Lineheights",
+                                  e.target.value
+                                )
+                              }
+                              className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
+                              type="number"
+                              min={1}
+                              max={8}
+                              step={1}
+                              value={lineheight}
+                            />
+                          </div>
+                        )}
                       {current_component.name === "image" && (
                         <div className="flex gap-1 justify-start items-start">
                           <span className="text-md w-[70px]">Radius : </span>

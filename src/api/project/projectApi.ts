@@ -79,7 +79,7 @@ const projectApi = api.injectEndpoints({
     >({
       query: ({ design }) => ({
         url: "/modifiedTemplate/save",
-        method: "POST",
+        method: "PUT",
         body: design
       }),
     }),

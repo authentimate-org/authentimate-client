@@ -1,4 +1,9 @@
-import { createBrowserRouter, RouterProvider, Navigate, RouteObject } from "react-router-dom";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+  RouteObject,
+} from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import SignUp from "./components/auth/SignUp";
 import VerifyMail from "./components/auth/VerifyMail";
@@ -8,8 +13,10 @@ import Dashboard from "./components/dashboard/Dashboard";
 import CreateProject from "./components/createProject/CreateProject";
 import { Onboard } from "./components/auth/Onboard";
 
+import QRCodeGenerator from "./components/editor/qrcode/QRCodeGenerator";
+import PreviewPage from "./components/editor/preview";
 const AppRouter = () => {
-  const { authStatus } = useAuth(()=>{});
+  const { authStatus } = useAuth(() => {});
 
   let routes: RouteObject[] = [];
 
@@ -75,6 +82,16 @@ const AppRouter = () => {
           {
             path: "create-project/:page/:projectId?/:templateId?",
             element: <CreateProject />,
+          },
+          {
+            path: "qr-code",
+            element: (
+              <QRCodeGenerator url={`${window.location.origin}/preview`} />
+            ),
+          },
+          {
+            path: "preview",
+            element: <PreviewPage />,
           },
           {
             path: "*",
