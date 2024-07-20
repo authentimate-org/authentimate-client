@@ -4,7 +4,14 @@ import useImage from "use-image";
 type DesignElement = {
   id: number;
   name: string;
-  type: "rect" | "circle" | "title" | "image";
+  type:
+    | "rect"
+    | "circle"
+    | "title"
+    | "image"
+    | "qrCode"
+    | "line"
+    | "recipientName";
   left?: number;
   top?: number;
   width?: number;
@@ -14,20 +21,23 @@ type DesignElement = {
   rotate?: number;
   z_index: number;
   opacity?: number;
+  fontFamily?: string;
   font?: number;
   title?: string;
-  radius?:number;
   weight?: number;
+  radius?: number;
   padding?: number;
 };
 
 const CertificatePreview = ({ design }: { design: DesignElement[] }) => {
   return (
-    <Stage width={600} height={450} style={{scale:"0.8"}}>
+    <Stage width={600} height={450} 
+    // style={{ scale: "0.8" }}
+    >
       <Layer>
         {design.map((element) => {
           switch (element.type) {
-            case "rect":
+            case "line":
               return (
                 <Rect
                   key={element.id}
@@ -62,9 +72,28 @@ const CertificatePreview = ({ design }: { design: DesignElement[] }) => {
                   fontSize={element.font || 12}
                   fontWeight={element.weight || "normal"}
                   fill={element.color || "black"}
+                  fontFamily={element.fontFamily || "Arial"}
                   padding={element.padding || 0}
-                  width={element.width }
-                  zIndex= {element.z_index}
+                  width={element.width}
+                  zIndex={element.z_index}
+                  opacity={element.opacity || 1}
+                  rotation={element.rotate || 0}
+                />
+              );
+            case "recipientName":
+              return (
+                <Text
+                  key={element.id}
+                  x={element.left || 0}
+                  y={element.top || 0}
+                  text={element.title || ""}
+                  fontSize={element.font || 12}
+                  fontWeight={element.weight || "normal"}
+                  fill={element.color || "black"}
+                  fontFamily={element.fontFamily || "Arial"}
+                  padding={element.padding || 0}
+                  width={element.width}
+                  zIndex={element.z_index}
                   opacity={element.opacity || 1}
                   rotation={element.rotate || 0}
                 />
@@ -79,10 +108,23 @@ const CertificatePreview = ({ design }: { design: DesignElement[] }) => {
                   width={element.width || 0}
                   height={element.height || 0}
                   image={image}
-                  zIndex= {element.z_index}
+                  zIndex={element.z_index}
                   opacity={element.opacity || 1}
                   rotation={element.rotate || 0}
-                  
+                />
+              );case "qrCode":
+              const [qrCode] = useImage(element.image || "");
+              return (
+                <Image
+                  key={element.id}
+                  x={element.left || 0}
+                  y={element.top || 0}
+                  width={element.width || 0}
+                  height={element.height || 0}
+                  image={qrCode}
+                  zIndex={element.z_index}
+                  opacity={element.opacity || 1}
+                  rotation={element.rotate || 0}
                 />
               );
             default:
