@@ -61,10 +61,10 @@ const projectApi = api.injectEndpoints({
       query: () => ({ url: "/premadeTemplate/all", method: "GET" }),
     }),
     fetchTemplateById: builder.query({
-      query: (premadeTemplateId) => ({
-        url: "/premadeTemplate",
+      query: (projectId) => ({
+        url: "/project/get-template",
         method: "POST",
-        body: { premadeTemplateId },
+        body: { projectId },
       }),
     }),
     fetchBackgroundImages: builder.query<BackgroundImage[], void>({

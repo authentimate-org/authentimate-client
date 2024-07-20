@@ -9,9 +9,10 @@ import { setComponents } from "../../services/project/projectSlice";
 interface HeaderProps {
   components: any;
   design_id: string;
+  projectId:string;
 }
 
-const Header: React.FC<HeaderProps> = ({ components, design_id }) => {
+const Header: React.FC<HeaderProps> = ({ components,projectId, design_id }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loader, setLoader] = useState(false);
@@ -31,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ components, design_id }) => {
         // console.log(obj);
         const design = new FormData();
         design.append("design", JSON.stringify(obj));
-        // formData.append("image", image);
+        design.append("projectId", projectId);
         try {
           setLoader(true);
           console.log("dessign", design_id);

@@ -76,6 +76,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setWidth(a.width ?? "");
     setHeight(a.height ?? "");
     setOpacity(a.opacity ?? "");
+    setRadius(a.radius ?? 0);
     setLineheight(a.lineheight ?? 1);
     setzIndex(a.z_index ?? "");
     setFontFamily(a.fontFamily ?? "");
@@ -420,6 +421,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       rotate,
       z_index: 2,
       radius: 0,
+      // lineheight:1,
       image: img,
       setCurrentComponent: (a) => setCurrentComponent(a),
       moveElement,
@@ -654,12 +656,12 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     data: templateData,
     isLoading,
     isError,
-  } = useFetchTemplateByIdQuery(template);
+  } = useFetchTemplateByIdQuery(projectId);
 
   useEffect(() => {
     console.log(templateData)
     if (templateData) {
-      const design = templateData.map((element: any) => ({
+      const design = templateData.components.map((element: any) => ({
         ...element,
         setCurrentComponent: (a: any) => {
           handleResetProperties(a);
@@ -691,7 +693,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
 
   return (
     <div className="min-w-screen h-screen bg-black">
-      <Header components={components} design_id={design_id || ""} />
+      <Header components={components} projectId ={projectId} design_id={design_id || ""} />
       {/* Provide a default value */}
       <div className="flex h-[calc(100%-60px)] w-screen">
         <div className="w-[80px] bg-[#252627] z-50 h-full text-gray-400 overflow-y-auto">

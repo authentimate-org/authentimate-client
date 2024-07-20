@@ -54,7 +54,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           width: info.width + "px",
           height: info.height + "px",
           background: info.color,
-          zIndex: info.z_index
+          zIndex: info.z_index,
         }}
       >
         {info.image && (
@@ -107,7 +107,8 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
           resize: "none", // Disable resizing
-          height:info.lineheight + "px"
+          height: info.lineheight + "px",
+          lineHeight:info.lineheight
         }}
         className={`absolute  hover:border-[2px] `}
       >
@@ -119,14 +120,13 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           id={`${info.id}r`}
           style={{
             width: info.width + "px",
-            height: info.lineheight + "px", // Fixed height of 1px
-            background: info.color,
+            height: info.lineheight + "px", 
+            background: info.color,lineHeight:info.lineheight
           }}
         ></div>
       </div>
     );
   }
-  
 
   if (info.name === "shape" && info.type === "circle") {
     html = (
@@ -209,7 +209,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             padding: info.padding + "px",
             color: info.color,
             opacity: info.opacity,
-            fontFamily: info.fontFamily
+            fontFamily: info.fontFamily,
           }}
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
             info.id === selectItem ? "outline" : ""
@@ -224,7 +224,6 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
                 fontSize: info.font + "px",
                 fontWeight: info.weight,
                 fontFamily: info.fontFamily,
-                
               }}
               className="w-full h-full"
             >
@@ -252,6 +251,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             color: info.color,
             opacity: info.opacity,
             fontFamily: info.fontFamily,
+            pointerEvents: "auto",
           }}
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
             info.id === selectItem ? "outline" : ""
@@ -260,7 +260,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           {selectItem === info.id && (
             <Element id={info.id} info={info} exId="" />
           )}
-          <div>
+          <div onMouseDown={() => info.moveElement(info.id, info)}>
             <h2
               style={{
                 fontSize: info.font + "px",
@@ -277,7 +277,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
     );
   }
 
-  if (info.name === "image" && info.type ==="image") {
+  if (info.name === "image" && info.type === "image") {
     html = (
       <div
         id={info.id}
@@ -311,7 +311,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
       </div>
     );
   }
-  
+
   if (info.name === "image" && info.type === "qrCode") {
     html = (
       <div
@@ -350,10 +350,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
       </div>
     );
   }
-  
-  
-  
-  
+
   return <>{html}</>;
 };
 
