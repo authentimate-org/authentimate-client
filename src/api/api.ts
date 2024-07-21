@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { RootState } from '../app/store';
 import { auth } from '../config/firebase';
 
+
 const baseQueryWithAuth = async (args: any, api: any, extraOptions: any) => {
   const state = api.getState() as RootState;
   let token = state.auth.token;

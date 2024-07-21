@@ -214,9 +214,6 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
             info.id === selectItem ? "outline" : ""
           } outline-indigo-500`}
-          className={`absolute group outline-indigo-500 outline-2 hover:outline ${
-            info.id === selectItem ? "outline" : ""
-          } outline-indigo-500`}
         >
           {selectItem === info.id && (
             <Element id={info.id} info={info} exId="" />
