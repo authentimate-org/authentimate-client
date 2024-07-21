@@ -15,11 +15,7 @@ const Create: FC = () => {
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-gray-50 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-gray-950 focus:ring-offset-2 dark:bg-gray-50 dark:text-gray-900 dark:focus:ring-gray-300">
             <PlusIcon className="h-6 w-6" onClick={handleCreateProject} />
           </div>
-          <div
-            className="mt-2 text-sm font-medium"
-          >
-            Create New Project
-          </div>
+          <div className="mt-2 text-sm font-medium">Create New Project</div>
         </div>
       </div>
     </div>

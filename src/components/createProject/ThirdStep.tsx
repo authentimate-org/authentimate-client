@@ -23,7 +23,8 @@ interface UserInput {
 const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, template, nextStep }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { data: templateData, isLoading, isError } = useFetchTemplateByIdQuery(template);
+  const { data: templateData, isLoading, isError } = useFetchTemplateByIdQuery(projectId);
+
 
   if (!projectId || !template) {
     navigate(`/create-project/1/${projectId}`);

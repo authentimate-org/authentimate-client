@@ -67,8 +67,8 @@ const CreateProject: React.FC = () => {
     switch (currentPage) {
       case 0:
         return <FirstStep nextStep={nextStep} handleChange={handleChange} />;
-      case 1 :
-        return projectId && <SecondStep nextStep={nextStep} handleChange={handleChange} projectId={projectId}  />;
+      case 1:
+        return <SecondStep nextStep={nextStep} handleChange={handleChange} projectId={currentProjectId}  />;
       case 2:
         if (!currentTemplateId) {
           navigate(`/create-project/1/${currentProjectId}`);

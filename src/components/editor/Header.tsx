@@ -1,20 +1,25 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import * as htmlToImage from "html-to-image";
 import toast from "react-hot-toast";
 import { useUpdateUserDesignMutation } from "../../api/project/projectApi";
+import { setComponents } from "../../services/project/projectSlice";
+
 interface HeaderProps {
-  components: any; 
+  components: any;
   design_id: string;
+  projectId:string;
 }
 
-const Header: React.FC<HeaderProps> = ({ components, design_id }) => {
+const Header: React.FC<HeaderProps> = ({ components,projectId, design_id }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [loader, setLoader] = useState(false);
-  const [updateUserDesign] = useUpdateUserDesignMutation(); // Using the mutation from your projectApi
+  const [updateUserDesign] = useUpdateUserDesignMutation(); 
 
   const saveImage = async () => {
-    console.log(components)
+    console.log(components);
     const getDiv = document.getElementById("main_design");
     if (getDiv) {
       const image = await htmlToImage.toBlob(getDiv);
@@ -24,17 +29,18 @@ const Header: React.FC<HeaderProps> = ({ components, design_id }) => {
           design: components,
         };
 
-        console.log(obj);
-        const formData = new FormData();
-        formData.append("design", JSON.stringify(obj));
-        formData.append("image", image);
-
+        // console.log(obj);
+        const design = new FormData();
+        design.append("design", JSON.stringify(obj));
+        design.append("projectId", projectId);
         try {
           setLoader(true);
-          console.log(design_id,formData)
-          const { data } = await updateUserDesign({ design_id, formData });
+          console.log("dessign", design_id);
+          const { data } = await updateUserDesign({ design });
           toast.success(data.message);
           setLoader(false);
+
+          dispatch(setComponents(components));
         } catch (error: any) {
           setLoader(false);
           toast.error(error.response.data.message);
@@ -70,7 +76,9 @@ const Header: React.FC<HeaderProps> = ({ components, design_id }) => {
             alt="AutiMate"
           />
         </Link> */}
-        <span className="text-xl" style={{color:"white"}}>AuthentiMate</span>
+        <span className="text-xl" style={{ color: "white" }}>
+          AuthentiMate
+        </span>
         <div className="flex justify-center items-center gap-2 text-gray-300">
           <button
             disabled={loader}

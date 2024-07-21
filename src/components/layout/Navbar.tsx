@@ -1,10 +1,11 @@
 import { useAuth } from "@/hooks/useAuth";
 import { FC } from "react";
 import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const Navbar: FC = () => {
-    const { handleLogout } = useAuth();
+   const navigate =useNavigate();
+    const { handleLogout } = useAuth(navigate);
   
     return (
       <div>

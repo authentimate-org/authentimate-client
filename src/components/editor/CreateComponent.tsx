@@ -17,6 +17,8 @@ export interface Info {
   opacity?: number;
   padding?: number;
   font?: number;
+  lineheight?: number;
+
   weight?: number;
   title?: string;
   radius?: number;
@@ -34,7 +36,6 @@ interface CreateComponentProps {
 }
 
 const CreateComponent: React.FC<CreateComponentProps> = ({
-  current_component,
   info,
   selectItem,
   setSelectItem,
@@ -75,9 +76,6 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        //className={`absolute group hover:border-[2px] ${
-        //          info.id === selectItem ? "border-[2px]" : ""
-        //        } border-indigo-500`}
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${
           info.id === selectItem ? "outline" : ""
         } outline-indigo-500`}
@@ -108,13 +106,11 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           top: info.top + "px",
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
+          resize: "none", // Disable resizing
+          height: info.lineheight + "px",
+          lineHeight:info.lineheight
         }}
-        //className={`absolute group hover:border-[2px] ${
-        //          info.id === selectItem ? "border-[2px]" : ""
-        //        } border-indigo-500`}
-        className={`absolute group outline-indigo-500 outline-2 hover:outline ${
-          info.id === selectItem ? "outline" : ""
-        } outline-indigo-500`}
+        className={`absolute  hover:border-[2px] `}
       >
         {selectItem === info.id && (
           <Element id={info.id} info={info} exId={`${info.id}r`} />
@@ -124,8 +120,8 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           id={`${info.id}r`}
           style={{
             width: info.width + "px",
-            height: "1px",
-            background: info.color,
+            height: info.lineheight + "px", 
+            background: info.color,lineHeight:info.lineheight
           }}
         ></div>
       </div>
@@ -143,9 +139,6 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        //className={`absolute group hover:border-[2px] ${
-        //          info.id === selectItem ? "border-[2px]" : ""
-        //        } border-indigo-500`}
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${
           info.id === selectItem ? "outline" : ""
         } outline-indigo-500`}
@@ -179,9 +172,6 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
         }}
-        // className={`absolute group hover:border-[2px] ${
-        //   info.id === selectItem ? "border-[2px]" : ""
-        // } border-indigo-500`}
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${
           info.id === selectItem ? "outline" : ""
         } outline-indigo-500`}
@@ -204,10 +194,9 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
     );
   }
 
-  if (info.name === "text") {
-    // info.fontFamily=current_component?.fontFamily;
+  if (info.name === "text" && info.type === "title") {
     html = (
-      <div onClick={() => {info.setCurrentComponent(info)}}>
+      <div onClick={() => info.setCurrentComponent(info)}>
         <div
           id={info.id}
           style={{
@@ -217,11 +206,55 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             transform: info.rotate
               ? `rotate(${info.rotate}deg)`
               : "rotate(0deg)",
-            // padding: info.padding + "px",
+            padding: info.padding + "px",
             color: info.color,
             opacity: info.opacity,
             fontFamily: info.fontFamily,
-            fontSize:info.font
+          }}
+          className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+            info.id === selectItem ? "outline" : ""
+          } outline-indigo-500`}
+          className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+            info.id === selectItem ? "outline" : ""
+          } outline-indigo-500`}
+        >
+          {selectItem === info.id && (
+            <Element id={info.id} info={info} exId="" />
+          )}
+          <div onMouseDown={() => info.moveElement(info.id, info)}>
+            <h2
+              style={{
+                fontSize: info.font + "px",
+                fontWeight: info.weight,
+                fontFamily: info.fontFamily,
+              }}
+              className="w-full h-full"
+            >
+              {info.title}
+            </h2>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (info.name === "text" && info.type === "recipientName") {
+    html = (
+      <div onClick={() => info.setCurrentComponent(info)}>
+        <div
+          id={info.id}
+          style={{
+            left: info.left + "px",
+            top: info.top + "px",
+            zIndex: info.z_index,
+            transform: info.rotate
+              ? `rotate(${info.rotate}deg)`
+              : "rotate(0deg)",
+            padding: info.padding + "px",
+            color: info.color,
+            opacity: info.opacity,
+            fontFamily: info.fontFamily,
+            pointerEvents: "auto",
           }}
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
             info.id === selectItem ? "outline" : ""
@@ -247,7 +280,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
     );
   }
 
-  if (info.name === "image") {
+  if (info.name === "image" && info.type === "image") {
     html = (
       <div
         id={info.id}
@@ -259,10 +292,6 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
           opacity: info.opacity,
         }}
-        // className={`absolute group outline-indigo-500 outline-2 hover:outline ${
-        //   info.id === selectItem ? "outline-[2px]" : ""
-        // } outline-indigo-500`}
-
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${
           info.id === selectItem ? "outline" : ""
         }`}
@@ -277,6 +306,45 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           style={{
             width: info.width + "px",
             height: info.height + "px",
+            borderRadius: `${info.radius}%`,
+          }}
+        >
+          <img className="w-full h-full" src={info.image} alt="image" />
+        </div>
+      </div>
+    );
+  }
+
+  if (info.name === "image" && info.type === "qrCode") {
+    html = (
+      <div
+        id={info.id}
+        onClick={() => info.setCurrentComponent(info)}
+        style={{
+          left: info.left + "px",
+          top: info.top + "px",
+          zIndex: info.z_index,
+          transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
+          opacity: info.opacity,
+          pointerEvents: "auto",
+        }}
+        className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+          info.id === selectItem ? "outline" : ""
+        } outline-indigo-500`}
+      >
+        {selectItem === info.id && (
+          <Element id={info.id} info={info} exId={`${info.id}img`} />
+        )}
+        <div
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            info.moveElement(info.id, info);
+          }}
+          className="overflow-hidden"
+          id={`${info.id}img`}
+          style={{
+            width: "100%",
+            height: "100%",
             borderRadius: `${info.radius}%`,
           }}
         >

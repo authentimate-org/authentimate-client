@@ -28,6 +28,7 @@ interface Component {
   top?: number;
   rotate?: number;
   opacity?: number;
+  lineheight?: number;
   padding?: number;
   font?: number;
   weight?: number;
@@ -62,20 +63,27 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   const [opacity, setOpacity] = useState<number | string>("");
   const [zIndex, setzIndex] = useState<number | string>("");
   const [fontFamily, setFontFamily] = useState<string>("");
+  const [title, settitle] = useState<string>("");
+  const [padding, setPadding] = useState<number | string>(0);
+  const [lineheight, setLineheight] = useState<number | string>(0);
 
-  const handleResetProperties = (a:Component) => {
-    setColor(a.color??"");
-    setImage(a.image??"");
-    setRotate(a.rotate??0);
-    setLeft(a.left??"");
-    setTop(a.top??"");
-    setWidth(a.width??"");
-    setHeight(a.height??"");
-    setOpacity(a.opacity??"");
-    setzIndex(a.z_index??"");
-    setFontFamily(a.fontFamily??"");
-    setFont(a.font??12)
-    setWeight(a.weight??"")
+  const handleResetProperties = (a: Component) => {
+    setColor(a.color ?? "");
+    setImage(a.image ?? "");
+    setRotate(a.rotate ?? 0);
+    setLeft(a.left ?? "");
+    setTop(a.top ?? "");
+    setWidth(a.width ?? "");
+    setHeight(a.height ?? "");
+    setOpacity(a.opacity ?? "");
+    setRadius(a.radius ?? 0);
+    setLineheight(a.lineheight ?? 1);
+    setzIndex(a.z_index ?? "");
+    setFontFamily(a.fontFamily ?? "");
+    setPadding(a.padding ?? 0);
+    settitle(a.title ?? "");
+    setFont(a.font ?? 12);
+    setWeight(a.weight ?? "");
   };
 
   const fonteFamilies = [
@@ -98,7 +106,6 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   //   }
   //   console.log(current_component)
   // };
-  const [padding, setPadding] = useState<number | string>("");
   const [font, setFont] = useState<number>(12);
   const [weight, setWeight] = useState<number | string>("");
   const [text, setText] = useState<string>("");
@@ -108,6 +115,11 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setShow({ name: "", status: true });
     add_text("text", "title");
   };
+  // const handleClicking = (e: any) => {
+  //   setText(e.target.value);
+  //   settitle(e.target.value);
+  //   handlePropertyChange("title", e.target.value);
+  // };
   const [show, setShow] = useState<{ status: boolean; name: string }>({
     status: true,
     name: "",
@@ -122,7 +134,10 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       z_index: 1,
       color: "#fff",
       image: "",
-      setCurrentComponent: (a) => {handleResetProperties(a);setCurrentComponent(a);},
+      setCurrentComponent: (a) => {
+        handleResetProperties(a);
+        setCurrentComponent(a);
+      },
       rotateElement: function (id: string, info: Component): void {
         throw new Error("Function not implemented.");
       },
@@ -148,15 +163,35 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     let isMoving = true;
 
     const currentDiv = document.getElementById(id);
+    const canvas = document.getElementById("main_design"); // Assuming the canvas has an id of 'canvas'
+    const canvasRect = canvas?.getBoundingClientRect();
+
+    if (!canvasRect) {
+      console.error("Canvas element not found.");
+      return;
+    }
+
+    const canvasWidth = canvasRect.width;
+    const canvasHeight = canvasRect.height;
 
     const mouseMove = ({ movementX, movementY }: MouseEvent) => {
       setSelectItem("");
       const getStyle = window.getComputedStyle(currentDiv!);
-      const left = parseInt(getStyle.left);
-      const top = parseInt(getStyle.top);
+      let left = parseInt(getStyle.left);
+      let top = parseInt(getStyle.top);
+
       if (isMoving) {
-        currentDiv!.style.left = `${left + movementX}px`;
-        currentDiv!.style.top = `${top + movementY}px`;
+        left += movementX;
+        top += movementY;
+
+        const width = currentInfo.width ?? currentDiv!.offsetWidth;
+        const height = currentInfo.height ?? currentDiv!.offsetHeight;
+
+        left = Math.max(0, Math.min(left, canvasWidth - width));
+        top = Math.max(0, Math.min(top, canvasHeight - height));
+
+        currentDiv!.style.left = `${left}px`;
+        currentDiv!.style.top = `${top}px`;
       }
     };
 
@@ -185,11 +220,39 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
 
     const mouseMove = ({ movementX, movementY }: MouseEvent) => {
       const getStyle = window.getComputedStyle(currentDiv!);
-      const width = parseInt(getStyle.width);
-      const height = parseInt(getStyle.height);
+      let width = parseInt(getStyle.width);
+      let height = parseInt(getStyle.height);
+
       if (isMoving) {
-        currentDiv!.style.width = `${width + movementX}px`;
-        currentDiv!.style.height = `${height + movementY}px`;
+        if (currentInfo.name === "image" && currentInfo.type === "qrCode") {
+          // Maintain aspect ratio for QR code
+          const aspectRatio = width / height;
+          let newWidth = width + movementX;
+
+          if (newWidth < 60) {
+            newWidth = 60; // Ensure minimum width of 30px
+          }
+
+          const newHeight = newWidth / aspectRatio;
+
+          currentDiv!.style.width = `${newWidth}px`;
+          currentDiv!.style.height = `${newHeight}px`;
+        } 
+        else if (
+          currentInfo.name === "shape" &&
+          currentInfo.type === "line"
+        ) {
+          width += movementX;
+          width = Math.max(width, 1);
+          // height = Math.min(Math.max(height + movementY, 1), 8); 
+
+          currentDiv!.style.width = `${width}px`;
+          currentDiv!.style.height = `${height}px`;
+        } 
+        else {
+          currentDiv!.style.width = `${width + movementX}px`;
+          currentDiv!.style.height = `${height + movementY}px`;
+        }
       }
     };
 
@@ -257,7 +320,9 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
 
   const removeComponent = (id: string) => {
     const temp = components.filter((c) => c.id !== id);
-    setCurrentComponent(null);
+    const tempe = components.filter((c) => c.name === "main_frame");
+    // console.log((temp)
+    setCurrentComponent(tempe[0]);
     setComponents(temp);
   };
 
@@ -277,9 +342,9 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setComponents([...temp, com!]);
   };
 
-  const opacityHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setOpacity(parseFloat(e.target.value));
-  };
+  // const opacityHandle = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setOpacity(parseFloat(e.target.value));
+  // };
 
   const createShape = (name: string, type: string) => {
     setCurrentComponent(null);
@@ -291,6 +356,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       left: 10,
       top: 10,
       opacity: 1,
+      lineheight: 1,
       width: 200,
       height: 150,
       rotate,
@@ -318,20 +384,24 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       opacity: 1,
       rotate,
       z_index: 10,
-      padding: 6,
+      padding: 0,
       font: 22,
       title: "Add text",
       weight: 400,
       color: "#3c3c3d",
-      fontFamily: "Arial",  
-      setCurrentComponent: (a) => {console.log("mansih");handleResetProperties(a);setCurrentComponent(a)},
+      fontFamily: "Arial",
+      setCurrentComponent: (a) => {
+        handleResetProperties(a);
+        setCurrentComponent(a);
+      },
       moveElement,
       resizeElement,
       rotateElement,
     };
     setWeight("");
     setFont(16);
-    setSelectItem(id); 
+    setPadding(0);
+    setSelectItem(id);
     setCurrentComponent(style);
     setComponents([...components, style]);
   };
@@ -351,6 +421,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       rotate,
       z_index: 2,
       radius: 0,
+      // lineheight:1,
       image: img,
       setCurrentComponent: (a) => setCurrentComponent(a),
       moveElement,
@@ -363,27 +434,126 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     setComponents([...components, style]);
   };
 
-
-  const handlePropertyChange=(property:string,value?:any)=>{
-
+  const handlePropertyChange = (property: string, value?: any) => {
     if (current_component) {
       const index = components.findIndex((c) => c.id === current_component.id);
-      // const temp = components.filter((c) => c.id !== current_component.id);
-      if(property==="fontSize"){
-        setFont(value)
-        setComponents(prev => {
+      const name = current_component.name;
+      if (property === "colors") {
+        setColor(value);
+        setComponents((prev) => {
           const updatedComponents = [...prev];
           updatedComponents[index] = {
-            ...updatedComponents[index], 
-            font: value
+            ...updatedComponents[index],
+            color: value,
+          };
+          return updatedComponents;
+        });
+      }
+      if (property === "Zindex") {
+        setzIndex(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            z_index: value,
           };
           return updatedComponents; // Return updated state
         });
       }
-
+      if (property === "Opacity") {
+        setOpacity(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            opacity: value,
+          };
+          return updatedComponents; // Return updated state
+        });
+      }
+      if (property === "Lineheights") {
+        setLineheight(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            lineheight: value,
+          };
+          return updatedComponents; // Return updated state
+        });
+      }
+      if (name === "text") {
+        if (property === "fontSize") {
+          setFont(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              font: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "fontFamily") {
+          setFontFamily(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              fontFamily: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "Paddings") {
+          setPadding(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              padding: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "weights") {
+          setWeight(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              weight: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "titles") {
+          settitle(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              title: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+      }
+      if (name === "image") {
+        if (property === "Radius") {
+          setRadius(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              radius: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+      }
     }
-
-  }
+  };
 
   // useEffect(() => {
   //   if (current_component) {
@@ -486,7 +656,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     data: templateData,
     isLoading,
     isError,
-  } = useFetchTemplateByIdQuery(template);
+  } = useFetchTemplateByIdQuery(projectId);
 
   // useEffect(() => {
   //   if (templateData && templateData.components) {
@@ -509,20 +679,26 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   //   }
   // }, [templateData]);
   useEffect(() => {
-    if (templateData && templateData.components) {
+    console.log(templateData)
+    if (templateData) {
       const design = templateData.components.map((element: any) => ({
         ...element,
-        setCurrentComponent: (a: any) =>{handleResetProperties(a);setCurrentComponent(a)},
+        setCurrentComponent: (a: any) => {
+          handleResetProperties(a);
+          setCurrentComponent(a);
+        },
         moveElement: moveElement,
         resizeElement: resizeElement,
         rotateElement: rotateElement,
+        removeComponent: removeComponent,
       }));
 
-      console.log(design);
       setComponents(design);
+      const tempe = components.filter((c) => c.name === "main_frame");
+      setCurrentComponent(tempe[0]);
     } else {
       console.error(
-        "Template data is undefined or does not contain graphicElements"
+        "Template data is undefined or does not contain components"
       );
     }
   }, [templateData]);
@@ -531,13 +707,13 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     return <div>Loading template...</div>;
   }
 
-  if (isError || !templateData?.components) {
+  if (isError || !templateData) {
     return <div>Error loading template</div>;
   }
 
   return (
     <div className="min-w-screen h-screen bg-black">
-      <Header components={components} design_id={design_id || ""} />
+      <Header components={components} projectId ={projectId} design_id={design_id || ""} />
       {/* Provide a default value */}
       <div className="flex h-[calc(100%-60px)] w-screen">
         <div className="w-[80px] bg-[#252627] z-50 h-full text-gray-400 overflow-y-auto">
@@ -729,16 +905,15 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                       className="w-[30px] h-[30px] cursor-pointer rounded-sm"
                       style={{
                         background: `${
-                          current_component.color &&
-                          current_component.color !== "#fff"
-                            ? current_component.color
-                            : "gray"
+                          color && color !== "#fff" ? color : "gray"
                         }`,
                       }}
                       htmlFor="color"
                     ></label>
                     <input
-                      onChange={(e) => setColor(e.target.value)}
+                      onChange={(e) =>
+                        handlePropertyChange("colors", e.target.value)
+                      }
                       type="color"
                       className="invisible"
                       id="color"
@@ -761,36 +936,62 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                       <div className="flex gap-1 justify-start items-start">
                         <span className="text-md w-[70px]">Opacity : </span>
                         <input
-                          onChange={opacityHandle}
+                          onChange={(e) =>
+                            handlePropertyChange("Opacity", e.target.value)
+                          }
                           className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                           type="number"
                           step={0.1}
                           min={0.1}
                           max={1}
-                          value={current_component.opacity}
+                          value={opacity}
                         />
                       </div>
                       <div className="flex gap-1 justify-start items-start">
                         <span className="text-md w-[70px]">Z-Index : </span>
                         <input
-                          onChange={(e) => setzIndex(parseInt(e.target.value))}
+                          onChange={(e) =>
+                            handlePropertyChange("Zindex", e.target.value)
+                          }
                           className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                           type="number"
                           step={1}
-                          value={current_component.z_index}
+                          value={zIndex}
                         />
                       </div>
+                      {current_component.name === "shape" &&
+                        current_component.type === "line" && (
+                          <div className="flex gap-1 justify-start items-start">
+                            <span className="text-md w-[70px]">
+                              Line height:
+                            </span>
+                            <input
+                              onChange={(e) =>
+                                handlePropertyChange(
+                                  "Lineheights",
+                                  e.target.value
+                                )
+                              }
+                              className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
+                              type="number"
+                              min={1}
+                              max={8}
+                              step={1}
+                              value={lineheight}
+                            />
+                          </div>
+                        )}
                       {current_component.name === "image" && (
                         <div className="flex gap-1 justify-start items-start">
                           <span className="text-md w-[70px]">Radius : </span>
                           <input
                             onChange={(e) =>
-                              setRadius(parseInt(e.target.value))
+                              handlePropertyChange("Radius", e.target.value)
                             }
                             className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                             type="number"
                             step={1}
-                            value={current_component.radius}
+                            value={radius}
                           />
                         </div>
                       )}
@@ -800,12 +1001,12 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                             <span className="text-md w-[70px]">Padding : </span>
                             <input
                               onChange={(e) =>
-                                setPadding(parseInt(e.target.value))
+                                handlePropertyChange("Paddings", e.target.value)
                               }
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={1}
-                              value={current_component.padding}
+                              value={padding}
                             />
                           </div>
                           <div className="flex gap-1 justify-start items-start">
@@ -813,11 +1014,13 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                               Font size :
                             </span>
                             <input
-                              onChange={(e) =>{
-                                handlePropertyChange("fontSize",e.target.value);
+                              onChange={(e) => {
+                                handlePropertyChange(
+                                  "fontSize",
+                                  e.target.value
+                                );
                                 // setFont(parseInt(e.target.value))
-                              }
-                              }
+                              }}
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={1}
@@ -828,22 +1031,28 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                             <span className="text-md w-[70px]">Weight : </span>
                             <input
                               onChange={(e) =>
-                                setWeight(parseInt(e.target.value))
+                                handlePropertyChange("weights", e.target.value)
                               }
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={100}
                               min={100}
                               max={900}
-                              value={current_component.weight}
+                              value={weight}
                             />
                           </div>
                           <div className="flex gap-1 justify-start items-start">
                             <span className="text-md w-[70px]">Font: </span>
                             <select
-                              onChange={(e) =>{handlePropertyChange("fontFamily"); setFontFamily(e.target.value)}}
+                              onChange={(e) => {
+                                handlePropertyChange(
+                                  "fontFamily",
+                                  e.target.value
+                                );
+                                // setFontFamily(e.target.value);
+                              }}
                               className="border border-gray-700 bg-transparent outline-none px-2 rounded-md"
-                              value={current_component.fontFamily}
+                              value={fontFamily}
                             >
                               {fonteFamilies.map((font) => (
                                 <option key={font} value={font}>
@@ -856,14 +1065,11 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                           <div className="flex gap-2 flex-col justify-start items-start">
                             <input
                               onChange={(e) =>
-                                setCurrentComponent({
-                                  ...current_component,
-                                  title: e.target.value,
-                                })
+                                handlePropertyChange("titles", e.target.value)
                               }
                               className="border border-gray-700 bg-transparent outline-none p-2 rounded-md"
                               type="text"
-                              value={current_component.title}
+                              value={title}
                             />
                             <div className="flex pl-5">
                               <button
@@ -872,14 +1078,15 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
                               >
                                 Add
                               </button>
-                              <button
+                              {/* <button
                                 onClick={() =>
-                                  setText(current_component.title || "")
+                                  // settitle(current_component?.title || "")
+                                  handlePropertyChange("title",current_component.title)
                                 }
                                 className="px-4 py-2 bg-purple-500 text-xs text-white rounded-sm"
                               >
                                 Update
-                              </button>
+                              </button> */}
                             </div>
                           </div>
                         </>

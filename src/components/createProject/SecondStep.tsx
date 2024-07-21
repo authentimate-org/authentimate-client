@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { setTemplate, setStage, ProjectStage } from "../../services/project/projectSlice";
-import { useFetchTemplatesQuery, useUpdateProjectTemplateMutation  } from "../../api/project/projectApi";
+import { useFetchTemplatesQuery, useUpdateProjectTemplateMutation } from "../../api/project/projectApi";
 
 interface SecondStepProps {
   handleChange: (
@@ -19,26 +19,28 @@ interface UserInput {
   checkboxValue: string;
 }
 
-const SecondStep: React.FC<SecondStepProps> = (props) => {
+const SecondStep: React.FC<SecondStepProps> = ({ handleChange, projectId, nextStep }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const dispatch = useDispatch();
   const { data: templates, isLoading, isError } = useFetchTemplatesQuery();
   const [updateProjectTemplate] = useUpdateProjectTemplateMutation();
+
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
     const event = {
       target: { value: templateId },
     } as React.ChangeEvent<HTMLInputElement>;
 
-    props.handleChange("checkboxValue")(event);
+    handleChange("checkboxValue")(event);
   };
 
-  const handleNextStep =async  () => {
+  const handleNextStep = async () => {
     if (selectedTemplate) {
-      await updateProjectTemplate({ projectId:props.projectId, templateId: selectedTemplate });
+      console.log(projectId)
+      await updateProjectTemplate({ projectId, premadeTemplateId: selectedTemplate });
       dispatch(setTemplate(selectedTemplate));
       dispatch(setStage(ProjectStage.TEMPLATE_SELECTED));
-      props.nextStep(selectedTemplate);
+      nextStep(selectedTemplate);
     } else {
       console.error("Template must be selected");
     }
@@ -86,7 +88,7 @@ const SecondStep: React.FC<SecondStepProps> = (props) => {
           </label>
         ))}
       </div>
-  
+
       <button
         onClick={handleNextStep}
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 block mx-auto"
@@ -95,8 +97,6 @@ const SecondStep: React.FC<SecondStepProps> = (props) => {
       </button>
     </div>
   );
-  
-  
 };
 
 export default SecondStep;

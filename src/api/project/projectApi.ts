@@ -18,8 +18,8 @@ export interface Template {
   _id: string;
   texts: any[];
   recipientName: any;
-  graphicElements: any[];
   bgColor: string;
+  components:any[];
   templateImageURL: string;
 }
 
@@ -51,20 +51,20 @@ const projectApi = api.injectEndpoints({
       }),
     }),
     updateProjectTemplate: builder.mutation({
-      query: ({ projectId, templateId }) => ({
-        url: `projects/${projectId}`,
-        method: "PATCH",
-        body: { templateId },
+      query: ({ projectId, premadeTemplateId }) => ({
+        url: "premadeTemplate/add-to-project",
+        method: "PUT",
+        body: { projectId,premadeTemplateId },
       }),
     }),
     fetchTemplates: builder.query<Template[], void>({
       query: () => ({ url: "/premadeTemplate/all", method: "GET" }),
     }),
     fetchTemplateById: builder.query({
-      query: (premadeTemplateId) => ({
-        url: `premadeTemplate`,
+      query: (projectId) => ({
+        url: "/project/get-template",
         method: "POST",
-        body: { premadeTemplateId },
+        body: { projectId },
       }),
     }),
     fetchBackgroundImages: builder.query<BackgroundImage[], void>({
@@ -75,24 +75,24 @@ const projectApi = api.injectEndpoints({
     }),
     updateUserDesign: builder.mutation<
       any,
-      { design_id: string; formData: FormData }
+      { design: FormData }
     >({
-      query: ({ design_id, formData }) => ({
-        url: `/api/update-user-design/${design_id}`,
+      query: ({ design }) => ({
+        url: "/modifiedTemplate/save",
         method: "PUT",
-        body: formData,
+        body: design
       }),
     }),
     fetchAddUserImage: builder.mutation<AddUserImageResponse, FormData>({
       query: (formData) => ({
-        url: "/project/image",
+        url: "/image",
         method: "POST",
         body: formData,
       }),
     }),
     fetchGetUserImage: builder.query<UserImage[], void>({
       query: () => ({
-        url: "/project/image",
+        url: "/image",
         method: "GET",
       }),
     }),
