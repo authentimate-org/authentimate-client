@@ -1,4 +1,5 @@
 // src/store/projectSlice.ts
+import projectApi from "@/api/project/projectApi";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export enum ProjectStage {
@@ -72,6 +73,16 @@ const projectSlice = createSlice({
       state.components = [];
     },
   },
+  extraReducers:(builder)=>{
+    builder.addMatcher(projectApi.endpoints.fetchProject.matchFulfilled, (state,{payload}) => {
+      state.projectId=payload.projectId,
+      state.template=payload.template,
+      state.stage=payload.stage,
+      state.projectName=payload.projectName,
+      state.category=payload.category,
+      state.components=payload.components
+    });
+  }
 });
 
 export const {

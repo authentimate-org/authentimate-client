@@ -1,13 +1,15 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setStage, ProjectStage } from '../../services/project/projectSlice';
-import { useFetchTemplateByIdQuery } from '../../api/project/projectApi';
+// import { useFetchTemplateByIdQuery } from '../../api/project/projectApi';
 import Main from '../editor/Main';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/app/store';
 
 interface ThirdStepProps {
   projectId: string;
-  template: string;
+  // templateData:Temzz;
   nextStep: () => void;
   handleChange: (input: keyof UserInput) => (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -20,35 +22,37 @@ interface UserInput {
   checkboxValue: string;
 }
 
-const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, template, nextStep }) => {
+const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, nextStep }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { data: templateData, isLoading, isError } = useFetchTemplateByIdQuery(projectId);
+
+  const templateData=useSelector((state:RootState)=>state.project.components)
+  // const { data: templateData, isLoading, isError } = useFetchTemplateByIdQuery(projectId);
 
 
-  if (!projectId || !template) {
-    navigate(`/create-project/1/${projectId}`);
-    return null;
+  if (!projectId || !templateData) {
+    console.log(projectId)
+    return <Navigate to={`/create-project/1/${projectId}`}/>;
   }
 
   const handleNextStep = () => {
     dispatch(setStage(ProjectStage.TEMPLATE_FINALISED));
+    
     nextStep();
   };
 
-  if (isLoading) {
-    return <div>Loading template...</div>;
-  }
+  // if (isLoading) {
+  //   return <div>Loading template...</div>;
+  // }
 
-  if (isError || !templateData) {
-    return <div>Error loading template</div>;
-  }
+  // if (isError || !templateData) {
+  //   return <div>Error loading template</div>;
+  // }
 
   return (
     <>
       <div className="max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold mb-4">Project ID: {projectId}</h2>
-        <h3 className="text-xl mb-4">Selected Template: {template}</h3>
+        {/* <h3 className="text-xl mb-4">Selected Template: {template}</h3> */}
         <button
           onClick={handleNextStep}
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
@@ -56,7 +60,7 @@ const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, template, nextStep }) 
           Next
         </button>
       </div>
-      <Main projectId={projectId} template={template} />
+      <Main projectId={projectId} templateData={templateData} />
     </>
   );
 };

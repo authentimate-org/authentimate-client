@@ -10,7 +10,7 @@ import { MdKeyboardArrowLeft } from "react-icons/md";
 // import { RxTransparencyGrid } from "react-icons/rx";
 // import TemplateDesign from "./main/TemplateDesign";
 import CreateComponent from "./CreateComponent";
-import { useFetchTemplateByIdQuery } from "@/api/project/projectApi";
+// import { useFetchTemplateByIdQuery } from "@/api/project/projectApi";
 // import { stringify } from "querystring";
 import MyImages from "./Myimages";
 interface Component {
@@ -39,14 +39,15 @@ interface Component {
   fontFamily?: string;
 }
 
-interface MainProps {
-  projectId: string;
-  template: string;
-}
-
 type Template = Component[];
 
-const Main: React.FC<MainProps> = ({ projectId, template }) => {
+interface MainProps {
+  projectId: string;
+  templateData: Template;
+}
+
+
+const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
   const [selectItem, setSelectItem] = useState<string>("");
   const { design_id } = useParams<{ design_id: string }>();
   const [state, setState] = useState<string>("");
@@ -212,8 +213,8 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   };
 
   const resizeElement = (id: string, currentInfo: Component) => {
-    setCurrentComponent(currentInfo);
 
+    setCurrentComponent(currentInfo);
     let isMoving = true;
 
     const currentDiv = document.getElementById(id);
@@ -237,6 +238,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
 
           currentDiv!.style.width = `${newWidth}px`;
           currentDiv!.style.height = `${newHeight}px`;
+
         } 
         else if (
           currentInfo.name === "shape" &&
@@ -253,6 +255,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
           currentDiv!.style.width = `${width + movementX}px`;
           currentDiv!.style.height = `${height + movementY}px`;
         }
+        handlePropertyChange("size",{width:parseInt(currentDiv?.style.width ?? ""),height:parseInt(currentDiv?.style.height??"")})
       }
     };
 
@@ -438,6 +441,18 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     if (current_component) {
       const index = components.findIndex((c) => c.id === current_component.id);
       const name = current_component.name;
+      if (property === "size") {
+        console.log(index,name,value)
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            width: value.width,
+            height: value.height,
+          };
+          return updatedComponents;
+        });
+      }
       if (property === "colors") {
         setColor(value);
         setComponents((prev) => {
@@ -652,15 +667,16 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   //   rotate,
   // ]);
 
-  const {
-    data: templateData,
-    isLoading,
-    isError,
-  } = useFetchTemplateByIdQuery(projectId);
+  // const {
+  //   data: templateData,
+  //   isLoading,
+  //   isError,
+  // } = useFetchTemplateByIdQuery(projectId);
+
 
   // useEffect(() => {
-  //   if (templateData && templateData.components) {
-  //     const design = templateData.components.flatMap((array:any) =>
+  //   if (templateData && templateData) {
+  //     const design = templateData.flatMap((array:any) =>
   //       array.map((element: any) => ({
   //         ...element,
   //         setCurrentComponent: (a: any) => setCurrentComponent(a),
@@ -681,7 +697,7 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
   useEffect(() => {
     console.log(templateData)
     if (templateData) {
-      const design = templateData.components.map((element: any) => ({
+      const design = templateData.map((element: any) => ({
         ...element,
         setCurrentComponent: (a: any) => {
           handleResetProperties(a);
@@ -694,8 +710,8 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
       }));
 
       setComponents(design);
-      const tempe = components.filter((c) => c.name === "main_frame");
-      setCurrentComponent(tempe[0]);
+      // const tempe = components.filter((c) => c.name === "main_frame");
+      // setCurrentComponent(tempe[0]);
     } else {
       console.error(
         "Template data is undefined or does not contain components"
@@ -703,13 +719,13 @@ const Main: React.FC<MainProps> = ({ projectId, template }) => {
     }
   }, [templateData]);
 
-  if (isLoading) {
-    return <div>Loading template...</div>;
-  }
+  // if (isLoading) {
+  //   return <div>Loading template...</div>;
+  // }
 
-  if (isError || !templateData) {
-    return <div>Error loading template</div>;
-  }
+  // if (isError || !templateData) {
+  //   return <div>Error loading template</div>;
+  // }
 
   return (
     <div className="min-w-screen h-screen bg-black">

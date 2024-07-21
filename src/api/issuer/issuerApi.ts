@@ -1,3 +1,4 @@
+import { ProjectStage } from "@/services/project/projectSlice";
 import { api } from "../api";
 
 export interface OnboardRequest {
@@ -21,9 +22,9 @@ export interface GetUserResponse{
 }
 
 export interface FetchAllProjectsResponse{
-  projectId:string,
-  name: string,
-  stage: 'PROJECT_CREATED' | 'TEMPLATE_SELECTED' | 'TEMPLATE_FINALISED' | 'ISSUED'
+  _id:string,
+  projectName: string,
+  stage: ProjectStage
 }
 
 const issuerApi = api.injectEndpoints({

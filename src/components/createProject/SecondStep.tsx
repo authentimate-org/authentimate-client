@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { setTemplate, setStage, ProjectStage } from "../../services/project/projectSlice";
 import { useFetchTemplatesQuery, useUpdateProjectTemplateMutation } from "../../api/project/projectApi";
 
 interface SecondStepProps {
@@ -21,7 +19,6 @@ interface UserInput {
 
 const SecondStep: React.FC<SecondStepProps> = ({ handleChange, projectId, nextStep }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
-  const dispatch = useDispatch();
   const { data: templates, isLoading, isError } = useFetchTemplatesQuery();
   const [updateProjectTemplate] = useUpdateProjectTemplateMutation();
 
@@ -38,8 +35,8 @@ const SecondStep: React.FC<SecondStepProps> = ({ handleChange, projectId, nextSt
     if (selectedTemplate) {
       console.log(projectId)
       await updateProjectTemplate({ projectId, premadeTemplateId: selectedTemplate });
-      dispatch(setTemplate(selectedTemplate));
-      dispatch(setStage(ProjectStage.TEMPLATE_SELECTED));
+      // dispatch(setTemplate(selectedTemplate));
+      // dispatch(setStage(ProjectStage.TEMPLATE_SELECTED));
       nextStep(selectedTemplate);
     } else {
       console.error("Template must be selected");

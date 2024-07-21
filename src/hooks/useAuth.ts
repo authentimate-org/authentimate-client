@@ -52,7 +52,7 @@ export const useAuth = (navigate: (path: string) => void): AuthReturnType => {
           dispatch(setUser({ isEmailVerified: response.data.isEmailVerified, isOnboarded: response.data.onboarding }));
           if (response.data.onboarding) {
             dispatch(setAuth({ authStatus: "ONBOARDED" }));
-            navigate("/dashboard")
+            // navigate("/dashboard")
           } else {
             dispatch(setAuth({ authStatus: "VERIFIED" }));
             navigate("/onboarding")

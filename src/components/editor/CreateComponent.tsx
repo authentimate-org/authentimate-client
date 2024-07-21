@@ -49,7 +49,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           info.setCurrentComponent(info);
           setSelectItem("");
         }}
-        className="hover:border-[2px] hover:border-indigo-500 shadow-md"
+        // className="hover:border-[2px] hover:border-indigo-500 shadow-md"
         style={{
           width: info.width + "px",
           height: info.height + "px",
@@ -58,7 +58,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
         }}
       >
         {info.image && (
-          <img className="w-full h-full" src={info.image} alt="image" />
+          <img className="w-full h-full" src={info.image} alt="image"/>
         )}
       </div>
     );
@@ -210,6 +210,8 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             color: info.color,
             opacity: info.opacity,
             fontFamily: info.fontFamily,
+            width: info.width + "px",
+            height: info.height + "px",
           }}
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
             info.id === selectItem ? "outline" : ""
@@ -340,8 +342,10 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           className="overflow-hidden"
           id={`${info.id}img`}
           style={{
-            width: "100%",
-            height: "100%",
+            // width: "100%",
+            // height: "100%",
+            width: info.width + "px",
+            height: info.height + "px",
             borderRadius: `${info.radius}%`,
           }}
         >

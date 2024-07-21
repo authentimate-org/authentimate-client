@@ -16,7 +16,7 @@ interface UserInput {
   checkboxValue: string;
 }
 
-const FirstStep: React.FC<FirstStepProps> = ({ handleChange, nextStep }) => {
+const FirstStep: React.FC<FirstStepProps> = ({ nextStep }) => {
   const [projectName, setProjectName] = useState('');
   const [category, setCategory] = useState('');
   const [createProject, { isLoading, isSuccess, isError, data }] = useCreateProjectMutation();

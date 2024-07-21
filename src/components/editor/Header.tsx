@@ -19,7 +19,6 @@ const Header: React.FC<HeaderProps> = ({ components,projectId, design_id }) => {
   const [updateUserDesign] = useUpdateUserDesignMutation(); 
 
   const saveImage = async () => {
-    console.log(components);
     const getDiv = document.getElementById("main_design");
     if (getDiv) {
       const image = await htmlToImage.toBlob(getDiv);
@@ -33,6 +32,7 @@ const Header: React.FC<HeaderProps> = ({ components,projectId, design_id }) => {
         const design = new FormData();
         design.append("design", JSON.stringify(obj));
         design.append("projectId", projectId);
+        console.log("Components",components)
         try {
           setLoader(true);
           console.log("dessign", design_id);

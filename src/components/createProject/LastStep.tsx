@@ -2,6 +2,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { setStage, ProjectStage } from "../../services/project/projectSlice";
+import { Recipients } from "./Recipients/recipients";
 
 interface LastStepProps {
   handleChange: (
@@ -29,13 +30,7 @@ const LastStep: React.FC<LastStepProps> = ({ nextStep }) => {
 
   return (
     <div className="text-center">
-      <h1 className="text-2xl font-bold mb-4">Successfully Project Created</h1>
-      <button
-        onClick={handleCompletion}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Finish
-      </button>
+      <Recipients/>
     </div>
   );
 };

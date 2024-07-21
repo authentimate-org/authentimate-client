@@ -57,16 +57,29 @@ const projectApi = api.injectEndpoints({
         body: { projectId,premadeTemplateId },
       }),
     }),
-    fetchTemplates: builder.query<Template[], void>({
-      query: () => ({ url: "/premadeTemplate/all", method: "GET" }),
-    }),
-    fetchTemplateById: builder.query({
-      query: (projectId) => ({
-        url: "/project/get-template",
+
+
+    fetchProject: builder.query({
+      query: ({ projectId }) => ({
+        url: "/project/get-project",
         method: "POST",
         body: { projectId },
       }),
     }),
+
+
+    fetchTemplates: builder.query<Template[], void>({
+      query: () => ({ url: "/premadeTemplate/all", method: "GET" }),
+    }),
+
+
+    // fetchTemplateById: builder.query({
+    //   query: (projectId) => ({
+    //     url: "/project/get-template",
+    //     method: "POST",
+    //     body: { projectId },
+    //   }),
+    // }),
     fetchBackgroundImages: builder.query<BackgroundImage[], void>({
       query: () => ({ url: "/background-images", method: "GET" }),
     }),
@@ -104,11 +117,13 @@ export const {
   useCreateProjectMutation,
   useFetchTemplatesQuery,
   useUpdateProjectTemplateMutation,
-  useFetchTemplateByIdQuery,
+  // useFetchTemplateByIdQuery,
   useFetchBackgroundImagesQuery,
   useFetchIntialImagesQuery,
   useUpdateUserDesignMutation,
   useFetchAddUserImageMutation,
   useFetchGetUserImageQuery,
+
+  useLazyFetchProjectQuery,
 } = projectApi;
 export default projectApi;

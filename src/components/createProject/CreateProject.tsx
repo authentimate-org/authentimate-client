@@ -1,10 +1,11 @@
 import React, { useState, ChangeEvent, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import FirstStep from "./FirstStep";
 import SecondStep from "./SecondStep";
 import ThirdStep from "./ThirdStep";
 import LastStep from "./LastStep";
 import MultiStepProgressBar from "./MultiStepProgressBar";
+import { useLazyFetchProjectQuery } from "@/api/project/projectApi";
 
 interface UserInput {
   projectName: string;
@@ -15,11 +16,18 @@ interface UserInput {
 }
 
 const CreateProject: React.FC = () => {
-  const { page, projectId, templateId } = useParams<{ page: string, projectId?: string, templateId?: string }>();
+  const { page, projectId } = useParams<{
+    page: string;
+    projectId?: string;
+    templateId?: string;
+  }>();
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState<number>(parseInt(page || "0", 10));
-  const [currentProjectId, setCurrentProjectId] = useState<string>(projectId || "");
-  const [currentTemplateId, setCurrentTemplateId] = useState<string>(templateId || "");
+  const [fetchProject, { data: projectData, isLoading }] =
+    useLazyFetchProjectQuery();
+
+  const [currentPage, setCurrentPage] = useState<number>(
+    parseInt(page || "0", 10)
+  );
   const [userInput, setUserInput] = useState<UserInput>({
     projectName: "",
     TitleName: "",
@@ -27,7 +35,12 @@ const CreateProject: React.FC = () => {
     workspaceUrl: "",
     checkboxValue: "",
   });
-  const [templateSelected, setTemplateSelected] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProject({ projectId });
+    }
+  }, [currentPage, fetchProject]);
 
   useEffect(() => {
     setCurrentPage(parseInt(page || "0", 10));
@@ -35,14 +48,18 @@ const CreateProject: React.FC = () => {
 
   const nextStep = (idOrTemplate?: string) => {
     if (currentPage === 0 && idOrTemplate) {
-      setCurrentProjectId(idOrTemplate);
+      // setCurrentProjectId(idOrTemplate);
       navigate(`/create-project/1/${idOrTemplate}`);
     } else if (currentPage === 1 && idOrTemplate) {
-      setCurrentTemplateId(idOrTemplate);
-      setTemplateSelected(true);
-      navigate(`/create-project/2/${currentProjectId}/${idOrTemplate}`);
+      // setCurrentTemplateId(idOrTemplate);
+      // setTemplateSelected(true);
+      navigate(`/create-project/2/${projectId}`);
+    } else if (currentPage === 2) {
+      // setCurrentTemplateId(idOrTemplate);
+      // setTemplateSelected(true);
+      navigate(`/create-project/3/${projectId}`);
     } else {
-      navigate(`/create-project/${currentPage + 1}/${currentProjectId}/${currentTemplateId}`);
+      navigate(`/create-project/${currentPage + 1}`);
     }
   };
 
@@ -64,28 +81,38 @@ const CreateProject: React.FC = () => {
     };
 
   const PageDisplay = () => {
-    switch (currentPage) {
-      case 0:
-        return <FirstStep nextStep={nextStep} handleChange={handleChange} />;
-      case 1:
-        return <SecondStep nextStep={nextStep} handleChange={handleChange} projectId={currentProjectId}  />;
-      case 2:
-        if (!currentTemplateId) {
-          navigate(`/create-project/1/${currentProjectId}`);
+    if ((projectData || !currentPage) && !isLoading) {
+      switch (currentPage) {
+        case 0:
+          return <FirstStep nextStep={nextStep} handleChange={handleChange} />;
+        case 1:
+          return projectId ? (
+            <SecondStep
+              nextStep={nextStep}
+              handleChange={handleChange}
+              projectId={projectId}
+            />
+          ) : (
+            <Navigate to="/create-project" />
+          );
+        case 2:
+          if (!projectData?.components) {
+            navigate(`/create-project/1/${projectId}`);
+            return null;
+          }
+          return (
+            <ThirdStep
+              projectId={projectData?._id}
+              // template={projectData?.templateId}
+              nextStep={nextStep}
+              handleChange={handleChange}
+            />
+          );
+        case 3:
+          return <LastStep nextStep={nextStep} handleChange={handleChange} />;
+        default:
           return null;
-        }
-        return (
-          <ThirdStep
-            projectId={currentProjectId}
-            template={currentTemplateId}
-            nextStep={nextStep}
-            handleChange={handleChange}
-          />
-        );
-      case 3:
-        return <LastStep nextStep={nextStep} handleChange={handleChange} />;
-      default:
-        return null;
+      }
     }
   };
 
@@ -102,10 +129,12 @@ const CreateProject: React.FC = () => {
               : pageTitles[currentPage]}
           </h1>
           <p className="text-gray-600">
-            {currentPage < pageSubTitles.length ? pageSubTitles[currentPage] : ""}
+            {currentPage < pageSubTitles.length
+              ? pageSubTitles[currentPage]
+              : ""}
           </p>
         </div>
-        <div>{PageDisplay()}</div>
+        <div>{!isLoading ? PageDisplay() : <div>Loading...</div>}</div>
       </div>
     </div>
   );
