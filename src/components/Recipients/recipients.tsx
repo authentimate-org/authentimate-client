@@ -1,10 +1,18 @@
-import { useState, useRef, useEffect } from "react";
+// components/Recipients.tsx
+
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import * as XLSX from 'xlsx';
 
+type Recipient = {
+  name: string;
+  email: string;
+};
+
 export function Recipients() {
-  const [recipients, setRecipients] = useState<{ name: string; email: string }[]>([]);
+  const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [newRecipientName, setNewRecipientName] = useState("");
   const [newRecipientEmail, setNewRecipientEmail] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -13,7 +21,9 @@ export function Recipients() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string>("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -48,7 +58,7 @@ export function Recipients() {
     }
   };
 
-  const parseSpreadsheet = (file: File): Promise<{ name: string; email: string }[]> => {
+  const parseSpreadsheet = (file: File): Promise<Recipient[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -95,7 +105,7 @@ export function Recipients() {
           } else {
             return acc;
           }
-        }, [] as { name: string; email: string }[]);
+        }, [] as Recipient[]);
 
         setRecipients([...recipients, ...uniqueData]);
         setUploadStats({
@@ -118,11 +128,10 @@ export function Recipients() {
     setIsSubmitted(true);
     setSaveStatus("Changes saved successfully!");
     
-    // Clear the save status message after 3 seconds
     setTimeout(() => {
       setSaveStatus("");
-      window.location.href = '/next-page'; // Replace with your actual next page URL
-    }, 10); 
+      navigate('/processingstages');
+    }, 10);
   };
 
   const handleDeleteRecipient = (index: number) => {
@@ -140,6 +149,14 @@ export function Recipients() {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Recipients");
     XLSX.writeFile(wb, "Sample.xlsx");
+  };
+
+  const handlePreview = () => {
+    setShowPreview(true);
+  };
+
+  const closePreview = () => {
+    setShowPreview(false);
   };
 
   const RecipientTable = () => (
@@ -165,6 +182,34 @@ export function Recipients() {
         ))}
       </tbody>
     </table>
+  );
+
+  const PreviewModal = () => (
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-5"
+      onClick={closePreview}
+    >
+      <div 
+        className="bg-white rounded-lg relative overflow-hidden w-full h-full max-w-[90vw] max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button 
+          onClick={closePreview}
+          className="absolute top-4 right-4 text-black hover:text-gray-700 z-10"
+        >
+          ✕
+        </button>
+        <div className="p-6 w-full h-full overflow-auto">
+          <h3 className="text-xl font-bold mb-4">Preview</h3>
+          <div 
+            className="border border-gray-300 rounded w-full h-[calc(100%-3rem)] overflow-auto"
+          >
+            {/* Add your canvas content here */}
+            <p className="text-center mt-20">Your canvas content goes here</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   return (
@@ -253,8 +298,11 @@ export function Recipients() {
           </div>
         )}
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
+        {/* Preview and Submit Buttons */}
+        <div className="flex justify-end space-x-4">
+          <Button onClick={handlePreview}>
+            Preview
+          </Button>
           <Button 
             onClick={handleSubmit} 
             disabled={recipients.length === 0}
@@ -263,6 +311,9 @@ export function Recipients() {
           </Button>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && <PreviewModal />}
     </section>
   );
 }

@@ -8,9 +8,9 @@ import Login from "./components/auth/login";
 import Main from "./components/layout/Main";
 import Dashboard from "./components/dashboard/Dashboard";
 import CreateProject from "./components/createProject/CreateProject";
-// import CanvasMain from "./components/canvas/CanvasMain";  // Import CanvasMain
-import "./components/canvas/styles.css"
 import { Recipients } from "./components/Recipients/recipients";
+import { ProcessingStages } from "./components/Recipients/processingStages"; // Import ProcessingStages
+import "./components/canvas/styles.css";
 
 function App() {
   const { initializeAuthListener, isAuthenticated, isInitializing } = useAuth();
@@ -25,7 +25,6 @@ function App() {
 
   return (
     <>
-    
       <Routes>
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
@@ -36,7 +35,8 @@ function App() {
         >
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/create-project" element={<CreateProject />} />
-          <Route path="/recipient" element={<Recipients/>}/>
+          <Route path="/recipients" element={<Recipients />} />
+          <Route path="/processingstages" element={<ProcessingStages />} />
         </Route>
       </Routes>
     </>

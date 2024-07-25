@@ -4,7 +4,6 @@ import { Button } from "../ui/button";
 
 export const Navbar: FC = () => {
     const { handleLogout } = useAuth();
-  
     return (
       <div>
         <header className="flex h-16 w-full shrink-0 items-center px-4 md:px-6 border-b">
@@ -50,10 +49,10 @@ export const Navbar: FC = () => {
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
-        strokeLinejoin="round"
+        strokeLinejoin="round"  
       >
         <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
       </svg>
     );
   }
-  export default Navbar
+  export default Navbar 
