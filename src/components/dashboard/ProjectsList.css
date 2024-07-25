@@ -1,0 +1,29 @@
+.tile-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .project-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    height: 100px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+  }
+  
+  .project-tile:hover {
+    transform: scale(1.05);
+  }
+  
+  .tile-content {
+    text-align: center;
+    font-weight: bold;
+  }
+  

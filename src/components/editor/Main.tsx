@@ -87,7 +87,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     setWeight(a.weight ?? "");
   };
 
-  const fonteFamilies = [
+  const fontFamilies = [
     "Arial",
     "Verdana",
     "Times New Roman",
@@ -159,8 +159,156 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     });
   };
 
+
+  const handlePropertyChange = (property: string, value?: any,id?:string) => {
+    if (current_component || id) {
+      const index = components.findIndex((c) => c.id === (id || current_component?.id));
+      const name = current_component?.name;
+      if (property === "size") {
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            width: value.width,
+            height: value.height,
+          };
+          return updatedComponents;
+        });
+      }
+      if (property === "position") {
+        console.log(name,index,value)
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            top: value.top,
+            left: value.left,
+          };
+          return updatedComponents;
+        });
+      }
+      if (property === "colors") {
+        setColor(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            color: value,
+          };
+          return updatedComponents;
+        });
+      }
+      if (property === "Zindex") {
+        setzIndex(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            z_index: value,
+          };
+          return updatedComponents; // Return updated state
+        });
+      }
+      if (property === "Opacity") {
+        setOpacity(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            opacity: value,
+          };
+          return updatedComponents; // Return updated state
+        });
+      }
+      if (property === "Lineheights") {
+        setLineheight(value);
+        setComponents((prev) => {
+          const updatedComponents = [...prev];
+          updatedComponents[index] = {
+            ...updatedComponents[index],
+            lineheight: value,
+          };
+          return updatedComponents; // Return updated state
+        });
+      }
+      if (name === "text") {
+        if (property === "fontSize") {
+          setFont(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              font: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "fontFamily") {
+          setFontFamily(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              fontFamily: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "Paddings") {
+          setPadding(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              padding: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "weights") {
+          setWeight(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              weight: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+        if (property === "titles") {
+          settitle(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              title: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+      }
+      if (name === "image") {
+        if (property === "Radius") {
+          setRadius(value);
+          setComponents((prev) => {
+            const updatedComponents = [...prev];
+            updatedComponents[index] = {
+              ...updatedComponents[index],
+              radius: value,
+            };
+            return updatedComponents; // Return updated state
+          });
+        }
+      }
+    }
+  };
+
+
+
   const moveElement = (id: string, currentInfo: Component) => {
     setCurrentComponent(currentInfo);
+
     let isMoving = true;
 
     const currentDiv = document.getElementById(id);
@@ -194,6 +342,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
         currentDiv!.style.left = `${left}px`;
         currentDiv!.style.top = `${top}px`;
       }
+      handlePropertyChange("position",{left:parseInt(currentDiv?.style.left ?? ""),top:parseInt(currentDiv?.style.top??"")},currentInfo.id)
     };
 
     const mouseUp = (e: MouseEvent) => {
@@ -210,6 +359,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     currentDiv!.ondragstart = function () {
       return false;
     };
+
   };
 
   const resizeElement = (id: string, currentInfo: Component) => {
@@ -255,7 +405,6 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
           currentDiv!.style.width = `${width + movementX}px`;
           currentDiv!.style.height = `${height + movementY}px`;
         }
-        handlePropertyChange("size",{width:parseInt(currentDiv?.style.width ?? ""),height:parseInt(currentDiv?.style.height??"")})
       }
     };
 
@@ -265,6 +414,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
       window.removeEventListener("mouseup", mouseUp);
       setWidth(parseInt(currentDiv!.style.width));
       setHeight(parseInt(currentDiv!.style.height));
+      handlePropertyChange("size",{width:parseInt(currentDiv?.style.width ?? ""),height:parseInt(currentDiv?.style.height??"")},currentInfo.id)
     };
 
     window.addEventListener("mousemove", mouseMove);
@@ -437,138 +587,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     setComponents([...components, style]);
   };
 
-  const handlePropertyChange = (property: string, value?: any) => {
-    if (current_component) {
-      const index = components.findIndex((c) => c.id === current_component.id);
-      const name = current_component.name;
-      if (property === "size") {
-        console.log(index,name,value)
-        setComponents((prev) => {
-          const updatedComponents = [...prev];
-          updatedComponents[index] = {
-            ...updatedComponents[index],
-            width: value.width,
-            height: value.height,
-          };
-          return updatedComponents;
-        });
-      }
-      if (property === "colors") {
-        setColor(value);
-        setComponents((prev) => {
-          const updatedComponents = [...prev];
-          updatedComponents[index] = {
-            ...updatedComponents[index],
-            color: value,
-          };
-          return updatedComponents;
-        });
-      }
-      if (property === "Zindex") {
-        setzIndex(value);
-        setComponents((prev) => {
-          const updatedComponents = [...prev];
-          updatedComponents[index] = {
-            ...updatedComponents[index],
-            z_index: value,
-          };
-          return updatedComponents; // Return updated state
-        });
-      }
-      if (property === "Opacity") {
-        setOpacity(value);
-        setComponents((prev) => {
-          const updatedComponents = [...prev];
-          updatedComponents[index] = {
-            ...updatedComponents[index],
-            opacity: value,
-          };
-          return updatedComponents; // Return updated state
-        });
-      }
-      if (property === "Lineheights") {
-        setLineheight(value);
-        setComponents((prev) => {
-          const updatedComponents = [...prev];
-          updatedComponents[index] = {
-            ...updatedComponents[index],
-            lineheight: value,
-          };
-          return updatedComponents; // Return updated state
-        });
-      }
-      if (name === "text") {
-        if (property === "fontSize") {
-          setFont(value);
-          setComponents((prev) => {
-            const updatedComponents = [...prev];
-            updatedComponents[index] = {
-              ...updatedComponents[index],
-              font: value,
-            };
-            return updatedComponents; // Return updated state
-          });
-        }
-        if (property === "fontFamily") {
-          setFontFamily(value);
-          setComponents((prev) => {
-            const updatedComponents = [...prev];
-            updatedComponents[index] = {
-              ...updatedComponents[index],
-              fontFamily: value,
-            };
-            return updatedComponents; // Return updated state
-          });
-        }
-        if (property === "Paddings") {
-          setPadding(value);
-          setComponents((prev) => {
-            const updatedComponents = [...prev];
-            updatedComponents[index] = {
-              ...updatedComponents[index],
-              padding: value,
-            };
-            return updatedComponents; // Return updated state
-          });
-        }
-        if (property === "weights") {
-          setWeight(value);
-          setComponents((prev) => {
-            const updatedComponents = [...prev];
-            updatedComponents[index] = {
-              ...updatedComponents[index],
-              weight: value,
-            };
-            return updatedComponents; // Return updated state
-          });
-        }
-        if (property === "titles") {
-          settitle(value);
-          setComponents((prev) => {
-            const updatedComponents = [...prev];
-            updatedComponents[index] = {
-              ...updatedComponents[index],
-              title: value,
-            };
-            return updatedComponents; // Return updated state
-          });
-        }
-      }
-      if (name === "image") {
-        if (property === "Radius") {
-          setRadius(value);
-          setComponents((prev) => {
-            const updatedComponents = [...prev];
-            updatedComponents[index] = {
-              ...updatedComponents[index],
-              radius: value,
-            };
-            return updatedComponents; // Return updated state
-          });
-        }
-      }
-    }
-  };
+  
 
   // useEffect(() => {
   //   if (current_component) {
@@ -695,7 +714,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
   //   }
   // }, [templateData]);
   useEffect(() => {
-    console.log(templateData)
+    // console.log(templateData)
     if (templateData) {
       const design = templateData.map((element: any) => ({
         ...element,
@@ -1070,7 +1089,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                               className="border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               value={fontFamily}
                             >
-                              {fonteFamilies.map((font) => (
+                              {fontFamilies.map((font) => (
                                 <option key={font} value={font}>
                                   {font}
                                 </option>

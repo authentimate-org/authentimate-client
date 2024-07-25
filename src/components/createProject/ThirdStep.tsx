@@ -6,6 +6,7 @@ import { setStage, ProjectStage } from '../../services/project/projectSlice';
 import Main from '../editor/Main';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/app/store';
+import { useFinalizeTemplateMutation } from '@/api/project/projectApi';
 
 interface ThirdStepProps {
   projectId: string;
@@ -24,6 +25,7 @@ interface UserInput {
 
 const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, nextStep }) => {
   const dispatch = useDispatch();
+  const [finalizeTemplate]=useFinalizeTemplateMutation()
 
   const templateData=useSelector((state:RootState)=>state.project.components)
   // const { data: templateData, isLoading, isError } = useFetchTemplateByIdQuery(projectId);
@@ -35,8 +37,10 @@ const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, nextStep }) => {
   }
 
   const handleNextStep = () => {
-    dispatch(setStage(ProjectStage.TEMPLATE_FINALISED));
-    
+    if(projectId){
+      finalizeTemplate(projectId)
+      dispatch(setStage(ProjectStage.TEMPLATE_FINALISED));
+    }
     nextStep();
   };
 

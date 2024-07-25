@@ -38,6 +38,27 @@ export interface AddUserImageResponse {
   userImage: UserImage;
   data: UserImage;
 }
+
+export interface CertificationResponse {
+  email: string;
+  isCertificationCreated: boolean;
+  certificationId?: string;
+  certificationUrl?: string;
+  status?: string;
+  error?: string;
+}
+
+export interface GenerateCertificationRequest {
+  projectId: string;
+  recipients: Recipient[];
+}
+
+export interface Recipient {
+  name: string;
+  email: string;
+}
+
+
 const projectApi = api.injectEndpoints({
   endpoints: (builder) => ({
     createProject: builder.mutation<
@@ -72,7 +93,24 @@ const projectApi = api.injectEndpoints({
       query: () => ({ url: "/premadeTemplate/all", method: "GET" }),
     }),
 
+    finalizeTemplate:builder.mutation<void ,String>({
+      query: (projectId) => ({
+        url: "/modifiedTemplate/finalise",
+        method: "PUT",
+        body: { projectId },
+      }),
+    }),
+    
+    generateCertification: builder.mutation<CertificationResponse[], GenerateCertificationRequest>({
+      query: ({ projectId, recipients }) => ({
+        url: "/certification/create",
+        method: "POST",
+        body: { projectId, recipients },
+      }),
+    }),
 
+
+    
     // fetchTemplateById: builder.query({
     //   query: (projectId) => ({
     //     url: "/project/get-template",
@@ -118,12 +156,13 @@ export const {
   useFetchTemplatesQuery,
   useUpdateProjectTemplateMutation,
   // useFetchTemplateByIdQuery,
+  useFinalizeTemplateMutation,
   useFetchBackgroundImagesQuery,
   useFetchIntialImagesQuery,
   useUpdateUserDesignMutation,
   useFetchAddUserImageMutation,
   useFetchGetUserImageQuery,
-
   useLazyFetchProjectQuery,
+  useGenerateCertificationMutation, 
 } = projectApi;
 export default projectApi;

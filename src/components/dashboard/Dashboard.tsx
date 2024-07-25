@@ -1,20 +1,35 @@
 import { useFetchAllProjectsQuery } from "@/api/issuer/issuerApi";
 import { Analytics } from "./Analytics";
 import Create from "./Create";
-import IncompleteProjects from "./IncompleteProjects";
+import { ProjectStage } from "@/services/project/projectSlice";
+import ProjectsList from "./ProjectsList";
 
 const Dashboard = () => {
-  const { data: projects, error, isLoading } = useFetchAllProjectsQuery();
+  const { data: projects} = useFetchAllProjectsQuery();
   const incompleteProjects = projects?.filter(
-    (project) => project.stage != "ISSUED"
+    (project) => project.stage !== ProjectStage.ISSUED
+  );
+  const completedProjects = projects?.filter(
+    (project) => project.stage === ProjectStage.ISSUED
   );
   return (
     <div>
       <Analytics />
       <Create />
+      <div className="p-5">
       {incompleteProjects?.length && (
-        <IncompleteProjects data={incompleteProjects} />
+        <>
+          <h2 className="text-xl font-bold mb-5">Incomplete Projects</h2>
+          <ProjectsList data={incompleteProjects} />
+        </>
       )}
+      {completedProjects?.length && (
+        <>
+          <h2 className="text-xl font-bold">Completed Projects</h2>
+          <ProjectsList data={completedProjects} />
+        </>
+      )}
+      </div>
     </div>
   );
 };
