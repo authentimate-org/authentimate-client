@@ -40,12 +40,18 @@ export interface AddUserImageResponse {
 }
 
 export interface CertificationResponse {
-  email: string;
-  isCertificationCreated: boolean;
+  recipientName:string;
+  recipientEmail: string;
+  isCertificationCreated?: boolean;
   certificationId?: string;
   certificationUrl?: string;
   status?: string;
   error?: string;
+}
+
+export interface GetCertificaionStatusResponse{
+  stage:string,
+  data:CertificationResponse[]
 }
 
 export interface GenerateCertificationRequest {
@@ -54,8 +60,8 @@ export interface GenerateCertificationRequest {
 }
 
 export interface Recipient {
-  name: string;
-  email: string;
+  recipientName: string;
+  recipientEmail: string;
 }
 
 
@@ -71,6 +77,12 @@ const projectApi = api.injectEndpoints({
         body: project,
       }),
     }),
+
+    
+    fetchTemplates: builder.query<Template[], void>({
+      query: () => ({ url: "/premadeTemplate/all", method: "GET" }),
+    }),
+
     updateProjectTemplate: builder.mutation({
       query: ({ projectId, premadeTemplateId }) => ({
         url: "premadeTemplate/add-to-project",
@@ -89,10 +101,6 @@ const projectApi = api.injectEndpoints({
     }),
 
 
-    fetchTemplates: builder.query<Template[], void>({
-      query: () => ({ url: "/premadeTemplate/all", method: "GET" }),
-    }),
-
     finalizeTemplate:builder.mutation<void ,String>({
       query: (projectId) => ({
         url: "/modifiedTemplate/finalise",
@@ -100,12 +108,23 @@ const projectApi = api.injectEndpoints({
         body: { projectId },
       }),
     }),
+
+
     
     generateCertification: builder.mutation<CertificationResponse[], GenerateCertificationRequest>({
       query: ({ projectId, recipients }) => ({
         url: "/certification/create",
         method: "POST",
         body: { projectId, recipients },
+      }),
+    }),
+
+
+    getCertificationStatus: builder.query<GetCertificaionStatusResponse, String>({
+      query: (projectId) => ({
+        url: "/certification/get-status",
+        method: "POST",
+        body:{projectId}
       }),
     }),
 
@@ -164,5 +183,6 @@ export const {
   useFetchGetUserImageQuery,
   useLazyFetchProjectQuery,
   useGenerateCertificationMutation, 
+  useGetCertificationStatusQuery,
 } = projectApi;
 export default projectApi;

@@ -6,29 +6,31 @@ import ProjectsList from "./ProjectsList";
 
 const Dashboard = () => {
   const { data: projects} = useFetchAllProjectsQuery();
+
   const incompleteProjects = projects?.filter(
-    (project) => project.stage !== ProjectStage.ISSUED
+    (project) => project.stage !== ProjectStage.MAIL_SENT
   );
+
   const completedProjects = projects?.filter(
-    (project) => project.stage === ProjectStage.ISSUED
+    (project) => project.stage === ProjectStage.MAIL_SENT
   );
   return (
     <div>
-      <Analytics />
+      <Analytics totalProjects={projects?.length??0} totalCertifications={12345}/>
       <Create />
-      <div className="p-5">
-      {incompleteProjects?.length && (
+      <div className="p-9 mt-4">
+      {incompleteProjects?.length ? (
         <>
           <h2 className="text-xl font-bold mb-5">Incomplete Projects</h2>
           <ProjectsList data={incompleteProjects} />
         </>
-      )}
-      {completedProjects?.length && (
+      ):null}
+      {completedProjects?.length ? (
         <>
-          <h2 className="text-xl font-bold">Completed Projects</h2>
+          <h2 className="text-xl font-bold mt-8 mb-5">Completed Projects</h2>
           <ProjectsList data={completedProjects} />
         </>
-      )}
+      ):null}
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setStage, ProjectStage } from '../../services/project/projectSlice';
 // import { useFetchTemplateByIdQuery } from '../../api/project/projectApi';
@@ -33,7 +32,8 @@ const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, nextStep }) => {
 
   if (!projectId || !templateData) {
     console.log(projectId)
-    return <Navigate to={`/create-project/1/${projectId}`}/>;
+    console.log(templateData)
+    // return <Navigate to={`/create-project/1/${projectId}`}/>;
   }
 
   const handleNextStep = () => {

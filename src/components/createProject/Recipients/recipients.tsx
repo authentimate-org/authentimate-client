@@ -1,56 +1,61 @@
-import { useState, useRef, useEffect } from "react";
+// components/Recipients.tsx
+
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate,useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import * as XLSX from "xlsx";
-import { useNavigate } from "react-router-dom";
+import * as XLSX from 'xlsx';
+import CertificatePreview from "@/components/editor/CertificatePreview";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+
+type Recipient = {
+  recipientName: string;
+  recipientEmail: string;
+};
 
 export function Recipients() {
-  const [recipients, setRecipients] = useState<
-    { name: string; email: string }[]
-  >([]);
+  const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [newRecipientName, setNewRecipientName] = useState("");
   const [newRecipientEmail, setNewRecipientEmail] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [uploadStats, setUploadStats] = useState<{
-    total: number;
-    unique: number;
-  } | null>(null);
+  const [uploadStats, setUploadStats] = useState<{ total: number; unique: number } | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saveStatus, setSaveStatus] = useState<string>("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const {projectId} = useParams();
+  const {components}=useSelector((state:RootState)=>state.project) 
+  
   const navigate = useNavigate();
+
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasUnsavedChanges && !isSubmitted) {
         e.preventDefault();
-        e.returnValue = "Changes you made may not be saved.";
+        e.returnValue = 'Changes you made may not be saved.';
       }
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [hasUnsavedChanges, isSubmitted]);
 
-  const isEmailDuplicate = (email: string) => {
-    return recipients.some((r) => r.email === email);
+  const isEmailDuplicate = (recipientEmail: string) => {
+    return recipients.some(r => r.recipientEmail === recipientEmail);
   };
 
   const handleSubmitRecipient = () => {
     if (newRecipientName && newRecipientEmail) {
       if (isEmailDuplicate(newRecipientEmail)) {
-        setErrorMessage(
-          "Error: This email already exists in the recipients list."
-        );
+        setErrorMessage("Error: This email already exists in the recipients list.");
       } else {
-        setRecipients([
-          ...recipients,
-          { name: newRecipientName, email: newRecipientEmail },
-        ]);
+        setRecipients([...recipients, { recipientName: newRecipientName, recipientEmail: newRecipientEmail }]);
         setNewRecipientName("");
         setNewRecipientEmail("");
         setErrorMessage("");
@@ -59,36 +64,28 @@ export function Recipients() {
     }
   };
 
-  const parseSpreadsheet = (
-    file: File
-  ): Promise<{ name: string; email: string }[]> => {
+  const parseSpreadsheet = (file: File): Promise<Recipient[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
+        const workbook = XLSX.read(data, { type: 'array' });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-        }) as string[][];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as string[][];
 
         const headerRow = jsonData[0];
-        const nameIndex = headerRow.findIndex((cell) => cell === "Name");
-        const emailIndex = headerRow.findIndex((cell) => cell === "Email");
+        const nameIndex = headerRow.findIndex(cell => cell === "Name");
+        const emailIndex = headerRow.findIndex(cell => cell === "Email");
 
         if (nameIndex === -1 || emailIndex === -1) {
-          reject(
-            new Error(
-              "Invalid spreadsheet format. Please use the sample format."
-            )
-          );
+          reject(new Error("Invalid spreadsheet format. Please use the sample format."));
           return;
         }
 
-        const parsedData = jsonData.slice(1).map((row) => ({
-          name: row[nameIndex] || "",
-          email: row[emailIndex] || "",
+        const parsedData = jsonData.slice(1).map(row => ({
+          recipientName: row[nameIndex] || '',
+          recipientEmail: row[emailIndex] || ''
         }));
 
         resolve(parsedData);
@@ -102,26 +99,24 @@ export function Recipients() {
     fileInputRef.current?.click();
   };
 
-  const handleFileUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setIsUploading(true);
       try {
         const parsedData = await parseSpreadsheet(file);
         const uniqueData = parsedData.reduce((acc, current) => {
-          if (current.email && !isEmailDuplicate(current.email)) {
+          if (current.recipientEmail && !isEmailDuplicate(current.recipientEmail)) {
             return acc.concat([current]);
           } else {
             return acc;
           }
-        }, [] as { name: string; email: string }[]);
+        }, [] as Recipient[]);
 
         setRecipients([...recipients, ...uniqueData]);
         setUploadStats({
           total: parsedData.length,
-          unique: uniqueData.length,
+          unique: uniqueData.length
         });
         setHasUnsavedChanges(true);
       } catch (error) {
@@ -139,7 +134,13 @@ export function Recipients() {
     setIsSubmitted(true);
     setSaveStatus("Changes saved successfully!");
     setSaveStatus("");
-    navigate("/finalize");
+    // navigate("/finalize");
+    
+    setTimeout(() => {
+      setSaveStatus("");
+      // console.log(projectId);
+      navigate(`/finalize/${projectId}`);
+    }, 10);
   };
 
   const handleDeleteRecipient = (index: number) => {
@@ -152,11 +153,19 @@ export function Recipients() {
   const downloadSampleSheet = () => {
     const ws = XLSX.utils.json_to_sheet([
       { Name: "John Doe", Email: "john@example.com" },
-      { Name: "Jane Smith", Email: "jane@example.com" },
+      { Name: "Jane Smith", Email: "jane@example.com" }
     ]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Recipients");
     XLSX.writeFile(wb, "Sample.xlsx");
+  };
+
+  const handlePreview = () => {
+    setShowPreview(true);
+  };
+
+  const closePreview = () => {
+    setShowPreview(false);
   };
 
   const RecipientTable = () => (
@@ -170,17 +179,11 @@ export function Recipients() {
       </thead>
       <tbody>
         {recipients.map((recipient, index) => (
-          <tr
-            key={index}
-            className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-          >
-            <td className="border p-2">{recipient.name}</td>
-            <td className="border p-2">{recipient.email}</td>
+          <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+            <td className="border p-2">{recipient.recipientName}</td>
+            <td className="border p-2">{recipient.recipientEmail}</td>
             <td className="border p-2">
-              <Button
-                variant="destructive"
-                onClick={() => handleDeleteRecipient(index)}
-              >
+              <Button variant="destructive" onClick={() => handleDeleteRecipient(index)}>
                 Delete
               </Button>
             </td>
@@ -190,23 +193,46 @@ export function Recipients() {
     </table>
   );
 
+  const PreviewModal = () => (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-5"
+          onClick={closePreview}
+        >
+          <div
+            className="bg-white rounded-lg relative overflow-hidden w-full h-full max-w-[90vw] max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={closePreview}
+              className="absolute top-4 right-4 text-black hover:text-gray-700 z-10"
+            >
+              ✕
+            </button>
+            <div className="p-6 w-full h-full overflow-auto">
+              <h3 className="text-xl font-bold mb-4">Preview</h3>
+              <div className="border border-gray-300 rounded w-full h-[calc(100%-3rem)] overflow-auto flex justify-center align-center">
+                {/* Add your canvas content here */}
+                <CertificatePreview design={components} />
+                {/* <p className="text-center mt-20">Your canvas content goes here</p> */}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+
   return (
     <section className="w-full max-w-6xl mx-auto py-8 md:py-12">
       <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold">Add Recipients</h2>
-          <p className="text-muted-foreground">
-            Choose how you'd like to add recipients to your campaign.
-          </p>
+          <p className="text-muted-foreground">Choose how you'd like to add recipients to your campaign.</p>
         </div>
         <div className="flex space-x-4">
           {/* Left side - Manually */}
           <div className="w-1/2 border rounded-lg p-4 space-y-2">
             <div>
               <h3 className="font-semibold">Manually</h3>
-              <p className="text-sm text-muted-foreground">
-                Add recipients one by one
-              </p>
+              <p className="text-sm text-muted-foreground">Add recipients one by one</p>
             </div>
             <div className="space-y-2">
               <div className="flex flex-col gap-2">
@@ -224,9 +250,7 @@ export function Recipients() {
                   Submit
                 </Button>
               </div>
-              {errorMessage && (
-                <p className="text-red-500 text-sm">{errorMessage}</p>
-              )}
+              {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
             </div>
           </div>
 
@@ -234,9 +258,7 @@ export function Recipients() {
           <div className="w-1/2 border rounded-lg p-4 space-y-2">
             <div>
               <h3 className="font-semibold">Via Spreadsheet Upload</h3>
-              <p className="text-sm text-muted-foreground">
-                Upload a spreadsheet with recipient information
-              </p>
+              <p className="text-sm text-muted-foreground">Upload a spreadsheet with recipient information</p>
             </div>
             <div className="flex space-x-2">
               {isUploading ? (
@@ -252,26 +274,23 @@ export function Recipients() {
                 Download Sample Sheet
               </Button>
             </div>
-            <input
+            <input 
               ref={fileInputRef}
-              id="file-upload"
-              type="file"
-              className="hidden"
+              id="file-upload" 
+              type="file" 
+              className="hidden" 
               onChange={handleFileUpload}
               accept=".csv,.xlsx,.xls"
             />
-            <p className="text-sm text-muted-foreground">
-              Accepted file types: .csv, .xlsx, .xls
-            </p>
+            <p className="text-sm text-muted-foreground">Accepted file types: .csv, .xlsx, .xls</p>
             {uploadStats && (
               <p className="text-sm text-muted-foreground">
-                Uploaded {uploadStats.unique} unique entries out of{" "}
-                {uploadStats.total} total entries.
+                Uploaded {uploadStats.unique} unique entries out of {uploadStats.total} total entries.
               </p>
             )}
           </div>
         </div>
-
+        
         {/* Combined Recipients Table */}
         {recipients.length > 0 && (
           <div>
@@ -282,16 +301,27 @@ export function Recipients() {
 
         {/* Save Status Message */}
         {saveStatus && (
-          <div className="text-green-600 font-semibold mb-2">{saveStatus}</div>
+          <div className="text-green-600 font-semibold mb-2">
+            {saveStatus}
+          </div>
         )}
 
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <Button onClick={handleSubmit} disabled={recipients.length === 0}>
+        {/* Preview and Submit Buttons */}
+        <div className="flex justify-end space-x-4">
+          <Button onClick={handlePreview}>
+            Preview
+          </Button>
+          <Button 
+            onClick={handleSubmit} 
+            disabled={recipients.length === 0}
+          >
             Submit and Continue
           </Button>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && <PreviewModal />}
     </section>
   );
 }

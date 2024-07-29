@@ -1,47 +1,133 @@
-// components/ProcessingStages.tsx
-
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import {
+  CertificationResponse,
+  useGenerateCertificationMutation,
+  useGetCertificationStatusQuery,
+} from "@/api/project/projectApi";
 
 type Recipient = {
-  name: string;
-  email: string;
+  recipientName: string;
+  recipientEmail: string;
+  certificationUrl?: string;
 };
+
+const stages = [
+  "Processing",
+  "Certification created",
+  "Mail sent / Problem while sending mail",
+];
 
 export const IssueCertification = () => {
   const [currentStage, setCurrentStage] = useState(1);
   const [status, setStatus] = useState("Processing");
-  const [recipients, setRecipients] = useState<Recipient[]>([]);
+  const [recipients, setRecipients] = useState<CertificationResponse[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { projectId } = useParams<{ projectId: string }>();
+  const [generateCertification] = useGenerateCertificationMutation();
+  const { refetch } = useGetCertificationStatusQuery(projectId || "", { skip: !projectId });
 
-  useEffect(() => {
-    const storedRecipients = JSON.parse(
-      localStorage.getItem("recipients") || "[]"
-    ) as Recipient[];
-    setRecipients(storedRecipients);
+  const handleGenerateCertification = async (projectId: string, recipients: Recipient[]) => {
+    setCurrentStage(1);
+    try {
+      const response=await generateCertification({ projectId, recipients }).unwrap();
 
-    const timer = setInterval(() => {
-      setCurrentStage((prevStage) => {
-        if (prevStage < 4) {
-          return prevStage + 1;
-        } else {
-          clearInterval(timer);
+      setRecipients(response.map((recipient) => ({
+        recipientName: recipient.recipientName,
+        recipientEmail: recipient.recipientEmail,
+        certificationUrl: recipient.certificationUrl,
+      })));
+
+      setCurrentStage(2);
+      sessionStorage.removeItem("recipients");
+      handleFetchStatus();
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+    }
+  };
+
+  const handleFetchStatusOnce = async () => {
+    try {
+      const response = await refetch();
+      if (response.data) {
+        const { data } = response.data;
+        setRecipients(data.map((recipient) => ({
+          recipientName: recipient.recipientName,
+          recipientEmail: recipient.recipientEmail,
+          certificationUrl: recipient.certificationUrl,
+        })));
+        if (response.data.stage === 'MAIL_SENT') {
+          setCurrentStage(3);
           setStatus("Completed");
-          return prevStage;
+        } else if (response.data.stage === 'MAIL_NOT_SENT') {
+          setCurrentStage(3);
+          setStatus("Error");
+        } else {
+          setCurrentStage(2);
         }
-      });
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+    }
+  };
+
+  const handleFetchStatus = async () => {
+    const fetchStatus = async () => {
+      try {
+        const response = await refetch();
+        if (response.data) {
+          const { data } = response.data;
+
+          setRecipients(data.map((recipient) => ({
+            recipientName: recipient.recipientName,
+            recipientEmail: recipient.recipientEmail,
+            certificationUrl: recipient.certificationUrl,
+          })));
+
+          if (response.data.stage === "MAIL_SENT") {
+            setCurrentStage(3);
+            setStatus("Completed");
+            clearInterval(interval);
+          } else if (response.data.stage === 'MAIL_NOT_SENT') {
+            setCurrentStage(3);
+            setStatus("Error");
+            clearInterval(interval);
+          }
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(err.message);
+        }
+      }
+    };
+
+    const interval = setInterval(() => {
+      fetchStatus();
     }, 5000);
 
-    return () => clearInterval(timer);
-  }, []);
+    return () => clearInterval(interval);
+  };
 
-  const stages = [
-    "Initializing",
-    "Processing Recipients",
-    "Generating Content",
-    "Finalizing",
-  ];
+  useEffect(() => {
+    const storedRecipients = JSON.parse(sessionStorage.getItem("recipients") || "[]") as Recipient[];
+    setRecipients(storedRecipients.map((recipient) => ({
+      recipientName: recipient.recipientName,
+      recipientEmail: recipient.recipientEmail,
+      certificationUrl: "_",
+    })));
+
+    if (storedRecipients.length > 0 && projectId) {
+      handleGenerateCertification(projectId, storedRecipients);
+    } else if (projectId) {
+      handleFetchStatusOnce();
+    }
+  }, [projectId]);
 
   const handleContinue = () => {
     const recipientsJSON = JSON.stringify(recipients);
@@ -62,11 +148,13 @@ export const IssueCertification = () => {
                   currentStage > index + 1
                     ? "bg-green-500"
                     : currentStage === index + 1
-                    ? "bg-blue-500"
+                    ? error && currentStage === index + 1
+                      ? "bg-red-500"
+                      : "bg-blue-500"
                     : "bg-gray-300"
                 }`}
               >
-                {index + 1}
+                {error && currentStage === index + 1 ? "!" : index + 1}
               </div>
               <span className="text-sm text-center">{stage}</span>
             </div>
@@ -86,19 +174,21 @@ export const IssueCertification = () => {
               <th className="border border-gray-300 p-2">Recipient Name</th>
               <th className="border border-gray-300 p-2">Recipient Email</th>
               <th className="border border-gray-300 p-2">Status</th>
+              <th className="border border-gray-300 p-2">Certification URL</th>
             </tr>
           </thead>
           <tbody>
             {recipients.map((recipient, index) => (
               <tr key={index}>
-                <td className="border border-gray-300 p-2">{recipient.name}</td>
-                <td className="border border-gray-300 p-2">
-                  {recipient.email}
-                </td>
+                <td className="border border-gray-300 p-2">{recipient.recipientName}</td>
+                <td className="border border-gray-300 p-2">{recipient.recipientEmail}</td>
                 <td className="border border-gray-300 p-2">
                   {status === "Completed"
                     ? "Completed"
-                    : ` ${stages[currentStage - 1]}`}
+                    : stages[currentStage - 1]}
+                </td>
+                <td className="border border-gray-300 p-2">
+                  {<a href={recipient.certificationUrl}>{recipient.certificationUrl}</a> || "_"}
                 </td>
               </tr>
             ))}
@@ -107,8 +197,13 @@ export const IssueCertification = () => {
       </div>
 
       {/* Continue Button */}
-      {currentStage === 4 && status === "Completed" && (
+      {currentStage === 3 && status === "Completed" && (
         <Button onClick={handleContinue}>Continue</Button>
+      )}
+      {error && (
+        <div className="mt-4 text-red-500">
+          <p>Error: {error}</p>
+        </div>
       )}
     </div>
   );

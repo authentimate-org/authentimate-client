@@ -1,5 +1,5 @@
 import React from 'react';
-import { FetchAllProjectsResponse, useFetchAllProjectsQuery } from '@/api/issuer/issuerApi';
+import { FetchAllProjectsResponse } from '@/api/issuer/issuerApi';
 import { useNavigate } from 'react-router-dom';
 import { ProjectStage } from '../../services/project/projectSlice';
 import './ProjectsList.css';
@@ -24,17 +24,22 @@ const ProjectsList: React.FC<{data:FetchAllProjectsResponse[]}> = ({data}) => {
     }
   };
 
-  const incompleteProjects = data.filter(project => project.stage !==ProjectStage.ISSUED);
 
   const handleProjectClick = (projectId:string,stage:ProjectStage) => {
-    const navigateUrl =  `/create-project/${mapStageToNumber(stage)}/${projectId}` 
+    let navigateUrl;
+    if(stage===ProjectStage.MAIL_SENT || stage===ProjectStage.MAIN_NOT_SENT){
+      navigateUrl=`/finalize/${projectId}`;
+    }
+    else{
+      navigateUrl =  `/create-project/${mapStageToNumber(stage)}/${projectId}` 
+    }
     navigate(navigateUrl);
   };
 
   return (
     <div>
       <div className="tile-container">
-        {incompleteProjects.map(project => (
+        {data.map(project => (
           <div
             key={project._id}
             onClick={() => handleProjectClick(project._id,project.stage)}

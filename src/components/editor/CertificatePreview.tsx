@@ -1,3 +1,4 @@
+import React from "react";
 import { Stage, Layer, Rect, Circle, Text, Image } from "react-konva";
 import useImage from "use-image";
 
@@ -29,12 +30,10 @@ type DesignElement = {
   padding?: number;
 };
 
-const CertificatePreview = ({ design }: { design: DesignElement[] }) => {
+const CertificatePreview = React.forwardRef(({ design,ref }: { design: DesignElement[],ref:any }) => {
   return (
-    <Stage width={600} height={450} 
-    // style={{ scale: "0.8" }}
-    >
-      <Layer>
+    <Stage ref={ref} width={600} height={450}  >
+      <Layer id="canvas_preview">
         {design.map((element) => {
           switch (element.type) {
             case "line":
@@ -134,6 +133,6 @@ const CertificatePreview = ({ design }: { design: DesignElement[] }) => {
       </Layer>
     </Stage>
   );
-};
+})
 
 export default CertificatePreview;

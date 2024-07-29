@@ -7,6 +7,8 @@ import Main from "./components/layout/Main";
 import Dashboard from "./components/dashboard/Dashboard";
 import CreateProject from "./components/createProject/CreateProject";
 import { Onboard } from "./components/auth/Onboard";
+import { IssueCertification } from "./components/createProject/CertificationFinalize/IssueCertification";
+import { Verification } from "./components/Verification/Verification";
 
 const AppRouter = () => {
   const { authStatus } = useAuth(()=>{});
@@ -77,6 +79,10 @@ const AppRouter = () => {
             element: <CreateProject />,
           },
           {
+            path: "finalize/:projectId",
+            element: <IssueCertification />,
+          },
+          {
             path: "*",
             element: <Navigate to="/dashboard" />,
           },
@@ -91,6 +97,11 @@ const AppRouter = () => {
         element: <Navigate to="/dashboard" />,
       },
     ];
+
+    routes.push({
+      path:"verification/:id",
+      element:<Verification/>
+    })
   }
 
   if (authStatus === undefined) {

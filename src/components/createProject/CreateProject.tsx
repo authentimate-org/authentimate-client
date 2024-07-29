@@ -16,18 +16,11 @@ interface UserInput {
 }
 
 const CreateProject: React.FC = () => {
-  const { page, projectId } = useParams<{
-    page: string;
-    projectId?: string;
-    templateId?: string;
-  }>();
+  const { page, projectId } = useParams<{ page: string; projectId?: string }>();
   const navigate = useNavigate();
-  const [fetchProject, { data: projectData, isLoading }] =
-    useLazyFetchProjectQuery();
+  const [fetchProject, { data: projectData, isLoading }] = useLazyFetchProjectQuery();
 
-  const [currentPage, setCurrentPage] = useState<number>(
-    parseInt(page || "0", 10)
-  );
+  const [currentPage, setCurrentPage] = useState<number>(parseInt(page || "0", 10));
   const [userInput, setUserInput] = useState<UserInput>({
     projectName: "",
     TitleName: "",
@@ -40,26 +33,24 @@ const CreateProject: React.FC = () => {
     if (projectId) {
       fetchProject({ projectId });
     }
-  }, [currentPage, fetchProject]);
+  }, [projectId, fetchProject]);
 
   useEffect(() => {
     setCurrentPage(parseInt(page || "0", 10));
   }, [page]);
 
-  const nextStep = (idOrTemplate?: string) => {
+  const nextStep = async (idOrTemplate?: string) => {
+    if(projectData){
+      await fetchProject({projectId:projectData._id});
+    }
     if (currentPage === 0 && idOrTemplate) {
-      // setCurrentProjectId(idOrTemplate);
       navigate(`/create-project/1/${idOrTemplate}`);
     } else if (currentPage === 1 && idOrTemplate) {
-      // setCurrentTemplateId(idOrTemplate);
-      // setTemplateSelected(true);
       navigate(`/create-project/2/${projectId}`);
     } else if (currentPage === 2) {
-      // setCurrentTemplateId(idOrTemplate);
-      // setTemplateSelected(true);
       navigate(`/create-project/3/${projectId}`);
     } else {
-      navigate(`/create-project/${currentPage + 1}`);
+      // navigate(`/create-project/${targetPage}`);
     }
   };
 
@@ -69,29 +60,25 @@ const CreateProject: React.FC = () => {
     "How are you planning to use AuthentiMate?",
     "You have completed onboarding, you can start",
   ];
+
   const pageSubTitles = [
     "You can always change them later.",
     "You can always create another workspace later",
     "We'll streamline your setup experience accordingly.",
   ];
 
-  const handleChange =
-    (input: keyof UserInput) => (e: ChangeEvent<HTMLInputElement>) => {
-      setUserInput({ ...userInput, [input]: e.target.value });
-    };
+  const handleChange = (input: keyof UserInput) => (e: ChangeEvent<HTMLInputElement>) => {
+    setUserInput({ ...userInput, [input]: e.target.value });
+  };
 
   const PageDisplay = () => {
-    if ((projectData || !currentPage) && !isLoading) {
+    if (!isLoading) {
       switch (currentPage) {
         case 0:
           return <FirstStep nextStep={nextStep} handleChange={handleChange} />;
         case 1:
           return projectId ? (
-            <SecondStep
-              nextStep={nextStep}
-              handleChange={handleChange}
-              projectId={projectId}
-            />
+            <SecondStep nextStep={nextStep} handleChange={handleChange} projectId={projectId}/>
           ) : (
             <Navigate to="/create-project" />
           );
@@ -100,19 +87,14 @@ const CreateProject: React.FC = () => {
             navigate(`/create-project/1/${projectId}`);
             return null;
           }
-          return (
-            <ThirdStep
-              projectId={projectData?._id}
-              // template={projectData?.templateId}
-              nextStep={nextStep}
-              handleChange={handleChange}
-            />
-          );
+          return <ThirdStep projectId={projectData?._id} nextStep={nextStep} handleChange={handleChange} />;
         case 3:
           return <LastStep nextStep={nextStep} handleChange={handleChange} />;
         default:
           return null;
       }
+    } else {
+      return <div>Loading...</div>;
     }
   };
 
@@ -124,17 +106,11 @@ const CreateProject: React.FC = () => {
       <div className="w-full p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h1 className="text-2xl font-semibold">
-            {currentPage === pageTitles.length - 1
-              ? `Congratulations, ${userInput.TitleName}`
-              : pageTitles[currentPage]}
+            {currentPage === pageTitles.length - 1 ? `Congratulations, ${userInput.TitleName}` : pageTitles[currentPage]}
           </h1>
-          <p className="text-gray-600">
-            {currentPage < pageSubTitles.length
-              ? pageSubTitles[currentPage]
-              : ""}
-          </p>
+          <p className="text-gray-600">{currentPage < pageSubTitles.length ? pageSubTitles[currentPage] : ""}</p>
         </div>
-        <div>{!isLoading ? PageDisplay() : <div>Loading...</div>}</div>
+        <div>{PageDisplay()}</div>
       </div>
     </div>
   );
