@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider, Navigate, RouteObject } from "reac
 import { useAuth } from "./hooks/useAuth";
 import SignUp from "./components/auth/SignUp";
 import VerifyMail from "./components/auth/VerifyMail";
-import Login from "./components/auth/Login";
+import Login from "./components/auth/login";
 import Main from "./components/layout/Main";
 import Dashboard from "./components/dashboard/Dashboard";
 import CreateProject from "./components/createProject/CreateProject";
