@@ -25,6 +25,8 @@ export interface Info {
   setCurrentComponent: (info: Info) => void;
   moveElement: (id: string, info: Info) => void;
   fontFamily?: string;
+  removeComponent:(id: string)=>void
+
 }
 
 interface CreateComponentProps {
@@ -101,16 +103,16 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
         id={info.id}
         onClick={() => info.setCurrentComponent(info)}
         style={{
+          position: 'absolute',
           opacity: info.opacity,
-          left: info.left + "px",
-          top: info.top + "px",
+          left: `${info.left}px`,
+          top: `${info.top}px`,
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
-          resize: "none", // Disable resizing
-          height: info.lineheight + "px",
-          lineHeight:info.lineheight
         }}
-        className={`absolute  hover:border-[2px] `}
+        className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+          info.id === selectItem ? "outline" : ""
+        } outline-indigo-500`}
       >
         {selectItem === info.id && (
           <Element id={info.id} info={info} exId={`${info.id}r`} />
@@ -119,9 +121,9 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           onMouseDown={() => info.moveElement(info.id, info)}
           id={`${info.id}r`}
           style={{
-            width: info.width + "px",
-            height: info.lineheight + "px", 
-            background: info.color,lineHeight:info.lineheight
+            width: `${info.width}px`,
+            height: `${info.height}px`,
+            backgroundColor: info.color,
           }}
         ></div>
       </div>
