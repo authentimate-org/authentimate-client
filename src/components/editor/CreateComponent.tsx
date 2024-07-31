@@ -105,11 +105,15 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
         style={{
           position: 'absolute',
           opacity: info.opacity,
+          // lineHeight:info.lineheight,
           left: `${info.left}px`,
           top: `${info.top}px`,
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
+          width: `${info.width}px`,
+          height: `${info.lineheight || 1}px`, // Use lineheight for height, default to 1px
         }}
+        
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${
           info.id === selectItem ? "outline" : ""
         } outline-indigo-500`}
@@ -121,8 +125,8 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           onMouseDown={() => info.moveElement(info.id, info)}
           id={`${info.id}r`}
           style={{
-            width: `${info.width}px`,
-            height: `${info.height}px`,
+            width: '100%',
+            height: '100%',
             backgroundColor: info.color,
           }}
         ></div>
@@ -298,7 +302,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
         }`}
       >
         {selectItem === info.id && (
-          <Element id={info.id} info={info} exId={`${info.id}img`} />
+          <Element id={info.id} info={info} exId={``} />
         )}
         <div
           onMouseDown={() => info.moveElement(info.id, info)}
@@ -334,7 +338,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
         } outline-indigo-500`}
       >
         {selectItem === info.id && (
-          <Element id={info.id} info={info} exId={`${info.id}img`} />
+          <Element id={info.id} info={info} exId={``} />
         )}
         <div
           onMouseDown={(e) => {

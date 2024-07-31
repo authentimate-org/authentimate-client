@@ -1,5 +1,5 @@
 // src/components/editor/Main.tsx
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Header from "./Header";
 import { useParams } from "react-router-dom";
 // import { BsGrid1X2, BsFillImageFill, BsFolder } from "react-icons/bs";
@@ -37,7 +37,7 @@ interface Component {
   setCurrentComponent: (info: Component) => void;
   moveElement: (id: string, info: Component) => void;
   fontFamily?: string;
-  removeComponent:(id: string)=>void
+  removeComponent: (id: string) => void;
 }
 
 type Template = Component[];
@@ -125,7 +125,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     status: true,
     name: "",
   });
- const [components, setComponents] = useState<Component[]>([
+  const [components, setComponents] = useState<Component[]>([
     {
       name: "main_frame",
       type: "rect",
@@ -148,10 +148,9 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
       moveElement: function (id: string, info: Component): void {
         throw new Error("Function not implemented.");
       },
-      removeComponent:function(id: string):void{
+      removeComponent: function (id: string): void {
         throw new Error("Function not implemented.");
-
-      }
+      },
     },
   ]);
 
@@ -163,209 +162,199 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     });
   };
 
-  const handlePropertyChange = (property: string, value?: any, id?: string) => {
-    const componentId = id || current_component?.id;
+  const handlePropertyChange = useCallback(
+    (property: string, value?: any, id?: string) => {
+      setComponents((prevComponents) => {
+        const componentId = id || current_component?.id;
+        if (!componentId) {
+          console.error("No valid component ID provided.");
+          return prevComponents;
+        }
+        const index = components.findIndex((c) => c.id === componentId);
+        const name = components[index]?.name;
 
-    if (!componentId) {
-      console.error("No valid component ID provided.");
-      return;
-    }
-
-    console.log(components);
-    const index = components.findIndex((c) => c.id === componentId);
-    const name = components[index]?.name;
-
-    if (index === -1) {
-      console.error("Component not found for ID:", componentId);
-      return;
-    }
-
-    console.log(
-      `Property Change - Property: ${property}, ID: ${componentId}, Index: ${index}, Value:`,
-      value
-    );
-
-    const updateComponent = (changes: Partial<Component>) => {
-      setComponents((prev) => {
-        const updatedComponents = [...prev];
-        updatedComponents[index] = {
-          ...updatedComponents[index],
-          ...changes,
-        };
-        return updatedComponents;
+        return prevComponents.map((component) => {
+          if (component.id === componentId) {
+            let updatedComponent = { ...component };
+            // Update the component based on the property
+            if (property === "position") {
+              updatedComponent.left = value.left;
+              updatedComponent.top = value.top;
+            } else if (property === "size") {
+              updatedComponent.width = value.width;
+              updatedComponent.height = value.height;
+            } else if (property === "colors") {
+              setColor(value);
+              updatedComponent.color = value;
+            } else if (property === "Zindex") {
+              setzIndex(value);
+              updatedComponent.z_index = value;
+            } else if (property === "Opacity") {
+              setOpacity(value);
+              updatedComponent.opacity = value;
+            } else if (property === "Lineheights") {
+              setLineheight(value);
+              updatedComponent.lineheight = value;
+            } else if (name === "text") {
+              if (property === "fontSize") {
+                setFont(value);
+                updatedComponent.font= value ;
+              } else if (property === "fontFamily") {
+                setFontFamily(value);
+                updatedComponent.fontFamily= value;
+              } else if (property === "Paddings") {
+                setPadding(value);
+                updatedComponent.padding= value ;
+              } else if (property === "weights") {
+                setWeight(value);
+                updatedComponent.weight=value;
+              } else if (property === "titles") {
+                settitle(value);
+                updatedComponent.title= value;
+              }
+            } else if (name === "image") {
+              if (property === "Radius") {
+                setRadius(value);
+                updatedComponent.radius= value;
+              }
+            }
+            return updatedComponent;
+          }
+          return component;
+        });
       });
-    };
+    },
+    [current_component, setComponents]
+  );
 
-    if (property === "size") {
-      setHeight(value.height);
-      setWidth(value.width);
-      updateComponent({ width: value.width, height: value.height });
-    } else if (property === "position") {
-      console.log("name:-", name);
-      console.log("index:-", index);
-      console.log("value:-", value);
-      setTop(value.top);
-      setLeft(value.left);
-      updateComponent({ top: value.top, left: value.left });
-    } else if (property === "colors") {
-      setColor(value);
-      updateComponent({ color: value });
-    } else if (property === "Zindex") {
-      setzIndex(value);
-      updateComponent({ z_index: value });
-    } else if (property === "Opacity") {
-      setOpacity(value);
-      updateComponent({ opacity: value });
-    } else if (property === "Lineheights") {
-      setLineheight(value);
-      updateComponent({ lineheight: value });
-    } else if (name === "text") {
-      if (property === "fontSize") {
-        setFont(value);
-        updateComponent({ font: value });
-      } else if (property === "fontFamily") {
-        setFontFamily(value);
-        updateComponent({ fontFamily: value });
-      } else if (property === "Paddings") {
-        setPadding(value);
-        updateComponent({ padding: value });
-      } else if (property === "weights") {
-        setWeight(value);
-        updateComponent({ weight: value });
-      } else if (property === "titles") {
-        settitle(value);
-        updateComponent({ title: value });
+  const moveElement = useCallback(
+    (id: string, currentInfo: Component) => {
+      setCurrentComponent(currentInfo);
+
+      let isMoving = true;
+
+      const currentDiv = document.getElementById(id);
+      const canvas = document.getElementById("main_design"); // Assuming the canvas has an id of 'canvas'
+      const canvasRect = canvas?.getBoundingClientRect();
+
+      if (!canvasRect) {
+        console.error("Canvas element not found.");
+        return;
       }
-    } else if (name === "image") {
-      if (property === "Radius") {
-        setRadius(value);
-        updateComponent({ radius: value });
-      }
-    }
-  };
 
-  const moveElement = (id: string, currentInfo: Component) => {
-    setCurrentComponent(currentInfo);
+      const canvasWidth = canvasRect.width;
+      const canvasHeight = canvasRect.height;
 
-    let isMoving = true;
+      const mouseMove = ({ movementX, movementY }: MouseEvent) => {
+        setSelectItem("");
+        const getStyle = window.getComputedStyle(currentDiv!);
+        let left = parseInt(getStyle.left);
+        let top = parseInt(getStyle.top);
 
-    const currentDiv = document.getElementById(id);
-    const canvas = document.getElementById("main_design"); // Assuming the canvas has an id of 'canvas'
-    const canvasRect = canvas?.getBoundingClientRect();
+        if (isMoving) {
+          left += movementX;
+          top += movementY;
 
-    if (!canvasRect) {
-      console.error("Canvas element not found.");
-      return;
-    }
+          const width = currentInfo.width ?? currentDiv!.offsetWidth;
+          const height = currentInfo.height ?? currentDiv!.offsetHeight;
 
-    const canvasWidth = canvasRect.width;
-    const canvasHeight = canvasRect.height;
+          left = Math.max(0, Math.min(left, canvasWidth - width));
+          top = Math.max(0, Math.min(top, canvasHeight - height));
 
-    const mouseMove = ({ movementX, movementY }: MouseEvent) => {
-      setSelectItem("");
-      const getStyle = window.getComputedStyle(currentDiv!);
-      let left = parseInt(getStyle.left);
-      let top = parseInt(getStyle.top);
+          currentDiv!.style.left = `${left}px`;
+          currentDiv!.style.top = `${top}px`;
+        }
+        console.log(id)
+        handlePropertyChange("position", { left, top }, id);
+      };
 
-      if (isMoving) {
-        left += movementX;
-        top += movementY;
+      const mouseUp = (e: MouseEvent) => {
+        setSelectItem(currentInfo.id);
+        isMoving = false;
+        window.removeEventListener("mousemove", mouseMove);
+        window.removeEventListener("mouseup", mouseUp);
+        // setLeft(parseInt(currentDiv!.style.left));
+        // setTop(parseInt(currentDiv!.style.top));
+      };
 
-        const width = currentInfo.width ?? currentDiv!.offsetWidth;
-        const height = currentInfo.height ?? currentDiv!.offsetHeight;
+      window.addEventListener("mousemove", mouseMove);
+      window.addEventListener("mouseup", mouseUp);
+      currentDiv!.ondragstart = () => false;
+    },
+    [handlePropertyChange]
+  );
 
-        left = Math.max(0, Math.min(left, canvasWidth - width));
-        top = Math.max(0, Math.min(top, canvasHeight - height));
-
-        currentDiv!.style.left = `${left}px`;
-        currentDiv!.style.top = `${top}px`;
-      }
-      handlePropertyChange(
-        "position",
-        {
-          left: parseInt(currentDiv?.style.left ?? ""),
-          top: parseInt(currentDiv?.style.top ?? ""),
-        },
-        currentInfo.id
-      );
-    };
-
-    const mouseUp = (e: MouseEvent) => {
-      setSelectItem(currentInfo.id);
-      isMoving = false;
-      window.removeEventListener("mousemove", mouseMove);
-      window.removeEventListener("mouseup", mouseUp);
-      // setLeft(parseInt(currentDiv!.style.left));
-      // setTop(parseInt(currentDiv!.style.top));
-    };
-
-    window.addEventListener("mousemove", mouseMove);
-    window.addEventListener("mouseup", mouseUp);
-    currentDiv!.ondragstart = () => false;
-  };
-
-  const resizeElement = (id: string, currentInfo: Component) => {
+  const resizeElement = useCallback((id: string, currentInfo: Component) => {
     setCurrentComponent(currentInfo);
     let isMoving = true;
 
     const currentDiv = document.getElementById(id);
-
+  
     const mouseMove = ({ movementX, movementY }: MouseEvent) => {
       const getStyle = window.getComputedStyle(currentDiv!);
       let width = parseInt(getStyle.width);
       let height = parseInt(getStyle.height);
 
       if (isMoving) {
-        if (currentInfo.name === "image" && currentInfo.type === "qrCode") {
-          // Maintain aspect ratio for QR code
-          const aspectRatio = width / height;
-          let newWidth = width + movementX;
+      if (currentInfo.name === "image" && currentInfo.type === "qrCode") {
+        // Maintain aspect ratio for QR code
+        const aspectRatio = width / height;
+        let newWidth = width + movementX;
 
-          if (newWidth < 60) {
-            newWidth = 60; // Ensure minimum width of 30px
-          }
-
-          const newHeight = newWidth / aspectRatio;
-
-          currentDiv!.style.width = `${newWidth}px`;
-          currentDiv!.style.height = `${newHeight}px`;
-        } else if (
-          currentInfo.name === "shape" &&
-          currentInfo.type === "line"
-        ) {
-          width += movementX;
-          width = Math.max(width, 1);
-          // height = Math.min(Math.max(height + movementY, 1), 8);
-
-          currentDiv!.style.width = `${width}px`;
-          currentDiv!.style.height = `${height}px`;
-        } else {
-          currentDiv!.style.width = `${width + movementX}px`;
-          currentDiv!.style.height = `${height + movementY}px`;
+        if (newWidth < 60) {
+          newWidth = 60; // Ensure minimum width of 30px
         }
-      }
-    };
 
+        const newHeight = newWidth / aspectRatio;
+
+        currentDiv!.style.width = `${newWidth}px`;
+        currentDiv!.style.height = `${newHeight}px`;
+
+      } 
+      else if (
+        currentInfo.name === "shape" &&
+        currentInfo.type === "line"
+      ) {
+        width += movementX;
+        width = Math.max(width, 1);
+        // height = Math.min(Math.max(height + movementY, 1), 8); 
+
+        currentDiv!.style.width = `${width}px`;
+        currentDiv!.style.height = `${height}px`;
+      } 
+      else {
+        currentDiv!.style.width = `${width + movementX}px`;
+        currentDiv!.style.height = `${height + movementY}px`;
+      }
+    }
+      console.log(height,width)
+      console.log(id)
+      handlePropertyChange("size", { width, height }, id);
+    };
+  
+   
     const mouseUp = (e: MouseEvent) => {
       isMoving = false;
       window.removeEventListener("mousemove", mouseMove);
       window.removeEventListener("mouseup", mouseUp);
-      setWidth(parseInt(currentDiv!.style.width));
-      setHeight(parseInt(currentDiv!.style.height));
-      handlePropertyChange(
-        "size",
-        {
-          width: parseInt(currentDiv?.style.width ?? ""),
-          height: parseInt(currentDiv?.style.height ?? ""),
-        },
-        currentInfo.id
-      );
+      if (currentInfo.name === "shape" && currentInfo.type === "line") {
+        handlePropertyChange(
+          "size",
+          {
+            width: parseInt(currentDiv?.style.width ?? ""),
+            height: currentInfo.lineheight || 1, // Maintain the line height
+          },
+          currentInfo.id
+        );
+      }
     };
 
     window.addEventListener("mousemove", mouseMove);
     window.addEventListener("mouseup", mouseUp);
-    currentDiv!.ondragstart = () => false;
-  };
+    currentDiv!.ondragstart = function () {
+      return false;
+    };
+  }, [handlePropertyChange]);
 
   const rotateElement = (id: string, currentInfo: Component) => {
     setCurrentComponent(currentInfo);
@@ -462,7 +451,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
       moveElement,
       resizeElement,
       rotateElement,
-      removeComponent
+      removeComponent,
     };
     setSelectItem(id); // Ensure selectItem is a string
     setCurrentComponent(style);
@@ -493,8 +482,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
       moveElement,
       resizeElement,
       rotateElement,
-      removeComponent
-      
+      removeComponent,
     };
     setWeight(100);
     setFont(16);
@@ -502,7 +490,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     setSelectItem(id);
     setCurrentComponent(style);
     console.log(style);
-    console.log(components)
+    console.log(components);
     setComponents([...components, style]);
   };
 
@@ -527,7 +515,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
       moveElement,
       resizeElement,
       rotateElement,
-      removeComponent
+      removeComponent,
     };
 
     setSelectItem(id);
@@ -659,6 +647,14 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
   //   }
   // }, [templateData]);
   useEffect(() => {
+    if (selectItem) {
+      const selected = components.find(c => c.id === selectItem);
+      if (selected) {
+        setCurrentComponent(selected);
+      }
+    }
+  }, [selectItem, components]);
+  useEffect(() => {
     // console.log(templateData)
     if (templateData) {
       const design = templateData.map((element: any) => ({
@@ -685,7 +681,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
   useEffect(() => {
     console.log("Updated components: in useeffeci", components);
   }, [components]);
-  
+
   // if (isLoading) {
   //   return <div>Loading template...</div>;
   // }
