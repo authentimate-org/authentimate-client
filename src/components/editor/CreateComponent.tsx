@@ -18,7 +18,6 @@ export interface Info {
   padding?: number;
   font?: number;
   lineheight?: number;
-
   weight?: number;
   title?: string;
   radius?: number;
@@ -111,7 +110,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
           width: `${info.width}px`,
-          height: `${info.lineheight || 1}px`, // Use lineheight for height, default to 1px
+          height: `${info.lineheight || 1}px`// Use lineheight for height, default to 1px
         }}
         
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${

@@ -193,13 +193,14 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
               setOpacity(value);
               updatedComponent.opacity = value;
             } else if (property === "Lineheights") {
-              setLineheight(value);
               updatedComponent.lineheight = value;
+              setLineheight(value);
             } else if (name === "text") {
               if (property === "fontSize") {
                 setFont(value);
                 updatedComponent.font= value ;
-              } else if (property === "fontFamily") {
+              } else if (property === "fontFamilys") {
+                console.log(value)
                 setFontFamily(value);
                 updatedComponent.fontFamily= value;
               } else if (property === "Paddings") {
@@ -318,7 +319,9 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
         width += movementX;
         width = Math.max(width, 1);
         // height = Math.min(Math.max(height + movementY, 1), 8); 
-
+        let newLineHeight = Math.max(currentInfo.lineheight || 1 + movementY, 1);
+        height=newLineHeight;
+        
         currentDiv!.style.width = `${width}px`;
         currentDiv!.style.height = `${height}px`;
       } 
@@ -487,6 +490,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     setWeight(100);
     setFont(16);
     setPadding(0);
+    setFontFamily("Arial")
     setSelectItem(id);
     setCurrentComponent(style);
     console.log(style);
@@ -1040,7 +1044,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                             <select
                               onChange={(e) => {
                                 handlePropertyChange(
-                                  "fontFamily",
+                                  "fontFamilys",
                                   e.target.value
                                 );
                                 // setFontFamily(e.target.value);
