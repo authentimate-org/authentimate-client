@@ -32,7 +32,7 @@ const Header: React.FC<HeaderProps> = ({ components,projectId, design_id }) => {
         const design = new FormData();
         design.append("design", JSON.stringify(obj));
         design.append("projectId", projectId);
-        console.log("Components",components)
+        console.log("obj :- ser",obj)
         try {
           setLoader(true);
           console.log("dessign", design_id);

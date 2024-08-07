@@ -1,4 +1,5 @@
 import CertificatePreview from "./CertificatePreview";
+import React, { useRef } from 'react';
 type DesignElement = {
   id: number;
   name: string;
@@ -239,10 +240,11 @@ const design: DesignElement[] = [
 ];
 
 const PreviewPage = () => {
+  const stageRef = useRef(null);
   return (
     <div>
       <h1>Preview Page</h1>
-      <CertificatePreview design={design} />
+      <CertificatePreview  ref={stageRef} design={design} />
     </div>
   );
 };
