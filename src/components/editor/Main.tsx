@@ -883,22 +883,24 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
             {current_component && (
               <div className="h-full w-[250px] text-gray-300 bg-[#252627] px-3 py-2 relative left-[-79px]">
                 <div className="flex gap-6 flex-col items-start h-full px-3 justify-start pt-4">
-                  {(current_component.name !== "main_frame" && current_component.type !== "recipientName" && current_component.type !== "qrCode") && (
-                    <div className="flex justify-start items-center gap-5">
-                      <div
-                        onClick={() => removeComponent(current_component?.id)}
-                        className="w-[30px] flex justify-center items-center rounded-md cursor-pointer h-[30px] bg-slate-700 hover:bg-slate-800"
-                      >
-                        <FaTrash />
+                  {current_component.name !== "main_frame" &&
+                    current_component.type !== "recipientName" &&
+                    current_component.type !== "qrCode" && (
+                      <div className="flex justify-start items-center gap-5">
+                        <div
+                          onClick={() => removeComponent(current_component?.id)}
+                          className="w-[30px] flex justify-center items-center rounded-md cursor-pointer h-[30px] bg-slate-700 hover:bg-slate-800"
+                        >
+                          <FaTrash />
+                        </div>
+                        <div
+                          onClick={() => duplicate(current_component)}
+                          className="w-[30px] flex justify-center items-center rounded-md cursor-pointer h-[30px] bg-slate-700 hover:bg-slate-800"
+                        >
+                          <IoDuplicateOutline />
+                        </div>
                       </div>
-                      <div
-                        onClick={() => duplicate(current_component)}
-                        className="w-[30px] flex justify-center items-center rounded-md cursor-pointer h-[30px] bg-slate-700 hover:bg-slate-800"
-                      >
-                        <IoDuplicateOutline />
-                      </div>
-                    </div>
-                  )}
+                    )}
                   <div className="flex gap-4 justify-start items-start">
                     <span>Color : </span>
                     <label
@@ -1070,24 +1072,24 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                             </select>
                           </div>
                           {current_component.type !== "recipientName" && (
-                          <div className="flex gap-2 flex-col justify-start items-start">
-                            <input
-                              onChange={(e) =>
-                                handlePropertyChange("titles", e.target.value)
-                              }
-                              className="border border-gray-700 bg-transparent outline-none p-2 rounded-md"
-                              type="text"
-                              value={title}
-                            />
-                            <div className="flex pl-5">
-                              <button
-                                onClick={() => add_text("text", "title")}
-                                className="px-4 py-2 bg-purple-500 text-xs text-white rounded-sm  mr-4"
-                              >
-                                Add
-                              </button>
+                            <div className="flex gap-2 flex-col justify-start items-start">
+                              <input
+                                onChange={(e) =>
+                                  handlePropertyChange("titles", e.target.value)
+                                }
+                                className="border border-gray-700 bg-transparent outline-none p-2 rounded-md"
+                                type="text"
+                                value={title}
+                              />
+                              <div className="flex pl-5">
+                                <button
+                                  onClick={() => add_text("text", "title")}
+                                  className="px-4 py-2 bg-purple-500 text-xs text-white rounded-sm  mr-4"
+                                >
+                                  Add
+                                </button>
+                              </div>
                             </div>
-                          </div>
                           )}
                         </>
                       )}
