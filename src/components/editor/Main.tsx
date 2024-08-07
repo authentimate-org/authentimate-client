@@ -28,7 +28,7 @@ interface Component {
   top?: number;
   rotate?: number;
   opacity?: number;
-  lineheight?: number;
+  lineHeight?: number;
   padding?: number;
   font?: number;
   weight?: number;
@@ -66,7 +66,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
   const [fontFamily, setFontFamily] = useState<string>("");
   const [title, settitle] = useState<string>("");
   const [padding, setPadding] = useState<number | string>(0);
-  const [lineheight, setLineheight] = useState<number | string>(0);
+  const [lineHeight, setLineheight] = useState<number | string>(1);
 
   const handleResetProperties = (a: Component) => {
     setColor(a.color ?? "");
@@ -78,7 +78,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     setHeight(a.height ?? "");
     setOpacity(a.opacity ?? "");
     setRadius(a.radius ?? 0);
-    setLineheight(a.lineheight ?? 1);
+    setLineheight(a.lineHeight ?? 1);
     setzIndex(a.z_index ?? "");
     setFontFamily(a.fontFamily ?? "");
     setPadding(a.padding ?? 0);
@@ -193,30 +193,30 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
               setOpacity(value);
               updatedComponent.opacity = value;
             } else if (property === "Lineheights") {
-              updatedComponent.lineheight = value;
+              updatedComponent.lineHeight = value;
               setLineheight(value);
             } else if (name === "text") {
               if (property === "fontSize") {
                 setFont(value);
-                updatedComponent.font= value ;
+                updatedComponent.font = value;
               } else if (property === "fontFamilys") {
-                console.log(value)
+                console.log(value);
                 setFontFamily(value);
-                updatedComponent.fontFamily= value;
+                updatedComponent.fontFamily = value;
               } else if (property === "Paddings") {
                 setPadding(value);
-                updatedComponent.padding= value ;
+                updatedComponent.padding = value;
               } else if (property === "weights") {
                 setWeight(value);
-                updatedComponent.weight=value;
+                updatedComponent.weight = value;
               } else if (property === "titles") {
                 settitle(value);
-                updatedComponent.title= value;
+                updatedComponent.title = value;
               }
             } else if (name === "image") {
               if (property === "Radius") {
                 setRadius(value);
-                updatedComponent.radius= value;
+                updatedComponent.radius = value;
               }
             }
             return updatedComponent;
@@ -265,7 +265,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
           currentDiv!.style.left = `${left}px`;
           currentDiv!.style.top = `${top}px`;
         }
-        console.log(id)
+        console.log(id);
         handlePropertyChange("position", { left, top }, id);
       };
 
@@ -285,79 +285,81 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     [handlePropertyChange]
   );
 
-  const resizeElement = useCallback((id: string, currentInfo: Component) => {
-    setCurrentComponent(currentInfo);
-    let isMoving = true;
+  const resizeElement = useCallback(
+    (id: string, currentInfo: Component) => {
+      setCurrentComponent(currentInfo);
+      let isMoving = true;
 
-    const currentDiv = document.getElementById(id);
-  
-    const mouseMove = ({ movementX, movementY }: MouseEvent) => {
-      const getStyle = window.getComputedStyle(currentDiv!);
-      let width = parseInt(getStyle.width);
-      let height = parseInt(getStyle.height);
+      const currentDiv = document.getElementById(id);
 
-      if (isMoving) {
-      if (currentInfo.name === "image" && currentInfo.type === "qrCode") {
-        // Maintain aspect ratio for QR code
-        const aspectRatio = width / height;
-        let newWidth = width + movementX;
+      const mouseMove = ({ movementX, movementY }: MouseEvent) => {
+        const getStyle = window.getComputedStyle(currentDiv!);
+        let width = parseInt(getStyle.width);
+        let height = parseInt(getStyle.height);
 
-        if (newWidth < 60) {
-          newWidth = 60; // Ensure minimum width of 30px
+        if (isMoving) {
+          if (currentInfo.name === "image" && currentInfo.type === "qrCode") {
+            // Maintain aspect ratio for QR code
+            const aspectRatio = width / height;
+            let newWidth = width + movementX;
+
+            if (newWidth < 60) {
+              newWidth = 60; // Ensure minimum width of 30px
+            }
+
+            const newHeight = newWidth / aspectRatio;
+
+            currentDiv!.style.width = `${newWidth}px`;
+            currentDiv!.style.height = `${newHeight}px`;
+          } else if (
+            currentInfo.name === "shape" &&
+            currentInfo.type === "line"
+          ) {
+            width += movementX;
+            width = Math.max(width, 1);
+            // height = Math.min(Math.max(height + movementY, 1), 8);
+            let newLineHeight = Math.max(
+              currentInfo.lineHeight || 1 + movementY,
+              1
+            );
+            height = newLineHeight;
+
+            currentDiv!.style.width = `${width}px`;
+            currentDiv!.style.height = `${height}px`;
+          } else {
+            currentDiv!.style.width = `${width + movementX}px`;
+            currentDiv!.style.height = `${height + movementY}px`;
+          }
         }
+        console.log(height, width);
+        console.log(id);
+        handlePropertyChange("size", { width, height }, id);
+      };
 
-        const newHeight = newWidth / aspectRatio;
+      const mouseUp = (e: MouseEvent) => {
+        isMoving = false;
+        window.removeEventListener("mousemove", mouseMove);
+        window.removeEventListener("mouseup", mouseUp);
+        if (currentInfo.name === "shape" && currentInfo.type === "line") {
+          handlePropertyChange(
+            "size",
+            {
+              width: parseInt(currentDiv?.style.width ?? ""),
+              height: currentInfo.lineHeight || 1, // Maintain the line height
+            },
+            currentInfo.id
+          );
+        }
+      };
 
-        currentDiv!.style.width = `${newWidth}px`;
-        currentDiv!.style.height = `${newHeight}px`;
-
-      } 
-      else if (
-        currentInfo.name === "shape" &&
-        currentInfo.type === "line"
-      ) {
-        width += movementX;
-        width = Math.max(width, 1);
-        // height = Math.min(Math.max(height + movementY, 1), 8); 
-        let newLineHeight = Math.max(currentInfo.lineheight || 1 + movementY, 1);
-        height=newLineHeight;
-        
-        currentDiv!.style.width = `${width}px`;
-        currentDiv!.style.height = `${height}px`;
-      } 
-      else {
-        currentDiv!.style.width = `${width + movementX}px`;
-        currentDiv!.style.height = `${height + movementY}px`;
-      }
-    }
-      console.log(height,width)
-      console.log(id)
-      handlePropertyChange("size", { width, height }, id);
-    };
-  
-   
-    const mouseUp = (e: MouseEvent) => {
-      isMoving = false;
-      window.removeEventListener("mousemove", mouseMove);
-      window.removeEventListener("mouseup", mouseUp);
-      if (currentInfo.name === "shape" && currentInfo.type === "line") {
-        handlePropertyChange(
-          "size",
-          {
-            width: parseInt(currentDiv?.style.width ?? ""),
-            height: currentInfo.lineheight || 1, // Maintain the line height
-          },
-          currentInfo.id
-        );
-      }
-    };
-
-    window.addEventListener("mousemove", mouseMove);
-    window.addEventListener("mouseup", mouseUp);
-    currentDiv!.ondragstart = function () {
-      return false;
-    };
-  }, [handlePropertyChange]);
+      window.addEventListener("mousemove", mouseMove);
+      window.addEventListener("mouseup", mouseUp);
+      currentDiv!.ondragstart = function () {
+        return false;
+      };
+    },
+    [handlePropertyChange]
+  );
 
   const rotateElement = (id: string, currentInfo: Component) => {
     setCurrentComponent(currentInfo);
@@ -444,7 +446,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
       left: 10,
       top: 10,
       opacity: 1,
-      lineheight: 1,
+      lineHeight: 1,
       width: 200,
       height: 150,
       rotate,
@@ -490,7 +492,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     setWeight(100);
     setFont(16);
     setPadding(0);
-    setFontFamily("Arial")
+    setFontFamily("Arial");
     setSelectItem(id);
     setCurrentComponent(style);
     console.log(style);
@@ -652,7 +654,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
   // }, [templateData]);
   useEffect(() => {
     if (selectItem) {
-      const selected = components.find(c => c.id === selectItem);
+      const selected = components.find((c) => c.id === selectItem);
       if (selected) {
         setCurrentComponent(selected);
       }
@@ -881,7 +883,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
             {current_component && (
               <div className="h-full w-[250px] text-gray-300 bg-[#252627] px-3 py-2 relative left-[-79px]">
                 <div className="flex gap-6 flex-col items-start h-full px-3 justify-start pt-4">
-                  {current_component.name !== "main_frame" && (
+                  {(current_component.name !== "main_frame" && current_component.type !== "recipientName" && current_component.type !== "qrCode") && (
                     <div className="flex justify-start items-center gap-5">
                       <div
                         onClick={() => removeComponent(current_component?.id)}
@@ -954,6 +956,8 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                           className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                           type="number"
                           step={1}
+                          min={-5}
+                          max={150}
                           value={zIndex}
                         />
                       </div>
@@ -967,7 +971,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                               onChange={(e) =>
                                 handlePropertyChange(
                                   "Lineheights",
-                                  e.target.value
+                                  parseFloat(e.target.value)
                                 )
                               }
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
@@ -975,7 +979,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                               min={1}
                               max={8}
                               step={1}
-                              value={lineheight}
+                              value={lineHeight}
                             />
                           </div>
                         )}
@@ -989,6 +993,8 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                             className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                             type="number"
                             step={1}
+                            min={0}
+                            max={100}
                             value={radius}
                           />
                         </div>
@@ -1004,6 +1010,8 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={1}
+                              min={0}
+                              max={150}
                               value={padding}
                             />
                           </div>
@@ -1022,6 +1030,8 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                               className="w-[70px] border border-gray-700 bg-transparent outline-none px-2 rounded-md"
                               type="number"
                               step={1}
+                              min={5}
+                              max={90}
                               value={font}
                             />
                           </div>
@@ -1059,7 +1069,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                               ))}
                             </select>
                           </div>
-
+                          {current_component.type !== "recipientName" && (
                           <div className="flex gap-2 flex-col justify-start items-start">
                             <input
                               onChange={(e) =>
@@ -1078,6 +1088,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                               </button>
                             </div>
                           </div>
+                          )}
                         </>
                       )}
                     </div>
