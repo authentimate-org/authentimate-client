@@ -21,10 +21,14 @@ export interface GetUserResponse{
   onboarding:boolean
 }
 
+export interface Project{
+  _id:string;
+  projectName:string;
+  stage:ProjectStage
+}
 export interface FetchAllProjectsResponse{
-  _id:string,
-  projectName: string,
-  stage: ProjectStage
+  projects:Project[],
+  totalCertifications:number
 }
 
 const issuerApi = api.injectEndpoints({
@@ -42,7 +46,7 @@ const issuerApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
-    fetchAllProjects: builder.query<FetchAllProjectsResponse[], void>({
+    fetchAllProjects: builder.query<FetchAllProjectsResponse, void>({
       query: () => ({
         url: "/project/all",
         method: "GET",

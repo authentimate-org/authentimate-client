@@ -3,7 +3,7 @@ import { CardTitle, CardHeader, CardContent, Card } from "@/components/ui/card"
 
 interface AnalyticsInputProps{
   totalProjects:number;
-  totalCertifications:number;
+  totalCertifications?:number;
 }
 
 export const Analytics:React.FC<AnalyticsInputProps>=({totalProjects,totalCertifications}) =>{
@@ -24,7 +24,7 @@ export const Analytics:React.FC<AnalyticsInputProps>=({totalProjects,totalCertif
               <CardTitle>Total Certificates Generated</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center justify-center flex-1">
-              <div className="text-5xl font-bold">{totalCertifications}</div>
+              <div className="text-5xl font-bold">{totalCertifications??0}</div>
               <div className="text-gray-500 dark:text-gray-400">Certificates</div>
             </CardContent>
           </Card>

@@ -5,18 +5,18 @@ import { ProjectStage } from "@/services/project/projectSlice";
 import ProjectsList from "./ProjectsList";
 
 const Dashboard = () => {
-  const { data: projects} = useFetchAllProjectsQuery();
+  const { data: projectsData} = useFetchAllProjectsQuery();
 
-  const incompleteProjects = projects?.filter(
+  const incompleteProjects = projectsData?.projects?.filter(
     (project) => project.stage !== ProjectStage.MAIL_SENT
   );
 
-  const completedProjects = projects?.filter(
+  const completedProjects = projectsData?.projects?.filter(
     (project) => project.stage === ProjectStage.MAIL_SENT
   );
   return (
     <div>
-      <Analytics totalProjects={projects?.length??0} totalCertifications={12345}/>
+      <Analytics totalProjects={projectsData?.projects?.length??0} totalCertifications={projectsData?.totalCertifications}/>
       <Create />
       <div className="p-9 mt-4">
       {incompleteProjects?.length ? (

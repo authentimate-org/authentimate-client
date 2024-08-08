@@ -1,10 +1,10 @@
 import React from 'react';
-import { FetchAllProjectsResponse } from '@/api/issuer/issuerApi';
+import { Project } from '@/api/issuer/issuerApi';
 import { useNavigate } from 'react-router-dom';
 import { ProjectStage } from '../../services/project/projectSlice';
 import './ProjectsList.css';
 
-const ProjectsList: React.FC<{data:FetchAllProjectsResponse[]}> = ({data}) => {
+const ProjectsList: React.FC<{data:Project[]}> = ({data}) => {
   // const { data: projects, isLoading, isError } = useFetchAllProjectsQuery();
   const navigate = useNavigate();
 

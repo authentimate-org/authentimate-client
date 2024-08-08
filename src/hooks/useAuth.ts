@@ -71,7 +71,7 @@ export const useAuth = (navigate: (path: string) => void): AuthReturnType => {
   const handleRegister = async (email: string, password: string):Promise<{success:boolean}> => {
     try {
       setIsLoading(true);
-      const endpoint = "/issuer/signup";
+      const endpoint = "/issuer/signUp";
       const url = `${API_BASE_URL}${endpoint}`;
 
       const response = await axios.post<RegisterResponse>(url, { email, password });
