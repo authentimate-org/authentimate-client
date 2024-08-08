@@ -695,8 +695,10 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
   // if (isError || !templateData) {
   //   return <div>Error loading template</div>;
   // }
-  const mainFrame = components.find((c) => c.name === "main_frame");
   // console.log(mainFrame)
+  if (components.length > 0) {
+    var mainFrame = components.find((c) => c.name === "main_frame");
+  }
   return (
     <div className="min-w-screen h-screen bg-black">
       <Header
@@ -855,16 +857,18 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
               <div
                 className="flex justify-center items-center overflow-hidden"
                 style={{
-                  width: mainFrame?.width || "auto",
-                  height: mainFrame?.height || "auto",
+                  width: mainFrame?.width ? `${mainFrame.width}px` : "auto",
+                  height: mainFrame?.height ? `${mainFrame.height}px` : "auto",
                 }}
               >
                 <div
                   id="main_design"
                   className="relative overflow-hidden select-none"
                   style={{
-                    width: mainFrame?.width || "auto",
-                    height: mainFrame?.height || "auto",
+                    width: mainFrame?.width ? `${mainFrame.width}px` : "auto",
+                    height: mainFrame?.height
+                      ? `${mainFrame.height}px`
+                      : "auto",
                   }}
                 >
                   {components.map((c, i) => (

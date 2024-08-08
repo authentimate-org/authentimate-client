@@ -49,52 +49,65 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           info.setCurrentComponent(info);
           setSelectItem("");
         }}
-        // className="hover:border-[2px] hover:border-indigo-500 shadow-md"
         style={{
           width: info.width + "px",
           height: info.height + "px",
           background: info.color,
           zIndex: info.z_index,
+          position: 'relative',
+          overflow: 'hidden',
         }}
       >
         {info.image && (
-          <img className="w-full h-full" src={info.image} alt="image" />
+          <img 
+            src={info.image} 
+            alt="image" 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+            }}
+          />
         )}
       </div>
     );
   }
 
-  if (info.name === "shape" && info.type === "rect") {
-    html = (
-      <div
-        id={info.id}
-        onClick={() => info.setCurrentComponent(info)}
-        style={{
-          opacity: info.opacity,
-          left: info.left + "px",
-          top: info.top + "px",
-          zIndex: info.z_index,
-          transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
-        }}
-        className={`absolute group outline-indigo-500 outline-2 hover:outline ${
-          info.id === selectItem ? "outline" : ""
-        } outline-indigo-500`}
-      >
-        {selectItem === info.id && (
-          <Element id={info.id} info={info} exId={`${info.id}r`} />
-        )}
-        <div
-          onMouseDown={() => info.moveElement(info.id, info)}
-          id={`${info.id}r`}
-          style={{
-            width: info.width + "px",
-            height: info.height + "px",
-            background: info.color,
-          }}
-        ></div>
-      </div>
-    );
-  }
+
+  // if (info.name === "shape" && info.type === "rect") {
+  //   html = (
+  //     <div
+  //       id={info.id}
+  //       onClick={() => info.setCurrentComponent(info)}
+  //       style={{
+  //         opacity: info.opacity,
+  //         left: info.left + "px",
+  //         top: info.top + "px",
+  //         zIndex: info.z_index,
+  //         transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
+  //       }}
+  //       className={`absolute group outline-indigo-500 outline-2 hover:outline ${
+  //         info.id === selectItem ? "outline" : ""
+  //       } outline-indigo-500`}
+  //     >
+  //       {selectItem === info.id && (
+  //         <Element id={info.id} info={info} exId={`${info.id}r`} />
+  //       )}
+  //       <div
+  //         onMouseDown={() => info.moveElement(info.id, info)}
+  //         id={`${info.id}r`}
+  //         style={{
+  //           width: info.width + "px",
+  //           height: info.height + "px",
+  //           background: info.color,
+  //         }}
+  //       ></div>
+  //     </div>
+  //   );
+  // }
   if (info.name === "shape" && info.type === "line") {
     html = (
       <div
