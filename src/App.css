@@ -1,0 +1,4 @@
+.certificate-preview div:hover{
+    outline: none !important;
+    border: none !important;
+}
