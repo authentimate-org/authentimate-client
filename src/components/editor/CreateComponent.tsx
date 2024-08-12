@@ -1,5 +1,6 @@
 import React from "react";
 import Element from "./Element";
+type TextAlign = "left" | "center" | "right";
 export interface Info {
   rotateElement(id: string, info: Info): void;
   resizeElement(elementId: string, info: Info): void;
@@ -16,6 +17,7 @@ export interface Info {
   rotate?: number;
   opacity?: number;
   padding?: number;
+  textAlign?: TextAlign;
   font?: number;
   lineHeight?: number;
   weight?: number;
@@ -54,28 +56,27 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           height: info.height + "px",
           background: info.color,
           zIndex: info.z_index,
-          position: 'relative',
-          overflow: 'hidden',
+          position: "relative",
+          overflow: "hidden",
         }}
       >
         {info.image && (
-          <img 
-            src={info.image} 
-            alt="image" 
+          <img
+            src={info.image}
+            alt="image"
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: 0,
               left: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
+              width: "100%",
+              height: "100%",
+              objectFit: "contain",
             }}
           />
         )}
       </div>
     );
   }
-
 
   // if (info.name === "shape" && info.type === "rect") {
   //   html = (
@@ -228,6 +229,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             fontFamily: info.fontFamily,
             width: info.width + "px",
             height: info.height + "px",
+            textAlign: info.textAlign || "center",
           }}
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
             info.id === selectItem ? "outline" : ""
@@ -242,6 +244,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
                 fontSize: info.font + "px",
                 fontWeight: info.weight,
                 fontFamily: info.fontFamily,
+                textAlign: info.textAlign || "center",
               }}
               className="w-full h-full"
             >
@@ -269,6 +272,9 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             color: info.color,
             opacity: info.opacity,
             fontFamily: info.fontFamily,
+            width: info.width + "px",
+            height: info.height + "px",
+            textAlign: info.textAlign || "center",
             pointerEvents: "auto",
           }}
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
@@ -283,6 +289,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
               style={{
                 fontSize: info.font + "px",
                 fontWeight: info.weight,
+                textAlign: info.textAlign || "center",
                 fontFamily: info.fontFamily,
               }}
               className="w-full h-full"

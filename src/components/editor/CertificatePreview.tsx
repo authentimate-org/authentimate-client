@@ -1,7 +1,9 @@
-import { forwardRef } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 import CreateComponent from "./CreateComponent";
-import "../../App.css"
+import "../../App.css";
+import * as htmlToImage from "html-to-image";
 
+type TextAlign = "left" | "center" | "right";
 type DesignElement = {
   id: number;
   name: string;
@@ -28,37 +30,66 @@ type DesignElement = {
   title?: string;
   weight?: number;
   radius?: number;
+  textAlign?: TextAlign;
   padding?: number;
 };
 type CertificatePreviewProps = {
   design: DesignElement[];
 };
 
-const rotateElement=()=>null
-const resizeElement=()=>null;
-const setCurrentComponent=()=>null;
-const moveElement=()=>null;
-const removeComponent=()=>null;
+const rotateElement = () => null;
+const resizeElement = () => null;
+const setCurrentComponent = () => null;
+const moveElement = () => null;
+const removeComponent = () => null;
+const downloadImage = async () => {
+  const getDiv = document.getElementById("previews");
+  if (getDiv) {
+    const dataUrl = await htmlToImage.toPng(getDiv, {
+      style: {
+        transform: "scale(1)",
+      },
+    });
 
+    const link = document.createElement("a");
+    link.download = "image";
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
 const CertificatePreview = forwardRef<any, CertificatePreviewProps>(
   ({ design }, ref) => {
+    useImperativeHandle(ref, () => ({
+      downloadImage
+    }));
     return (
-
-        <div className="relative certificate-preview" >
+      <div id="previews" className="relative certificate-preview">
         {design.map((c, i) => {
-            const component={...c,id:c.id.toString(),rotateElement, resizeElement, setCurrentComponent, moveElement, removeComponent}
-            return(
-                <CreateComponent
+          const component = {
+            ...c,
+            id: c.id.toString(),
+            rotateElement,
+            resizeElement,
+            setCurrentComponent,
+            moveElement,
+            removeComponent,
+          };
+          return (
+            <div>
+              <CreateComponent
                 current_component={null}
-                removeComponent={()=>null}
-                selectItem={''}
-                setSelectItem={()=>null}
+                removeComponent={() => null}
+                selectItem={""}
+                setSelectItem={() => null}
                 key={i}
                 info={component}
-                />
-             )
+              />
+            </div>
+          );
         })}
-          </div>
+      </div>
     );
   }
 );
