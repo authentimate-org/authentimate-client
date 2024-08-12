@@ -10,9 +10,15 @@ interface HeaderProps {
   components: any;
   design_id: string;
   projectId:string;
+  showNextButton?: boolean;
+  onNextClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ components,projectId, design_id }) => {
+const Header: React.FC<HeaderProps> = ({  components, 
+  projectId, 
+  design_id, 
+  showNextButton = false, 
+  onNextClick  }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loader, setLoader] = useState(false);
@@ -49,23 +55,23 @@ const Header: React.FC<HeaderProps> = ({ components,projectId, design_id }) => {
     }
   };
 
-  const downloadImage = async () => {
-    const getDiv = document.getElementById("main_design");
-    if (getDiv) {
-      const dataUrl = await htmlToImage.toPng(getDiv, {
-        style: {
-          transform: "scale(1)",
-        },
-      });
+  // const downloadImage = async () => {
+  //   const getDiv = document.getElementById("main_design");
+  //   if (getDiv) {
+  //     const dataUrl = await htmlToImage.toPng(getDiv, {
+  //       style: {
+  //         transform: "scale(1)",
+  //       },
+  //     });
 
-      const link = document.createElement("a");
-      link.download = "image";
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+  //     const link = document.createElement("a");
+  //     link.download = "image";
+  //     link.href = dataUrl;
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   }
+  // };
 
   return (
     <div className="h-[60px] bg-gradient-to-r from-[#9494a1] via-[#7a8091] to-[#606a74] w-full">
@@ -87,12 +93,20 @@ const Header: React.FC<HeaderProps> = ({ components,projectId, design_id }) => {
           >
             {loader ? "Loading..." : "Save"}
           </button>
-          <button
+          {/* <button
             onClick={downloadImage}
             className="px-3 py-[6px] outline-none bg-[#252627] rounded-sm"
           >
             Download
-          </button>
+          </button> */}
+          {showNextButton && (
+            <button
+              onClick={onNextClick}
+              className="px-3 py-[6px] outline-none bg-[#252627] rounded-sm"
+            >
+              Next
+            </button>
+          )}
         </div>
       </div>
     </div>

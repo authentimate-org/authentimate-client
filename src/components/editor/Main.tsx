@@ -13,6 +13,7 @@ import CreateComponent from "./CreateComponent";
 // import { useFetchTemplateByIdQuery } from "@/api/project/projectApi";
 // import { stringify } from "querystring";
 import MyImages from "./Myimages";
+type TextAlign = "left" | "center" | "right";
 interface Component {
   rotateElement(id: string, info: Component): void;
   resizeElement(elementId: string, info: Component): void;
@@ -37,6 +38,7 @@ interface Component {
   setCurrentComponent: (info: Component) => void;
   moveElement: (id: string, info: Component) => void;
   fontFamily?: string;
+  textAlign?: TextAlign;
   removeComponent: (id: string) => void;
 }
 
@@ -45,15 +47,23 @@ type Template = Component[];
 interface MainProps {
   projectId: string;
   templateData: Template;
+  showNextButton?: boolean;
+  onNextClick?: () => void;
 }
 
-const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
+const Main: React.FC<MainProps> = ({
+  projectId,
+  templateData,
+  showNextButton,
+  onNextClick,
+}) => {
   const [selectItem, setSelectItem] = useState<string>("");
   const { design_id } = useParams<{ design_id: string }>();
   const [state, setState] = useState<string>("");
   const [current_component, setCurrentComponent] = useState<Component | null>(
     null
   );
+  const [textAlign, setTextAlign] = useState<TextAlign>("center");
   const [color, setColor] = useState<string>("");
   const [image, setImage] = useState<string>("");
   const [rotate, setRotate] = useState<number>(0);
@@ -72,6 +82,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     setColor(a.color ?? "");
     setImage(a.image ?? "");
     setRotate(a.rotate ?? 0);
+    setTextAlign(a.textAlign ?? "center");
     setLeft(a.left ?? "");
     setTop(a.top ?? "");
     setWidth(a.width ?? "");
@@ -199,6 +210,9 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
               if (property === "fontSize") {
                 setFont(value);
                 updatedComponent.font = value;
+              } else if (property === "textAligns") {
+                setTextAlign(value as TextAlign);
+                updatedComponent.textAlign = value as TextAlign;
               } else if (property === "fontFamilys") {
                 console.log(value);
                 setFontFamily(value);
@@ -442,6 +456,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     const style: Component = {
       id: id,
       name: name,
+      textAlign: "center",
       type,
       left: 10,
       top: 10,
@@ -482,6 +497,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
       title: "Add text",
       weight: 400,
       color: "#3c3c3d",
+      textAlign: "center",
       fontFamily: "Arial",
       setCurrentComponent: (a) => setCurrentComponent(a),
       moveElement,
@@ -493,6 +509,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     setFont(16);
     setPadding(0);
     setFontFamily("Arial");
+    setTextAlign("center");
     setSelectItem(id);
     setCurrentComponent(style);
     console.log(style);
@@ -700,11 +717,13 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
     var mainFrame = components.find((c) => c.name === "main_frame");
   }
   return (
-    <div className="min-w-screen h-screen bg-black">
+    <div className="min-w-screen h-screen bg-black overflow-hidden">
       <Header
         components={components}
         projectId={projectId}
         design_id={design_id || ""}
+        showNextButton={showNextButton}
+        onNextClick={onNextClick}
       />
       {/* Provide a default value */}
       <div className="flex h-[calc(100%-60px)] w-screen">
@@ -797,7 +816,7 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
           <div
             className={`${
               show.status ? "p-0 -left-[350px]" : "px-8 left-[100px] py-5"
-            } bg-[#6e7484] h-[92%] absolute transition-all w-[350px] z-30 duration-700`}
+            } bg-[#6e7484] h-[91%] absolute transition-all w-[342px] z-30 duration-700`}
           >
             <div
               onClick={() => setShow({ name: "", status: true })}
@@ -1073,6 +1092,23 @@ const Main: React.FC<MainProps> = ({ projectId, templateData }) => {
                                   {font}
                                 </option>
                               ))}
+                            </select>
+                          </div>
+                          <div className="flex gap-1 justify-start items-start">
+                            <span className="text-md w-[70px]">Align: </span>
+                            <select
+                              onChange={(e) =>
+                                handlePropertyChange(
+                                  "textAligns",
+                                  e.target.value as TextAlign
+                                )
+                              }
+                              className="border border-gray-700 bg-transparent outline-none px-2 rounded-md"
+                              value={textAlign}
+                            >
+                              <option value="left">Left</option>
+                              <option value="center">Center</option>
+                              <option value="right">Right</option>
                             </select>
                           </div>
                           {current_component.type !== "recipientName" && (
