@@ -24,7 +24,6 @@ export function Verification() {
 
   const { data, isLoading, error } = useVerifyCertificationQuery(id ?? "");
   // const canvasRef = useRef(null);
-  const certificateRef = useRef<{ downloadImage: () => void }>(null);
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -34,13 +33,13 @@ export function Verification() {
     }, 2000);
     return <div>Invalid Certification</div>;
   }
+  const certificateRef = useRef<{ downloadImage: () => Promise<void> }>(null);
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (certificateRef.current) {
-      certificateRef.current.downloadImage();
-    }
-    else{
-      console.log("sfafsafafafasf")
+      await certificateRef.current.downloadImage();
+    } else {
+      console.log("Certificate preview ref is not available");
     }
   };
 
@@ -84,7 +83,7 @@ export function Verification() {
                     variant="outline"
                     onClick={handleDownload}
                   >
-                    <DownloadIcon className="w-4 h-4 mr-2" /> 
+                    <DownloadIcon className="w-4 h-4 mr-2" />
                     Download
                   </Button>
                 </div>

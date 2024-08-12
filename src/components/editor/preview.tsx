@@ -1,5 +1,6 @@
 import CertificatePreview from "./CertificatePreview";
 import React, { useRef } from 'react';
+type TextAlign = "left" | "center" | "right";
 type DesignElement = {
   id: number;
   name: string;
@@ -25,6 +26,7 @@ type DesignElement = {
   title?: string;
   weight?: number;
   radius?: number;
+  textAlign?: TextAlign;
   padding?: number;
 };
 
