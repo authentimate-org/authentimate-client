@@ -127,22 +127,6 @@ const projectApi = api.injectEndpoints({
         body:{projectId}
       }),
     }),
-
-
-    
-    // fetchTemplateById: builder.query({
-    //   query: (projectId) => ({
-    //     url: "/project/get-template",
-    //     method: "POST",
-    //     body: { projectId },
-    //   }),
-    // }),
-    fetchBackgroundImages: builder.query<BackgroundImage[], void>({
-      query: () => ({ url: "/background-images", method: "GET" }),
-    }),
-    fetchIntialImages: builder.query<IntialImage[], void>({
-      query: () => ({ url: "/intial-images", method: "GET" }),
-    }),
     updateUserDesign: builder.mutation<
       any,
       { design: FormData }
@@ -176,8 +160,6 @@ export const {
   useUpdateProjectTemplateMutation,
   // useFetchTemplateByIdQuery,
   useFinalizeTemplateMutation,
-  useFetchBackgroundImagesQuery,
-  useFetchIntialImagesQuery,
   useUpdateUserDesignMutation,
   useFetchAddUserImageMutation,
   useFetchGetUserImageQuery,
