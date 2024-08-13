@@ -6,6 +6,7 @@ import {
   useGenerateCertificationMutation,
   useGetCertificationStatusQuery,
 } from "@/api/project/projectApi";
+import FullScreenLoader from "@/components/ui/FullScreenLoader";
 
 type Recipient = {
   recipientName: string;
@@ -28,6 +29,7 @@ export const IssueCertification = () => {
   const { projectId } = useParams<{ projectId: string }>();
   const [generateCertification] = useGenerateCertificationMutation();
   const { refetch } = useGetCertificationStatusQuery(projectId || "", { skip: !projectId });
+  const [loading,setLoading]=useState<boolean>(false)
 
   const handleGenerateCertification = async (projectId: string, recipients: Recipient[]) => {
     setCurrentStage(1);
@@ -74,6 +76,8 @@ export const IssueCertification = () => {
       if (err instanceof Error) {
         setError(err.message);
       }
+    } finally{
+      setLoading(false)
     }
   };
 
@@ -125,6 +129,7 @@ export const IssueCertification = () => {
     if (storedRecipients.length > 0 && projectId) {
       handleGenerateCertification(projectId, storedRecipients);
     } else if (projectId) {
+      setLoading(true)
       handleFetchStatusOnce();
     }
   }, [projectId]);
@@ -134,6 +139,9 @@ export const IssueCertification = () => {
     navigate(`/next-page?data=${encodeURIComponent(recipientsJSON)}`);
   };
 
+  if(loading){
+    return<div><FullScreenLoader/></div>
+  }
   return (
     <div className="max-w-4xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">Processing Your Campaign</h1>

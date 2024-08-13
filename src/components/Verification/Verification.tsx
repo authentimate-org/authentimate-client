@@ -5,6 +5,7 @@
   import { useNavigate, useParams } from "react-router-dom";
   import CertificatePreview from "../editor/CertificatePreview";
   import { useRef } from "react";
+import FullScreenLoader from "../ui/FullScreenLoader";
 
   export function Verification() {
     
@@ -14,7 +15,7 @@
     const {data,isLoading,error}=useVerifyCertificationQuery(id??"")
     const canvasRef=useRef(null)
     if(isLoading){
-      return <div>Loading...</div>
+      return <div><FullScreenLoader/></div>
     }
     if(error){
       setTimeout(()=>{

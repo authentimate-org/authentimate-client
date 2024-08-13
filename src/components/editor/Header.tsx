@@ -5,6 +5,7 @@ import * as htmlToImage from "html-to-image";
 import toast from "react-hot-toast";
 import { useUpdateUserDesignMutation } from "../../api/project/projectApi";
 import { setComponents } from "../../services/project/projectSlice";
+import { Loader } from "lucide-react";
 
 interface HeaderProps {
   components: any;
@@ -85,7 +86,7 @@ const Header: React.FC<HeaderProps> = ({ components,projectId, design_id }) => {
             onClick={saveImage}
             className="px-3 py-[6px] outline-none bg-[#252627] rounded-sm"
           >
-            {loader ? "Loading..." : "Save"}
+            {loader ? <Loader/> : "Save"}
           </button>
           <button
             onClick={downloadImage}
