@@ -116,11 +116,12 @@ export function Recipients() {
   
         // Create a Set of emails that are already in the recipients state
         const existingEmails = new Set(recipients.map(r => r.recipientEmail.toLowerCase()));
-  
+        let invalidcount = 0;
         parsedData.forEach(recipient => {
           const emailLower = recipient.recipientEmail.toLowerCase();
           if (!isValidEmail(emailLower)) {
-            setErrorMessageForValidSheet(`Error: Email for recipient ${recipient.recipientName} is not valid.`);
+            invalidcount=invalidcount+1;
+            setErrorMessageForValidSheet(`Error: Email for  ${invalidcount} ${invalidcount>1?'recipitents are' : 'recipient is'} not valid.`);
           } else if (existingEmails.has(emailLower)) {
             duplicateCount++;
           } else {
