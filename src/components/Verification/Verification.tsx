@@ -16,24 +16,30 @@ import {
 import { useVerifyCertificationQuery } from "@/api/verification/verificationApi";
 import { useNavigate, useParams } from "react-router-dom";
 import CertificatePreview from "../editor/CertificatePreview";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export function Verification() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const certificateRef = useRef<{ downloadImage: () => Promise<void> }>(null);
 
   const { data, isLoading, error } = useVerifyCertificationQuery(id ?? "");
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        navigate("/");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, navigate]);
   // const canvasRef = useRef(null);
   if (isLoading) {
     return <div>Loading...</div>;
   }
   if (error) {
-    setTimeout(() => {
-      navigate("/");
-    }, 2000);
     return <div>Invalid Certification</div>;
   }
-  const certificateRef = useRef<{ downloadImage: () => Promise<void> }>(null);
 
   const handleDownload = async () => {
     if (certificateRef.current) {
@@ -42,12 +48,6 @@ export function Verification() {
       console.log("Certificate preview ref is not available");
     }
   };
-
-  // function f () {
-  //   var dataURL = stage.toDataURL({ pixelRatio: 3 });
-  //   downloadURI(dataURL, 'stage.png');
-  // },
-  // false
 
   return (
     <div className="min-h-screen bg-gray-100">

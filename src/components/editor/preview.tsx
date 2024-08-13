@@ -1,5 +1,5 @@
 import CertificatePreview from "./CertificatePreview";
-import React, { useRef } from 'react';
+// import  { useRef } from 'react';
 type TextAlign = "left" | "center" | "right";
 type DesignElement = {
   id: number;
@@ -242,11 +242,11 @@ const design: DesignElement[] = [
 ];
 
 const PreviewPage = () => {
-  const stageRef = useRef(null);
+  // const stageRef = useRef(null);
   return (
     <div>
       <h1>Preview Page</h1>
-      <CertificatePreview  ref={stageRef} design={design} />
+      {/* <CertificatePreview  ref={stageRef} design={design} /> */}
     </div>
   );
 };
