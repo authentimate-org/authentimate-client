@@ -17,7 +17,7 @@ export interface Info {
   rotate?: number;
   opacity?: number;
   padding?: number;
-  textAlign?: TextAlign;
+  textAlign?: TextAlign;paddingAmount?:number;
   font?: number;
   lineHeight?: number;
   weight?: number;
@@ -110,6 +110,12 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
   //   );
   // }
   if (info.name === "shape" && info.type === "line") {
+    const paddingAmount = 10; // Adjust this value as needed
+    
+    // Calculate the actual position considering the padding
+    const displayLeft = (info.left || 0) - paddingAmount;
+    const displayTop = (info.top || 0) - paddingAmount;
+  
     html = (
       <div
         id={info.id}
@@ -117,30 +123,43 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
         style={{
           position: "absolute",
           opacity: info.opacity,
-          // lineHeight:info.lineheight,
-          left: `${info.left}px`,
-          top: `${info.top}px`,
+          left: `${displayLeft}px`,
+          top: `${displayTop}px`,
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
-          width: `${info.width}px`,
-          height: `${info.lineHeight || 1}px`, // Use lineheight for height, default to 1px
+          width: `${(info.width || 0) + (2 * paddingAmount)}px`,
+          height: `${(2 * paddingAmount) + (info.lineHeight || 1)}px`,
+          cursor: 'move',
         }}
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${
           info.id === selectItem ? "outline" : ""
         } outline-indigo-500`}
       >
         {selectItem === info.id && (
-          <Element id={info.id} info={info} exId={`${info.id}r`} />
+          <Element id={info.id} info={{...info, paddingAmount}}  exId={`${info.id}r`} />
         )}
         <div
-          onMouseDown={() => info.moveElement(info.id, info)}
+          onMouseDown={(e) => {
+            // Pass the padding information to the moveElement function
+            info.moveElement(info.id, { ...info, paddingAmount });
+          }}
           id={`${info.id}r`}
           style={{
             width: "100%",
             height: "100%",
-            backgroundColor: info.color,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-        ></div>
+        >
+          <div
+            style={{
+              width: `${info.width}px`,
+              height: `${info.lineHeight || 1}px`,
+              backgroundColor: info.color,
+            }}
+          />
+        </div>
       </div>
     );
   }
@@ -229,7 +248,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             fontFamily: info.fontFamily,
             width: info.width + "px",
             height: info.height + "px",
-            textAlign: info.textAlign || "center",
+            textAlign: info.textAlign || "center",cursor: 'move'
           }}
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
             info.id === selectItem ? "outline" : ""
@@ -275,7 +294,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             width: info.width + "px",
             height: info.height + "px",
             textAlign: info.textAlign || "center",
-            pointerEvents: "auto",
+            pointerEvents: "auto",cursor: 'move'
           }}
           className={`absolute group outline-indigo-500 outline-2 hover:outline ${
             info.id === selectItem ? "outline" : ""
@@ -312,7 +331,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           top: info.top + "px",
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
-          opacity: info.opacity,
+          opacity: info.opacity,cursor: 'move'
         }}
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${
           info.id === selectItem ? "outline" : ""
@@ -348,7 +367,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           zIndex: info.z_index,
           transform: info.rotate ? `rotate(${info.rotate}deg)` : "rotate(0deg)",
           opacity: info.opacity,
-          pointerEvents: "auto",
+          pointerEvents: "auto",cursor: 'move'
         }}
         className={`absolute group outline-indigo-500 outline-2 hover:outline ${
           info.id === selectItem ? "outline" : ""

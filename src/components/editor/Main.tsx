@@ -243,13 +243,13 @@ const Main: React.FC<MainProps> = ({
   );
 
   const moveElement = useCallback(
-    (id: string, currentInfo: Component) => {
+    (id: string, currentInfo: Component & { paddingAmount?: number }) => {
       setCurrentComponent(currentInfo);
 
       let isMoving = true;
 
       const currentDiv = document.getElementById(id);
-      const canvas = document.getElementById("main_design"); // Assuming the canvas has an id of 'canvas'
+      const canvas = document.getElementById("main_design");
       const canvasRect = canvas?.getBoundingClientRect();
 
       if (!canvasRect) {
@@ -273,14 +273,29 @@ const Main: React.FC<MainProps> = ({
           const width = currentInfo.width ?? currentDiv!.offsetWidth;
           const height = currentInfo.height ?? currentDiv!.offsetHeight;
 
-          left = Math.max(0, Math.min(left, canvasWidth - width));
-          top = Math.max(0, Math.min(top, canvasHeight - height));
+          // Adjust for padding if it exists
+          const paddingAmount = currentInfo.paddingAmount || 0;
+          left = Math.max(
+            -paddingAmount,
+            Math.min(left, canvasWidth - width + paddingAmount)
+          );
+          top = Math.max(
+            -paddingAmount,
+            Math.min(top, canvasHeight - height + paddingAmount)
+          );
 
           currentDiv!.style.left = `${left}px`;
           currentDiv!.style.top = `${top}px`;
         }
-        console.log(id);
-        handlePropertyChange("position", { left, top }, id);
+
+        // Adjust the position to account for padding when updating the component
+        const adjustedLeft = left + (currentInfo.paddingAmount || 0);
+        const adjustedTop = top + (currentInfo.paddingAmount || 0);
+        handlePropertyChange(
+          "position",
+          { left: adjustedLeft, top: adjustedTop },
+          id
+        );
       };
 
       const mouseUp = (e: MouseEvent) => {
@@ -288,8 +303,6 @@ const Main: React.FC<MainProps> = ({
         isMoving = false;
         window.removeEventListener("mousemove", mouseMove);
         window.removeEventListener("mouseup", mouseUp);
-        // setLeft(parseInt(currentDiv!.style.left));
-        // setTop(parseInt(currentDiv!.style.top));
       };
 
       window.addEventListener("mousemove", mouseMove);
@@ -300,16 +313,17 @@ const Main: React.FC<MainProps> = ({
   );
 
   const resizeElement = useCallback(
-    (id: string, currentInfo: Component) => {
+    (id: string, currentInfo: Component & { paddingAmount?: number }) => {
       setCurrentComponent(currentInfo);
       let isMoving = true;
 
       const currentDiv = document.getElementById(id);
-
+      const paddingAmount = currentInfo.paddingAmount || 0;
       const mouseMove = ({ movementX, movementY }: MouseEvent) => {
         const getStyle = window.getComputedStyle(currentDiv!);
-        let width = parseInt(getStyle.width);
-        let height = parseInt(getStyle.height);
+
+        let width = parseInt(getStyle.width) - 2 * paddingAmount;
+        let height = parseInt(getStyle.height) - 2 * paddingAmount;
 
         if (isMoving) {
           if (currentInfo.name === "image" && currentInfo.type === "qrCode") {
@@ -338,8 +352,8 @@ const Main: React.FC<MainProps> = ({
             );
             height = newLineHeight;
 
-            currentDiv!.style.width = `${width}px`;
-            currentDiv!.style.height = `${height}px`;
+            currentDiv!.style.width = `${width + 2 * paddingAmount}px`;
+            currentDiv!.style.height = `${height + 2 * paddingAmount}px`;
           } else {
             currentDiv!.style.width = `${width + movementX}px`;
             currentDiv!.style.height = `${height + movementY}px`;
