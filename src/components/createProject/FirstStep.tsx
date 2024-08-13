@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useCreateProjectMutation } from '@/api/project/projectApi';
 import { setProjectId, setStage, ProjectStage } from '../../services/project/projectSlice';
+import FullScreenLoader from '../ui/FullScreenLoader';
 
 interface FirstStepProps {
   handleChange: (input: keyof UserInput) => (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -80,7 +81,7 @@ const FirstStep: React.FC<FirstStepProps> = ({ nextStep }) => {
         disabled={isLoading}
         className='inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
       >
-        {isLoading ? 'Creating...' : 'Next'}
+        {isLoading ? <FullScreenLoader/> : 'Next'}
       </button>
 
       {isSuccess && <p className='text-green-500'>Project created successfully!</p>}

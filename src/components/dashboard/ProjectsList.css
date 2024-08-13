@@ -1,29 +1,94 @@
+/* Container Styles */
 .tile-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-  
-  .project-tile {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 200px;
-    height: 100px;
-    background-color: #f0f0f0;
-    border-radius: 8px;
-    text-decoration: none;
-    color: inherit;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-  }
-  
-  .project-tile:hover {
-    transform: scale(1.05);
-  }
-  
-  .tile-content {
-    text-align: center;
-    font-weight: bold;
-  }
-  
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 columns per row */
+  gap: 20px; /* Space between tiles */
+  padding: 0; /* Remove padding around the grid */
+  margin: 0; /* Remove margin around the grid */
+  width: 100%; /* Ensure the container takes full width */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+/* Tile Styles */
+.project-tile {
+  position: relative; /* Position relative to contain the absolute positioned button */
+  display: flex;
+  flex-direction: column; /* Stack content and image vertically */
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* Make tile take full width of its container */
+  height: 200px; /* Fixed height for the tiles */
+  background-color: #f8f8f8; /* Light background for tiles */
+  border-radius: 8px; /* Rounded corners */
+  overflow: hidden; /* Ensures the image doesn’t overflow the tile */
+  text-decoration: none; /* Removes underline from text */
+  color: inherit; /* Inherit text color */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for tiles */
+  transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out; /* Smooth transition on hover */
+}
+
+.project-tile:hover {
+  transform: scale(1.05); /* Slight scale effect on hover */
+}
+
+/* Content Styles */
+.tile-content {
+  padding: 16px; /* Padding inside each tile */
+  text-align: center; /* Center the text content */
+  font-weight: bold; /* Bold text */
+  position: relative; /* Allows positioning the button */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Image Styles */
+.template-image {
+  width: 100%; /* Make the image fill the width of the tile */
+  height: 100%; /* Ensures the image covers the full height of the tile */
+  object-fit: cover; /* Ensure the image covers the entire tile area */
+  border-radius: 8px; /* Rounded corners for the image */
+  transition: filter 0.2s ease-in-out; /* Smooth transition for filter on hover */
+}
+
+.project-tile:hover .template-image {
+  filter: blur(4px) grayscale(100%); /* Apply blur and grayscale to the image on hover */
+}
+
+/* Heading Styles */
+h6 {
+  margin: 10px 0 0; /* Margin for the stage text */
+  font-size: 16px; /* Font size */
+  color: #333; /* Text color */
+}
+
+/* Button Styles */
+.action-button {
+  position: absolute; /* Position the button absolutely within the tile */
+  top: 50%; /* Center the button vertically */
+  left: 50%; /* Center the button horizontally */
+  transform: translate(-50%, -50%); /* Adjust the center position */
+  padding: 10px 20px;
+  background-color: #007bff; /* Button color */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.project-tile:hover .action-button {
+  opacity: 1; /* Show the button on hover */
+}
+
+.continue-button {
+  background-color: #28a745; /* Green for continue button */
+}
+
+.open-button {
+  background-color: #17a2b8; /* Blue for open button */
+}

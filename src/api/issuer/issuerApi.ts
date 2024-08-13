@@ -22,6 +22,7 @@ export interface GetUserResponse{
 }
 
 export interface Project{
+  templateImageUrl: string | undefined;
   _id:string;
   projectName:string;
   stage:ProjectStage

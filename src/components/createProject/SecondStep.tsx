@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useFetchTemplatesQuery, useUpdateProjectTemplateMutation } from "../../api/project/projectApi";
+import "./SecondStep.css";
+import FullScreenLoader from "../ui/FullScreenLoader";
 
 interface SecondStepProps {
   handleChange: (
@@ -33,10 +35,8 @@ const SecondStep: React.FC<SecondStepProps> = ({ handleChange, projectId, nextSt
 
   const handleNextStep = async () => {
     if (selectedTemplate) {
-      console.log(projectId)
+      console.log(projectId);
       await updateProjectTemplate({ projectId, premadeTemplateId: selectedTemplate });
-      // dispatch(setTemplate(selectedTemplate));
-      // dispatch(setStage(ProjectStage.TEMPLATE_SELECTED));
       nextStep(selectedTemplate);
     } else {
       console.error("Template must be selected");
@@ -44,7 +44,7 @@ const SecondStep: React.FC<SecondStepProps> = ({ handleChange, projectId, nextSt
   };
 
   if (isLoading) {
-    return <div>Loading templates...</div>;
+    return <div><FullScreenLoader/></div>;
   }
 
   if (isError || !templates) {
@@ -57,11 +57,12 @@ const SecondStep: React.FC<SecondStepProps> = ({ handleChange, projectId, nextSt
         {templates.map((template) => (
           <label
             key={template._id}
-            className={`block p-4 border rounded-lg shadow-md cursor-pointer ${
+            className={`relative template-card ${
               selectedTemplate === template._id
                 ? "bg-green-100 border-green-400"
                 : "bg-white border-gray-300"
             }`}
+            onClick={() => handleTemplateSelect(template._id)}
           >
             <input
               type="radio"
@@ -69,19 +70,11 @@ const SecondStep: React.FC<SecondStepProps> = ({ handleChange, projectId, nextSt
               onChange={() => handleTemplateSelect(template._id)}
               checked={selectedTemplate === template._id}
             />
-            <div className="flex flex-col items-center">
-              <img
-                src={template.templateImageURL}
-                alt={`Template ${template._id}`}
-                className="h-32 w-32 object-cover"
-              />
-              <div className="mt-4 text-center">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  Template {template._id}
-                </h3>
-                <p className="text-gray-600">{template.bgColor}</p>
-              </div>
-            </div>
+            <img
+              src={template.templateImageURL}
+              alt={`Template ${template._id}`}
+            />
+            
           </label>
         ))}
       </div>

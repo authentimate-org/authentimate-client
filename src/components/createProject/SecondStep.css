@@ -1,0 +1,108 @@
+/* Container Styles */
+.max-w-screen-lg {
+  max-width: 1024px;
+  margin: 0 auto;
+}
+
+.p-4 {
+  padding: 16px;
+}
+
+/* Grid Styles */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* Template Styles */
+.relative {
+  position: relative;
+}
+
+.template-card {
+  position: relative;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.template-card:hover {
+  transform: scale(1.05);
+}
+
+.template-card img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.template-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 10;
+}
+
+.template-card:hover .template-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.template-overlay button {
+  background-color: #3b82f6;
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.template-overlay button:hover {
+  background-color: #2563eb;
+}
+
+/* Button Styles */
+button {
+  background-color: #3b82f6;
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2563eb;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+.block {
+  display: block;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}

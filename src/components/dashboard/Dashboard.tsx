@@ -14,6 +14,7 @@ const Dashboard = () => {
   const completedProjects = projectsData?.projects?.filter(
     (project) => project.stage === ProjectStage.MAIL_SENT
   );
+  console.log(completedProjects);
   return (
     <div>
       <Analytics totalProjects={projectsData?.projects?.length??0} totalCertifications={projectsData?.totalCertifications}/>

@@ -4,12 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { ProjectStage } from '../../services/project/projectSlice';
 import './ProjectsList.css';
 
-const ProjectsList: React.FC<{data:Project[]}> = ({data}) => {
-  // const { data: projects, isLoading, isError } = useFetchAllProjectsQuery();
+const ProjectsList: React.FC<{ data: Project[] }> = ({ data }) => {
   const navigate = useNavigate();
-
-  // if (isLoading) return <div>Loading...</div>;
-  // if (isError || !projects) return <div>Error loading projects</div>;
 
   const mapStageToNumber = (stage: string) => {
     switch (stage) {
@@ -24,14 +20,12 @@ const ProjectsList: React.FC<{data:Project[]}> = ({data}) => {
     }
   };
 
-
-  const handleProjectClick = (projectId:string,stage:ProjectStage) => {
+  const handleProjectClick = (projectId: string, stage: ProjectStage) => {
     let navigateUrl;
-    if(stage===ProjectStage.MAIL_SENT || stage===ProjectStage.MAIN_NOT_SENT){
-      navigateUrl=`/finalize/${projectId}`;
-    }
-    else{
-      navigateUrl =  `/create-project/${mapStageToNumber(stage)}/${projectId}` 
+    if (stage === ProjectStage.MAIL_SENT || stage === ProjectStage.MAIN_NOT_SENT) {
+      navigateUrl = `/finalize/${projectId}`;
+    } else {
+      navigateUrl = `/create-project/${mapStageToNumber(stage)}/${projectId}`;
     }
     navigate(navigateUrl);
   };
@@ -39,15 +33,31 @@ const ProjectsList: React.FC<{data:Project[]}> = ({data}) => {
   return (
     <div>
       <div className="tile-container">
-        {data.map(project => (
+        {data.map((project) => (
           <div
             key={project._id}
-            onClick={() => handleProjectClick(project._id,project.stage)}
+            onClick={() => handleProjectClick(project._id, project.stage)}
             className="project-tile cursor-pointer"
           >
             <div className="tile-content">
-              <h3>{project.projectName}</h3>
-              <h6>{project.stage}</h6>
+              {mapStageToNumber(project.stage) >= mapStageToNumber(ProjectStage.TEMPLATE_SELECTED) ||
+              project.stage === ProjectStage.MAIL_SENT ? (
+                <img
+                  src={project.templateImageUrl}
+                  alt="Template Preview"
+                  className="template-image"
+                />
+              ) : (
+                <>
+                  <h6>{project.stage}</h6>
+                </>
+              )}
+              {/* Conditional rendering of buttons based on project stage */}
+              {project.stage === ProjectStage.MAIL_SENT ? (
+                <button className="action-button open-button">Open Project</button>
+              ) : mapStageToNumber(project.stage) <= mapStageToNumber(ProjectStage.TEMPLATE_FINALISED) && (
+                <button className="action-button continue-button">Continue</button>
+              )}
             </div>
           </div>
         ))}

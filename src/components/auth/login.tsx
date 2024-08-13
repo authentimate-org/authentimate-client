@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { RootState } from "../../app/store";
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { Loader } from "lucide-react";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -67,7 +68,7 @@ const Login: React.FC = () => {
               </div>
               {authError && <p className="text-red-500">{authError}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Logging in...' : 'Login'}
+                {isLoading ? <Loader/> : 'Login'}
               </Button>
               <p className="text-center mt-4">
                 Don't have an account? <Link to="/sign-up" className="text-blue-500">Sign Up</Link>

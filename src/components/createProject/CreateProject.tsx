@@ -6,6 +6,7 @@ import ThirdStep from "./ThirdStep";
 import LastStep from "./LastStep";
 import MultiStepProgressBar from "./MultiStepProgressBar";
 import { useLazyFetchProjectQuery } from "@/api/project/projectApi";
+import FullScreenLoader from "../ui/FullScreenLoader";
 
 interface UserInput {
   projectName: string;
@@ -71,6 +72,13 @@ const CreateProject: React.FC = () => {
     setUserInput({ ...userInput, [input]: e.target.value });
   };
 
+  if(isLoading)
+  {
+    <div>
+      <FullScreenLoader/>
+    </div>
+  }
+
   const PageDisplay = () => {
     if (!isLoading) {
       switch (currentPage) {
@@ -94,7 +102,7 @@ const CreateProject: React.FC = () => {
           return null;
       }
     } else {
-      return <div>Loading...</div>;
+      return <div><FullScreenLoader/></div>;
     }
   };
 

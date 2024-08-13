@@ -1,11 +1,12 @@
 import React from 'react';
 import { useFetchAllProjectsQuery } from '@/api/issuer/issuerApi';
 import './CompleteProject.css'; // Add or adjust CSS for styling
+import FullScreenLoader from '../ui/FullScreenLoader';
 
 const CompleteProject: React.FC = () => {
   const { data: projects, isLoading, isError } = useFetchAllProjectsQuery();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <div><FullScreenLoader/></div>;
   if (isError || !projects) return <div>Error loading projects</div>;
 
   const mapStageToNumber = (stage: string) => {
@@ -16,7 +17,7 @@ const CompleteProject: React.FC = () => {
         return 0;
     }
   };
-
+console.log(projects);
   // Filter and map projects
   const completeProjects = projects
     .map(project => ({
@@ -24,7 +25,6 @@ const CompleteProject: React.FC = () => {
       stage: mapStageToNumber(project.stage),
     }))
     .filter(project => project.stage === 4);
-
   return (
     <div>
       <h2 className="text-xl font-bold">Completed Projects</h2>
@@ -32,8 +32,9 @@ const CompleteProject: React.FC = () => {
         {completeProjects.map(project => (
           <div key={project._id} className="project-tile">
             <div className="tile-content">
-              <h3 className="project-name">{project.projectName}</h3>
-              <p className="project-stage">Stage: {project.stage}</p>
+
+              {/* <h3 className="project-name">{project.projectName}</h3>
+              <p className="project-stage">Stage: {project.stage}</p> */}
             </div>
           </div>
         ))}
