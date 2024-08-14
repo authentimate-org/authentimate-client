@@ -56,11 +56,6 @@ const ProjectsList: React.FC<{ data: Project[] }> = ({ data }) => {
                       className="template-image"
                     />
                   ) : (
-                    // <img
-                    //   src=""
-                    //   alt={project.stage}
-                    //   className="template-image"
-                    // />
                     <h3>{project.stage}</h3>
                   )}
                 </div>
