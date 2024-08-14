@@ -121,7 +121,7 @@ export function Recipients() {
           const emailLower = recipient.recipientEmail.toLowerCase();
           if (!isValidEmail(emailLower)) {
             invalidcount=invalidcount+1;
-            setErrorMessageForValidSheet(`Error: Email for  ${invalidcount} ${invalidcount>1?'recipitents are' : 'recipient is'} not valid.`);
+            setErrorMessageForValidSheet(`Error: Email for  ${invalidcount} ${invalidcount>1?'recipients are' : 'recipient is'} not valid.`);
           } else if (existingEmails.has(emailLower)) {
             duplicateCount++;
           } else {
