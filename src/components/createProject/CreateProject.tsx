@@ -97,7 +97,7 @@ const CreateProject: React.FC = () => {
           }
           return <ThirdStep projectId={projectData?._id} nextStep={nextStep} handleChange={handleChange} />;
         case 3:
-          return <LastStep nextStep={nextStep} handleChange={handleChange} />;
+          return <LastStep/>;
         default:
           return null;
       }

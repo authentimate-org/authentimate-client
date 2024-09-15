@@ -41,7 +41,7 @@ const MyImages: React.FC<MyImagesProps> = ({ add_image }) => {
   useEffect(() => {
     if (data) {
       console.log("Fetched Data:", data);
-      setImages(data.images);
+      setImages(data);
     } else if (fetchError) {
       console.error(fetchError);
     }

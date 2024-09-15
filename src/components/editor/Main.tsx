@@ -65,12 +65,12 @@ const Main: React.FC<MainProps> = ({
   );
   const [textAlign, setTextAlign] = useState<TextAlign>("center");
   const [color, setColor] = useState<string>("");
-  const [image, setImage] = useState<string>("");
+  // const [image, setImage] = useState<string>("");
   const [rotate, setRotate] = useState<number>(0);
-  const [left, setLeft] = useState<number | string>("");
-  const [top, setTop] = useState<number | string>("");
-  const [width, setWidth] = useState<number | string>("");
-  const [height, setHeight] = useState<number | string>("");
+  // const [left, setLeft] = useState<number | string>("");
+  // const [top, setTop] = useState<number | string>("");
+  // const [width, setWidth] = useState<number | string>("");
+  // const [height, setHeight] = useState<number | string>("");
   const [opacity, setOpacity] = useState<number | string>("");
   const [zIndex, setzIndex] = useState<number | string>("");
   const [fontFamily, setFontFamily] = useState<string>("");
@@ -80,13 +80,13 @@ const Main: React.FC<MainProps> = ({
 
   const handleResetProperties = (a: Component) => {
     setColor(a.color ?? "");
-    setImage(a.image ?? "");
+    // setImage(a.image ?? "");
     setRotate(a.rotate ?? 0);
     setTextAlign(a.textAlign ?? "center");
-    setLeft(a.left ?? "");
-    setTop(a.top ?? "");
-    setWidth(a.width ?? "");
-    setHeight(a.height ?? "");
+    // setLeft(a.left ?? "");
+    // setTop(a.top ?? "");
+    // setWidth(a.width ?? "");
+    // setHeight(a.height ?? "");
     setOpacity(a.opacity ?? "");
     setRadius(a.radius ?? 0);
     setLineheight(a.lineHeight ?? 1);
@@ -120,7 +120,7 @@ const Main: React.FC<MainProps> = ({
   // };
   const [font, setFont] = useState<number>(12);
   const [weight, setWeight] = useState<number | string>("");
-  const [text, setText] = useState<string>("");
+  // const [text, setText] = useState<string>("");
   const [radius, setRadius] = useState<number>(0);
   const handleClick = () => {
     setElements("text", "text");
@@ -151,15 +151,19 @@ const Main: React.FC<MainProps> = ({
         setCurrentComponent(a);
       },
       rotateElement: function (id: string, info: Component): void {
-        throw new Error("Function not implemented.");
+        console.log(id,info)
+        throw new Error("Function not implemen  ted.");
       },
       resizeElement: function (elementId: string, info: Component): void {
+        console.log(elementId,info)
         throw new Error("Function not implemented.");
       },
       moveElement: function (id: string, info: Component): void {
+        console.log(id,info)
         throw new Error("Function not implemented.");
       },
       removeComponent: function (id: string): void {
+        console.log(id)
         throw new Error("Function not implemented.");
       },
     },
@@ -298,7 +302,7 @@ const Main: React.FC<MainProps> = ({
         );
       };
 
-      const mouseUp = (e: MouseEvent) => {
+      const mouseUp = (_: MouseEvent) => {
         setSelectItem(currentInfo.id);
         isMoving = false;
         window.removeEventListener("mousemove", mouseMove);
@@ -364,7 +368,7 @@ const Main: React.FC<MainProps> = ({
         handlePropertyChange("size", { width, height }, id);
       };
 
-      const mouseUp = (e: MouseEvent) => {
+      const mouseUp = (_: MouseEvent) => {
         isMoving = false;
         window.removeEventListener("mousemove", mouseMove);
         window.removeEventListener("mouseup", mouseUp);
@@ -394,7 +398,7 @@ const Main: React.FC<MainProps> = ({
 
     const target = document.getElementById(id);
 
-    const mouseMove = ({ movementX, movementY }: MouseEvent) => {
+    const mouseMove = ({ movementX }: MouseEvent) => {
       const getStyle = window.getComputedStyle(target!);
 
       const trans = getStyle.transform;
@@ -413,7 +417,7 @@ const Main: React.FC<MainProps> = ({
       }
       target!.style.transform = `rotate(${deg}deg)`;
     };
-    const mouseUp = (e: MouseEvent) => {
+    const mouseUp = (_: MouseEvent) => {
       window.removeEventListener("mousemove", mouseMove);
       window.removeEventListener("mouseup", mouseUp);
 

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
 import * as htmlToImage from "html-to-image";
 import toast from "react-hot-toast";
 import { useUpdateUserDesignMutation } from "../../api/project/projectApi";
@@ -20,7 +19,6 @@ const Header: React.FC<HeaderProps> = ({  components,
   design_id, 
   showNextButton = false, 
   onNextClick  }) => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [loader, setLoader] = useState(false);
   const [updateUserDesign] = useUpdateUserDesignMutation(); 
