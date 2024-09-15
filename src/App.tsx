@@ -3,6 +3,7 @@ import "./App.css";
 import { useAuth } from "./hooks/useAuth";
 
 import AppRouter from "./AppRouter";
+import FullScreenLoader from "./components/ui/FullScreenLoader";
 
 function App() {
   const {  isInitializing} = useAuth(()=>{});
@@ -10,7 +11,7 @@ function App() {
 
 
   if (isInitializing) {
-    return <div>Loading</div>;
+    return <FullScreenLoader/>;
   }
 
   return (

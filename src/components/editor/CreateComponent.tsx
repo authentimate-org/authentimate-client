@@ -292,6 +292,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
             opacity: info.opacity,
             fontFamily: info.fontFamily,
             width: info.width + "px",
+            // width: "100%",
             height: info.height + "px",
             textAlign: info.textAlign || "center",
             pointerEvents: "auto",cursor: 'move'

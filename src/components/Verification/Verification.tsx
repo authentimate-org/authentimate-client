@@ -17,6 +17,7 @@ import { useVerifyCertificationQuery } from "@/api/verification/verificationApi"
 import { useNavigate, useParams } from "react-router-dom";
 import CertificatePreview from "../editor/CertificatePreview";
 import { useEffect, useRef } from "react";
+import FullScreenLoader from "../ui/FullScreenLoader";
 
 export function Verification() {
   const { id } = useParams();
@@ -34,8 +35,13 @@ export function Verification() {
     }
   }, [error, navigate]);
   // const canvasRef = useRef(null);
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div>
+        <FullScreenLoader />
+      </div>
+    );
   }
   if (error) {
     return <div>Invalid Certification</div>;
@@ -63,7 +69,7 @@ export function Verification() {
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="space-y-4">
-            <Card className="p-4">
+            <Card className="p-4 bg-white">
               <CardHeader>
                 <CardTitle>ISSUED TO</CardTitle>
                 <CardDescription>{data?.recipientName}</CardDescription>
@@ -95,7 +101,7 @@ export function Verification() {
                 </div>
               </CardContent>
             </Card>
-            <Card className="p-4">
+            <Card className="p-4 bg-white">
               <CardHeader>
                 <CardTitle>CREDENTIAL VERIFICATION</CardTitle>
               </CardHeader>
@@ -108,7 +114,7 @@ export function Verification() {
               </CardContent>
             </Card>
           </div>
-          <Card className="p-4 lg:col-span-2">
+          <Card className="p-4 lg:col-span-2 bg-white">
             <CardHeader>
               <CardTitle>ISSUED BY</CardTitle>
               <CardDescription>{data?.issuedBy}</CardDescription>

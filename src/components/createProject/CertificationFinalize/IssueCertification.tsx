@@ -6,6 +6,7 @@ import {
   useGenerateCertificationMutation,
   useGetCertificationStatusQuery,
 } from "@/api/project/projectApi";
+import FullScreenLoader from "@/components/ui/FullScreenLoader";
 
 type Recipient = {
   recipientName: string;
@@ -29,6 +30,7 @@ export const IssueCertification = () => {
   const [generateCertification] = useGenerateCertificationMutation();
   const { refetch } = useGetCertificationStatusQuery(projectId || "", { skip: !projectId });
   const [loading,setLoading]=useState<boolean>(false)
+  
 
   const handleGenerateCertification = async (projectId: string, recipients: Recipient[]) => {
     setCurrentStage(1);
@@ -129,6 +131,7 @@ export const IssueCertification = () => {
       handleGenerateCertification(projectId, storedRecipients);
     } else if (projectId) {
       setLoading(true)
+      setLoading(true)
       handleFetchStatusOnce();
     }
   }, [projectId]);
@@ -139,7 +142,7 @@ export const IssueCertification = () => {
   };
 
   if(loading){
-    return<div>Loading...</div>
+    return<FullScreenLoader/>
   }
   return (
     <div className="max-w-4xl mx-auto p-6">

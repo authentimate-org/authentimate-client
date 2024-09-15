@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
+import { Loader } from "lucide-react";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -58,7 +59,7 @@ export default function SignUp() {
               </div>
               {authError && <p className="text-red-500">{authError}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing up..." : "Sign Up"}
+                {isLoading ? <Loader/>: "Sign Up"}
               </Button>
               <p className="text-center mt-4">
                 Already have an account?{" "}
