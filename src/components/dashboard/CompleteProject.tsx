@@ -4,10 +4,10 @@ import './CompleteProject.css'; // Add or adjust CSS for styling
 import FullScreenLoader from '../ui/FullScreenLoader';
 
 const CompleteProject: React.FC = () => {
-  const { data: projects, isLoading, isError } = useFetchAllProjectsQuery();
+  const { data: projectsData, isLoading, isError } = useFetchAllProjectsQuery();
 
   if (isLoading) return <div><FullScreenLoader/></div>;
-  if (isError || !projects) return <div>Error loading projects</div>;
+  if (isError || !projectsData) return <div>Error loading projects</div>;
 
   const mapStageToNumber = (stage: string) => {
     switch (stage) {
@@ -17,9 +17,8 @@ const CompleteProject: React.FC = () => {
         return 0;
     }
   };
-console.log(projects);
   // Filter and map projects
-  const completeProjects = projects
+  const completeProjects = projectsData.projects
     .map(project => ({
       ...project,
       stage: mapStageToNumber(project.stage),

@@ -139,7 +139,7 @@ const CreateComponent: React.FC<CreateComponentProps> = ({
           <Element id={info.id} info={{...info, paddingAmount}}  exId={`${info.id}r`} />
         )}
         <div
-          onMouseDown={(e) => {
+          onMouseDown={(_) => {
             // Pass the padding information to the moveElement function
             info.moveElement(info.id, { ...info, paddingAmount });
           }}
