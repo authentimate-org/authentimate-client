@@ -1,140 +1,197 @@
 import { useEffect, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { auth } from "../config/firebase";
-import {
-  setUser,
-  logoutUser,
-  registerUser,
-  loginUser,
-  verifyEmail,
-} from "../services/auth/authSlice";
-import { useNavigate, useLocation } from "react-router-dom";
+import { setAuth, logoutUser } from "../services/auth/authSlice";
 import { RootState, AppDispatch } from "../app/store";
-import { User, onAuthStateChanged, signOut } from "firebase/auth";
+import { User, onAuthStateChanged, sendEmailVerification, signInWithCustomToken, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import axios from "axios";
+import { setUser } from "@/services/auth/issuerSlice";
 
-interface AuthReturnType {
-  handleRegister: (email: string, password: string) => Promise<void>;
-  handleLogin: (email: string, password: string) => Promise<void>;
-  verifyMail: () => Promise<void>;
-  initializeAuthListener: () => void;
-  isLoading: boolean;
-  authError: any | undefined;
-  isAuthenticated: boolean;
-  isInitializing: boolean;
-  handleLogout: () => Promise<void>;
+interface RegisterResponse {
+  token?: string;
+  error?: string;
 }
 
-export const useAuth = (): AuthReturnType => {
+interface GetUserResponse {
+  isEmailVerified: boolean;
+  onboarding: boolean;
+}
+
+interface AuthReturnType {
+  handleRegister: (email: string, password: string) => Promise<{success:boolean}>;
+  handleLogin: (email: string, password: string) => Promise<{success:boolean}>;
+  handleLogout: () => Promise<void>;
+  isLoading: boolean;
+  authError: any | undefined;
+  isInitializing: boolean;
+  authStatus: "AUTHENTICATED" | "VERIFIED" | "ONBOARDED" | null;
+}
+
+export const useAuth = (navigate: (path: string) => void): AuthReturnType => {
+  const API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL_DEV;
+
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const user = useSelector((state: RootState) => state.auth.user);
-  const token = useSelector((state: RootState) => state.auth.token);
-  const isLoading = useSelector((state: RootState) => state.auth.loading);
-  const authError = useSelector((state: RootState) => state.auth.error);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [authError, setAuthError] = useState<string>("");
+  const { authStatus } = useSelector((state: RootState) => state.auth);
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
 
-  const handleRegister = async (
-    email: string,
-    password: string
-  ): Promise<void> => {
-    const result = await dispatch(registerUser({ email, password }));
-    if (registerUser.fulfilled.match(result)) {
-      navigate("/verify-email");
-      verifyMail();
-    } else {
-      console.error("Error registering user:", result.payload);
-    }
-  };
 
-  const handleLogin = async (
-    email: string,
-    password: string
-  ): Promise<void> => {
-    const result = await dispatch(loginUser({ email, password }));
-    if (loginUser.fulfilled.match(result)) {
-      if (result.payload.user.emailVerified) {
-        navigate("/dashboard");
-      } else {
-        verifyMail();
-        navigate("/verify-email");
-      }
-    } else {
-      console.error("Error logging in:", result.payload);
-    }
-  };
 
-  const verifyMail = async (): Promise<void> => {
-    const result = await dispatch(verifyEmail());
-    if (verifyEmail.fulfilled.match(result)) {
-      const currentUser = auth.currentUser;
-      if (currentUser && currentUser.emailVerified) {
-        navigate("/dashboard");
-      }
-    } else {
-      console.error("Error verifying email:", result.payload);
-    }
-  };
+  const fetchUserDetails = useCallback(async () => {
+    try {
+      if (auth.currentUser) {
+        const idToken = await auth.currentUser.getIdToken();
+        const response = await axios.get<GetUserResponse>(`${API_BASE_URL}/issuer/getUser`, {
+          headers: {
+            Authorization: `Bearer ${idToken}`,
+          },
+        });
 
-  const authStateChanged = useCallback(
-    async (user: User | null) => {
-      const path = location.pathname;
-      if (user) {
-        const token = await user.getIdToken();
-        if (user.emailVerified) {
-          dispatch(setUser({ uid: user.uid, email: user.email, token }));
-          if (
-            path === "/login" ||
-            path === "/sign-up" ||
-            path === "/verify-email"
-          ) {
-            navigate("/dashboard");
-          }
-        } else {
-          if (path === "/login" || path === "/sign-up") {
-            navigate(path);
-          } else if (path !== "/verify-email") {
-            navigate("/verify-email");
+        if (response.data) {
+          dispatch(setUser({ isEmailVerified: response.data.isEmailVerified, isOnboarded: response.data.onboarding }));
+          if (response.data.onboarding) {
+            dispatch(setAuth({ authStatus: "ONBOARDED" }));
+            // navigate("/dashboard")
+          } else {
+            dispatch(setAuth({ authStatus: "VERIFIED" }));
+            navigate("/onboarding")
           }
         }
-      } else {
-        dispatch(logoutUser());
-        if (path === "/dashboard") {
-          navigate("/login");
-        }
       }
+    } catch (error) {
+      console.error("Failed to fetch user details:", error);
+    } finally {
       setIsInitializing(false);
-    },
-    [dispatch, navigate, location.pathname]
-  );
+    }
+  }, [API_BASE_URL, dispatch]);
 
-  const initializeAuthListener = useCallback(() => {
-    const unsubscribe = onAuthStateChanged(auth, authStateChanged);
-    return unsubscribe;
-  }, [authStateChanged]);
 
-  useEffect(() => {
-    const unsubscribe = initializeAuthListener();
-    return () => unsubscribe();
-  }, [initializeAuthListener]);
+
+  const handleRegister = async (email: string, password: string):Promise<{success:boolean}> => {
+    try {
+      setIsLoading(true);
+      const endpoint = "/issuer/signUp";
+      const url = `${API_BASE_URL}${endpoint}`;
+
+      const response = await axios.post<RegisterResponse>(url, { email, password });
+
+      if (response.data.token) {
+        await signInWithCustomToken(auth, response.data.token);
+        if (auth.currentUser) {
+          dispatch(
+            setAuth({
+              uid: auth.currentUser.uid,
+              email: email,
+              token: response.data.token,
+              authStatus: "AUTHENTICATED",
+            })
+          );
+          navigate("/verify-email")
+        }
+        return ({success:true})
+      } else if (response.data.error) {
+        setAuthError(response.data.error);
+        return ({success:false})
+      }
+      return ({success:false})
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        setAuthError(err.response.data.error);
+      } else {
+        console.error("Failed to sign up:", err);
+        setAuthError("An unexpected error occurred. Please try again.");
+      }
+      return ({success:false})
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogin = async (email: string, password: string):Promise<{success:boolean}> => {
+    setIsLoading(true);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();
+      if (!userCredential.user.emailVerified) {
+        sendEmailVerification(userCredential.user);
+        dispatch(setAuth({
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          token,
+          authStatus: "AUTHENTICATED",
+        }));
+        navigate("/verify-email")
+      } else {
+        dispatch(setAuth({
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          token,
+        }));
+        await fetchUserDetails();
+      }
+      return ({success:true})
+      
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response) {
+        setAuthError(error.response.data.error);
+      } else {
+        console.error("Failed to log in:", error);
+        setAuthError("An unexpected error occurred. Please try again.");
+      }
+      return ({success:false})
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
 
   const handleLogout = async () => {
     await signOut(auth);
     dispatch(logoutUser());
-    navigate("/login");
+    navigate("/login")
   };
 
-  const isAuthenticated = !!user && !!token;
+
+
+
+  const authStateChanged = useCallback(
+    async (user: User | null) => {
+      if (user) {
+        const token = await user.getIdToken();
+        if (!user.emailVerified) {
+          dispatch(setAuth({ uid: user.uid, email: user.email, token, authStatus: "AUTHENTICATED" }));
+          setIsInitializing(false)
+        } else {
+          dispatch(setAuth({ uid: user.uid, email: user.email, token }));
+          await fetchUserDetails();
+        }
+      } else {
+        dispatch(logoutUser());
+        setIsInitializing(false);
+      }
+    },
+    [dispatch, fetchUserDetails]
+  );
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, authStateChanged);
+    return () => unsubscribe();
+  }, [authStateChanged]);
+
+
+
+
+ 
 
   return {
     handleRegister,
-    handleLogin,
-    verifyMail,
     handleLogout,
-    initializeAuthListener,
+    handleLogin,
     isLoading,
     authError,
-    isAuthenticated,
     isInitializing,
+    authStatus,
   };
 };

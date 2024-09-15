@@ -1,8 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
+import { useDispatch } from "react-redux";
+import { setStage, ProjectStage } from "../../services/project/projectSlice";
+// import { useFetchTemplateByIdQuery } from '../../api/project/projectApi';
+import Main from "../editor/Main";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/store";
+import { useFinalizeTemplateMutation } from "@/api/project/projectApi";
 
 interface ThirdStepProps {
-  handleChange: (input: keyof UserInput) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  projectId: string;
+  // templateData:Temzz;
   nextStep: () => void;
+  handleChange: (
+    input: keyof UserInput
+  ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 interface UserInput {
@@ -13,62 +24,55 @@ interface UserInput {
   checkboxValue: string;
 }
 
-const ThirdStep: React.FC<ThirdStepProps> = (props) => {
-  const [selectedOption, setSelectedOption] = useState<string>("");
+const ThirdStep: React.FC<ThirdStepProps> = ({ projectId, nextStep }) => {
+  const dispatch = useDispatch();
+  const [finalizeTemplate] = useFinalizeTemplateMutation();
 
-  const handleOptionChange = (value: string) => {
-    setSelectedOption(value);
-    props.handleChange("checkboxValue")(value as any); // TypeScript workaround for type assertion
+  const templateData = useSelector(
+    (state: RootState) => state.project.components
+  );
+  // const { data: templateData, isLoading, isError } = useFetchTemplateByIdQuery(projectId);
+
+  if (!projectId || !templateData) {
+    console.log(projectId);
+    console.log(templateData);
+    // return <Navigate to={`/create-project/1/${projectId}`}/>;
+  }
+
+  const handleNextStep = () => {
+    if (projectId) {
+      finalizeTemplate(projectId);
+      dispatch(setStage(ProjectStage.TEMPLATE_FINALISED));
+    }
+    nextStep();
   };
+
+  // if (isLoading) {
+  //   return <div>Loading template...</div>;
+  // }
+
+  // if (isError || !templateData) {
+  //   return <div>Error loading template</div>;
+  // }
 
   return (
     <>
-      <div className="card-container max-w-md mx-auto ">
-        <label
-          className={`card-input cursor-pointer ${
-            selectedOption === "Individual" ? "bg-green-100" : "bg-white"
-          }`}
+      <div className="max-w-4xl mx-auto">
+        {/*   */}
+        {/* <h3 className="text-xl mb-4">Selected Template: {template}</h3> */}
+        {/* <button
+          onClick={handleNextStep}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
         >
-          <input
-            type="radio"
-            className="card-input-element hidden"
-            onChange={() => handleOptionChange("Individual")}
-            checked={selectedOption === "Individual"}
-          />
-          <div className="card-body p-4 border rounded-lg shadow-md hover:shadow-lg">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">For myself</h3>
-            <p className="text-gray-600">
-              Write better things more clearly. Stay organized.
-            </p>
-          </div>
-        </label>
-
-        <label
-          className={`card-input cursor-pointer ${
-            selectedOption === "Company" ? "bg-blue-300" : "bg-white"
-          }`}
-        >
-          <input
-            type="radio"
-            className="card-input-element hidden"
-            onChange={() => handleOptionChange("Company")}
-            checked={selectedOption === "Company"}
-          />
-          <div className="card-body p-4 border rounded-lg shadow-md hover:shadow-lg">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">With my team</h3>
-            <p className="text-gray-600">
-              Wikis, docs, tasks, and projects, all in one place.
-            </p>
-          </div>
-        </label>
+          Next
+        </button> */}
       </div>
-
-      <button
-        onClick={props.nextStep}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 block mx-auto"
-      >
-        Next
-      </button>
+      <Main
+        projectId={projectId}
+        templateData={templateData}
+        showNextButton={true}
+        onNextClick={handleNextStep}
+      />
     </>
   );
 };

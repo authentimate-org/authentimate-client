@@ -1,0 +1,36 @@
+.tile-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .project-tile {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    width: 200px; /* Adjust as needed */
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .project-tile:hover {
+    transform: scale(1.05);
+  }
+  
+  .tile-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .project-name {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+  
+  .project-stage {
+    font-size: 0.875rem;
+    color: gray;
+  }
+  
